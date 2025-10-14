@@ -1,5 +1,14 @@
 @import "tailwindcss";
 
+/* PrimeReact Core CSS */
+@import "primereact/resources/primereact.min.css";
+
+/* PrimeReact Theme - Using Lara Light Blue theme */
+@import "primereact/resources/themes/lara-light-blue/theme.css";
+
+/* PrimeIcons */
+@import "primeicons/primeicons.css";
+
 :root {
   --background: #ffffff;
   --foreground: #171717;

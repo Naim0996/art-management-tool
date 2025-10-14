@@ -9,7 +9,7 @@ export default function Home() {
       </header>
       
       <main className="max-w-6xl mx-auto">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           <Link href="/shop" className="block p-8 border rounded-lg hover:shadow-lg transition-shadow bg-white">
             <h2 className="text-2xl font-semibold mb-4">🛍️ Shop</h2>
             <p className="text-gray-600">Browse and purchase artwork from our collection</p>
@@ -18,6 +18,11 @@ export default function Home() {
           <Link href="/admin" className="block p-8 border rounded-lg hover:shadow-lg transition-shadow bg-white">
             <h2 className="text-2xl font-semibold mb-4">🔐 Admin</h2>
             <p className="text-gray-600">Manage products and inventory (requires login)</p>
+          </Link>
+
+          <Link href="/primereact-demo" className="block p-8 border rounded-lg hover:shadow-lg transition-shadow bg-white">
+            <h2 className="text-2xl font-semibold mb-4">🎨 PrimeReact Demo</h2>
+            <p className="text-gray-600">Explore PrimeReact components and themes</p>
           </Link>
         </div>
         
@@ -28,6 +33,7 @@ export default function Home() {
             <li>Add items to cart</li>
             <li>Multiple payment methods</li>
             <li>Admin dashboard for product management</li>
+            <li>PrimeReact UI components with beautiful themes</li>
           </ul>
         </div>
       </main>
