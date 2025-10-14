@@ -13,131 +13,139 @@ This guide provides instructions for deploying the Art Management Tool to produc
 
 ## Prerequisites
 
-- AWS account (for infrastructure deployment)
-- Terraform installed (>= 1.0)
-- Go installed (>= 1.24)
-- Node.js installed (>= 20)
-- Docker (optional, for containerized deployment)
+- Docker and Docker Compose installed (recommended)
+- Go installed (>= 1.24) - for local development
+- Node.js installed (>= 20) - for local development
+- AWS account (optional, for cloud deployment)
+- Terraform installed (>= 1.0) - optional, for AWS infrastructure
 
-## Infrastructure Deployment
+## Quick Start with Docker (Recommended)
 
-### 1. Deploy Infrastructure with Terraform
+The easiest way to deploy the entire application stack is using Docker Compose:
+
+### 1. Using Docker Compose
 
 ```bash
-cd infrastructure
-terraform init
-terraform plan
-terraform apply
+# Clone the repository
+git clone https://github.com/Naim0996/art-management-tool.git
+cd art-management-tool
+
+# Start all services
+docker compose up -d
+
+# View logs
+docker compose logs -f
+
+# Stop all services
+docker compose down
 ```
 
-This creates:
-- VPC with public subnets
-- Security groups for backend and frontend
-- Internet Gateway and routing
+The application will be available at:
+- Frontend: http://localhost:3000
+- Backend API: http://localhost:8080
 
-### 2. Note the Outputs
+### 2. Individual Docker Containers
 
-After applying, note the output values:
-- `vpc_id`
-- `public_subnet_ids`
-- `backend_security_group_id`
-- `frontend_security_group_id`
+If you prefer to run services separately:
 
-## Backend Deployment
+#### Backend:
+```bash
+cd backend
+docker build -t art-backend .
+docker run -p 8080:8080 art-backend
+```
 
-### Option 1: EC2 Deployment
+#### Frontend:
+```bash
+cd frontend
+docker build -t art-frontend .
+docker run -p 3000:3000 -e NEXT_PUBLIC_API_URL=http://localhost:8080 art-frontend
+```
 
-1. Launch an EC2 instance in the created VPC
-2. SSH into the instance
-3. Install Go:
+### 3. Docker in Production
+
+For production deployment:
+
+1. Build and tag images:
    ```bash
-   wget https://go.dev/dl/go1.24.linux-amd64.tar.gz
-   sudo tar -C /usr/local -xzf go1.24.linux-amd64.tar.gz
-   export PATH=$PATH:/usr/local/go/bin
-   ```
-4. Clone and run the backend:
-   ```bash
-   git clone https://github.com/Naim0996/art-management-tool.git
-   cd art-management-tool/backend
-   go build -o art-backend
-   ./art-backend
-   ```
-
-### Option 2: Docker Deployment
-
-1. Create a Dockerfile in the backend directory:
-   ```dockerfile
-   FROM golang:1.24-alpine
-   WORKDIR /app
-   COPY . .
-   RUN go build -o art-backend
-   EXPOSE 8080
-   CMD ["./art-backend"]
+   docker build -t your-registry/art-backend:latest ./backend
+   docker build -t your-registry/art-frontend:latest ./frontend
    ```
 
-2. Build and push to registry:
+2. Push to container registry:
    ```bash
-   docker build -t art-backend .
-   docker tag art-backend:latest your-registry/art-backend:latest
    docker push your-registry/art-backend:latest
+   docker push your-registry/art-frontend:latest
    ```
 
-### Option 3: AWS ECS/Fargate
+3. Deploy using docker-compose or orchestration platform (Kubernetes, Docker Swarm, etc.)
 
-1. Create an ECS cluster in the VPC
-2. Define a task definition using the Docker image
-3. Create a service with the task definition
-4. Configure load balancer
+## Alternative Deployment Options
 
-## Frontend Deployment
+### Local Development Deployment
 
-### Option 1: Vercel (Recommended for Next.js)
+#### Backend Setup (without Docker)
 
-1. Connect your GitHub repository to Vercel
-2. Configure environment variables:
-   ```
-   NEXT_PUBLIC_API_URL=https://your-backend-url
-   ```
-3. Deploy automatically on push
-
-### Option 2: AWS Amplify
-
-1. Connect your GitHub repository
-2. Configure build settings:
-   ```yaml
-   version: 1
-   frontend:
-     phases:
-       preBuild:
-         commands:
-           - cd frontend
-           - npm install
-       build:
-         commands:
-           - npm run build
-     artifacts:
-       baseDirectory: frontend/.next
-       files:
-         - '**/*'
-     cache:
-       paths:
-         - node_modules/**/*
+1. Navigate to the backend directory:
+   ```bash
+   cd backend
    ```
 
-### Option 3: Static Export to S3 + CloudFront
+2. Install dependencies:
+   ```bash
+   go mod download
+   ```
 
-1. Build the frontend:
+3. Run the server:
+   ```bash
+   go run main.go
+   ```
+
+#### Frontend Setup (without Docker)
+
+1. Navigate to the frontend directory:
    ```bash
    cd frontend
-   npm run build
    ```
 
-2. Create S3 bucket and upload:
+2. Install dependencies:
    ```bash
-   aws s3 sync .next/static s3://your-bucket-name/
+   npm install
    ```
 
-3. Configure CloudFront distribution
+3. Run the development server:
+   ```bash
+   npm run dev
+   ```
+
+### Cloud Deployment Options
+
+#### Option 1: AWS ECS/Fargate
+
+1. Push Docker images to Amazon ECR
+2. Create an ECS cluster
+3. Define task definitions using the Docker images
+4. Create services with the task definitions
+5. Configure Application Load Balancer
+
+#### Option 2: Vercel + Backend Hosting
+
+1. Deploy frontend to Vercel:
+   - Connect your GitHub repository to Vercel
+   - Configure environment variable: `NEXT_PUBLIC_API_URL=https://your-backend-url`
+   - Deploy automatically on push
+
+2. Deploy backend to any Docker-compatible hosting:
+   - AWS ECS/Fargate
+   - Google Cloud Run
+   - Azure Container Instances
+   - DigitalOcean App Platform
+   - Fly.io
+   - Railway
+
+#### Option 3: Traditional Infrastructure (AWS)
+
+If you need to deploy with traditional AWS infrastructure using Terraform, see the [Infrastructure README](./infrastructure/README.md) for details. Note that this approach requires more setup and may incur higher costs compared to containerized deployments.
 
 ## Environment Configuration
 
@@ -175,42 +183,81 @@ For production, replace in-memory storage with a database:
 
 ## Monitoring and Logging
 
-1. Set up CloudWatch for AWS resources
+### Docker Deployment
+
+1. Use `docker compose logs` for viewing logs:
+   ```bash
+   docker compose logs -f backend
+   docker compose logs -f frontend
+   ```
+
+2. Implement centralized logging (optional):
+   - ELK Stack (Elasticsearch, Logstash, Kibana)
+   - Grafana + Loki
+   - Papertrail
+
+3. Container monitoring:
+   - Docker stats: `docker stats`
+   - cAdvisor for detailed metrics
+   - Prometheus + Grafana
+
+### Cloud Deployment
+
+1. AWS: Use CloudWatch for logs and metrics
 2. Configure application logging
 3. Set up alerts for errors and performance issues
-4. Use APM tools like DataDog or New Relic
+4. Use APM tools like DataDog, New Relic, or Application Insights
 
 ## CI/CD Pipeline
 
-### GitHub Actions Example
+### GitHub Actions Example (Docker)
 
 ```yaml
-name: Deploy
+name: Build and Deploy Docker Images
 on:
   push:
     branches: [main]
 
 jobs:
-  deploy-backend:
+  build-and-push:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - name: Build and deploy backend
-        run: |
-          cd backend
-          go build -o art-backend
-          # Deploy to your infrastructure
+      - uses: actions/checkout@v3
+      
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+      
+      - name: Login to Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ${{ secrets.REGISTRY_URL }}
+          username: ${{ secrets.REGISTRY_USERNAME }}
+          password: ${{ secrets.REGISTRY_PASSWORD }}
+      
+      - name: Build and push backend
+        uses: docker/build-push-action@v4
+        with:
+          context: ./backend
+          push: true
+          tags: ${{ secrets.REGISTRY_URL }}/art-backend:latest
+      
+      - name: Build and push frontend
+        uses: docker/build-push-action@v4
+        with:
+          context: ./frontend
+          push: true
+          tags: ${{ secrets.REGISTRY_URL }}/art-frontend:latest
 
-  deploy-frontend:
+  deploy:
+    needs: build-and-push
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - name: Build and deploy frontend
+      - name: Deploy to production
         run: |
-          cd frontend
-          npm install
-          npm run build
-          # Deploy to your infrastructure
+          # SSH to server and pull new images
+          # docker compose pull
+          # docker compose up -d
+          echo "Deploy to your infrastructure"
 ```
 
 ## Scaling Considerations
@@ -223,17 +270,32 @@ jobs:
 
 ## Backup and Recovery
 
-1. Regular database backups
-2. Infrastructure state backups (Terraform state)
-3. Code repository backups
-4. Disaster recovery plan
+1. **Database backups**: Regular backups if using persistent database
+2. **Docker volumes**: Backup Docker volumes containing persistent data
+3. **Container images**: Push images to container registry for version control
+4. **Code repository**: Maintain Git repository backups
+5. **Configuration**: Version control docker-compose.yml and environment files
+6. **Disaster recovery plan**: Document recovery procedures
 
 ## Cost Optimization
 
-1. Use auto-scaling for compute resources
+### Docker Deployment
+
+1. Use multi-stage builds to reduce image sizes (already implemented)
 2. Implement caching to reduce API calls
+3. Run on cost-effective platforms:
+   - DigitalOcean Droplets
+   - Hetzner Cloud
+   - OVH Cloud
+   - Linode
+4. Use Docker resource limits to optimize usage
+
+### Cloud Deployment
+
+1. Use auto-scaling for compute resources
+2. Use spot/preemptible instances where appropriate
 3. Use reserved instances for predictable workloads
-4. Monitor and optimize resource usage
+4. Monitor and optimize resource usage with cloud cost management tools
 
 ## Support and Maintenance
 

@@ -1,6 +1,8 @@
-# Infrastructure
+# Infrastructure (Optional)
 
-This directory contains Terraform configurations for deploying the art management tool infrastructure.
+**Note**: This directory contains Terraform configurations for AWS cloud deployment. For most use cases, we recommend using Docker and Docker Compose instead (see main [README.md](../README.md) and [DEPLOYMENT.md](../DEPLOYMENT.md)).
+
+This Terraform configuration is provided for advanced users who need to deploy on AWS infrastructure.
 
 ## Resources
 
@@ -58,7 +60,16 @@ After applying, you'll get:
 ## Next Steps
 
 After infrastructure is provisioned:
-1. Deploy the backend application to EC2 instances or ECS
-2. Deploy the frontend to S3 with CloudFront or EC2
+1. Deploy Docker containers to ECS/Fargate using the images from the Docker builds
+2. Or deploy the backend application to EC2 instances
 3. Configure DNS and SSL certificates
 4. Set up monitoring and logging
+
+## Recommended Approach
+
+For simpler and more cost-effective deployment, consider using:
+- Docker Compose on a single VPS (DigitalOcean, Hetzner, Linode)
+- Managed container services (AWS ECS, Google Cloud Run, Azure Container Instances)
+- Platform-as-a-Service offerings (Fly.io, Railway, Render)
+
+See [DEPLOYMENT.md](../DEPLOYMENT.md) for Docker-based deployment instructions.

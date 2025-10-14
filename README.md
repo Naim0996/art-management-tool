@@ -30,11 +30,35 @@ art-management-tool/
 
 - **Backend**: Go (Golang) with Gorilla Mux
 - **Frontend**: Next.js with TypeScript and Tailwind CSS
-- **Infrastructure**: Terraform for AWS
+- **Deployment**: Docker and Docker Compose
+- **Infrastructure** (Optional): Terraform for AWS cloud deployment
 
 ## Quick Start
 
-### Backend Setup
+### Option 1: Using Docker (Recommended)
+
+The fastest way to run the entire application:
+
+```bash
+# Start all services
+docker compose up -d
+
+# View logs
+docker compose logs -f
+
+# Stop all services
+docker compose down
+```
+
+The application will be available at:
+- **Frontend**: http://localhost:3000
+- **Backend API**: http://localhost:8080
+
+For detailed Docker instructions, see [DOCKER.md](./DOCKER.md)
+
+### Option 2: Local Development
+
+#### Backend Setup
 
 1. Navigate to the backend directory:
    ```bash
@@ -53,7 +77,7 @@ art-management-tool/
 
 The backend API will be available at `http://localhost:8080`
 
-### Frontend Setup
+#### Frontend Setup
 
 1. Navigate to the frontend directory:
    ```bash
@@ -71,24 +95,6 @@ The backend API will be available at `http://localhost:8080`
    ```
 
 The frontend will be available at `http://localhost:3000`
-
-### Infrastructure Setup
-
-1. Navigate to the infrastructure directory:
-   ```bash
-   cd infrastructure
-   ```
-
-2. Initialize Terraform:
-   ```bash
-   terraform init
-   ```
-
-3. Review and apply:
-   ```bash
-   terraform plan
-   terraform apply
-   ```
 
 ## API Endpoints
 
@@ -139,19 +145,20 @@ The frontend is built with Next.js 15 and uses:
 - Tailwind CSS for styling
 - App Router for routing
 
-### Infrastructure
-The Terraform configuration sets up:
+### Docker Development
+The project includes Docker configurations for easy deployment:
+- Multi-stage builds for optimized image sizes
+- Docker Compose for orchestrating services
+- Health checks for service reliability
+- Production-ready configurations
+
+### Cloud Infrastructure (Optional)
+For AWS cloud deployment, the Terraform configuration sets up:
 - VPC with public subnets
 - Security groups for backend and frontend
 - Internet Gateway and routing
 
-For production deployment, consider adding:
-- Load balancers
-- Auto-scaling groups
-- RDS database
-- S3 for static assets
-- CloudFront CDN
-- Route53 for DNS
+See [DEPLOYMENT.md](./DEPLOYMENT.md) for detailed deployment instructions.
 
 ## Contributing
 
