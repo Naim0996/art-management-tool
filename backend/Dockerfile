@@ -10,7 +10,7 @@ WORKDIR /app
 COPY . .
 
 # Download dependencies (with vendor fallback)
-RUN go mod download || go mod vendor || true
+RUN go mod download || go mod vendor
 
 # Build the application
 RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o art-backend .
