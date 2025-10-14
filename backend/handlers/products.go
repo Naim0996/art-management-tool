@@ -3,6 +3,7 @@ package handlers
 import (
 	"encoding/json"
 	"net/http"
+	"strconv"
 	"sync"
 
 	"github.com/Naim0996/art-management-tool/backend/models"
@@ -79,11 +80,11 @@ func CreateProduct(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Invalid request body", http.StatusBadRequest)
 		return
 	}
-
 	productsMu.Lock()
 	productID++
-	product.ID = string(rune(productID + 48)) // Simple ID generation
+	product.ID = strconv.Itoa(productID) // Proper ID generation
 	products[product.ID] = product
+	productsMu.Unlock()
 	productsMu.Unlock()
 
 	w.Header().Set("Content-Type", "application/json")
