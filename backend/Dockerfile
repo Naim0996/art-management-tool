@@ -18,7 +18,7 @@ RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o art-backend .
 # Runtime stage
 FROM alpine:latest
 
-RUN apk --no-cache add ca-certificates curl || true
+RUN apk --no-cache add ca-certificates curl
 
 WORKDIR /root/
 
