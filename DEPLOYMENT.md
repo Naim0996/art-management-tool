@@ -31,13 +31,13 @@ git clone https://github.com/Naim0996/art-management-tool.git
 cd art-management-tool
 
 # Start all services
-docker-compose up -d
+docker compose up -d
 
 # View logs
-docker-compose logs -f
+docker compose logs -f
 
 # Stop all services
-docker-compose down
+docker compose down
 ```
 
 The application will be available at:
@@ -185,10 +185,10 @@ For production, replace in-memory storage with a database:
 
 ### Docker Deployment
 
-1. Use `docker-compose logs` for viewing logs:
+1. Use `docker compose logs` for viewing logs:
    ```bash
-   docker-compose logs -f backend
-   docker-compose logs -f frontend
+   docker compose logs -f backend
+   docker compose logs -f frontend
    ```
 
 2. Implement centralized logging (optional):
@@ -255,8 +255,8 @@ jobs:
       - name: Deploy to production
         run: |
           # SSH to server and pull new images
-          # docker-compose pull
-          # docker-compose up -d
+          # docker compose pull
+          # docker compose up -d
           echo "Deploy to your infrastructure"
 ```
 

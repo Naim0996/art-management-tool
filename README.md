@@ -41,18 +41,20 @@ The fastest way to run the entire application:
 
 ```bash
 # Start all services
-docker-compose up -d
+docker compose up -d
 
 # View logs
-docker-compose logs -f
+docker compose logs -f
 
 # Stop all services
-docker-compose down
+docker compose down
 ```
 
 The application will be available at:
 - **Frontend**: http://localhost:3000
 - **Backend API**: http://localhost:8080
+
+For detailed Docker instructions, see [DOCKER.md](./DOCKER.md)
 
 ### Option 2: Local Development
 
