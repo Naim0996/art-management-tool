@@ -23,8 +23,10 @@ interface Product {
   status: string;
 }
 
+type City = { name: string; code: string };
+
 export default function PrimeReactDemo() {
-  const [selectedCity, setSelectedCity] = useState(null);
+  const [selectedCity, setSelectedCity] = useState<City | null>(null);
   const [date, setDate] = useState<Date | null>(null);
   const [visible, setVisible] = useState(false);
   const [searchValue, setSearchValue] = useState('');
