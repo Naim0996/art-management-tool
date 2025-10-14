@@ -2,7 +2,7 @@
 FROM golang:1.24-alpine AS builder
 
 # Install ca-certificates for downloading dependencies
-RUN apk --no-cache add ca-certificates || true
+RUN apk --no-cache add ca-certificates
 
 WORKDIR /app
 
