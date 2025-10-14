@@ -137,8 +137,6 @@ docker push your-registry/art-frontend:v1.0.0
 Update your production `docker-compose.yml` to use the registry images:
 
 ```yaml
-version: '3.8'
-
 services:
   backend:
     image: your-registry/art-backend:v1.0.0
