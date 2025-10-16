@@ -1,10 +1,108 @@
+"use client";
 import Link from "next/link";
+import Image from "next/image";
+
+import { Avatar } from "primereact/avatar";
+import { Button } from "primereact/button";
+import { MegaMenu } from "primereact/megamenu";
+import { Ripple } from "primereact/ripple";
+import { useRouter } from "next/navigation";
+
 
 export default function Home() {
+  const navRouter = useRouter();
+
+  const itemRenderer = (item: any, options: any) => {
+    if (item.root) {
+      return (
+        <a className="flex align-items-center cursor-pointer px-3 py-2 overflow-hidden relative font-semibold text-lg uppercase p-ripple hover:surface-ground" style={{ borderRadius: '2rem' }} onClick={() => options.onClick && options.onClick()} >
+          <span className={item.icon} />
+          <span className="ml-2">{item.label}</span>
+          <Ripple />
+        </a>
+      );
+    } else if (!item.image) {
+      return (
+        <a className="flex align-items-center p-3 cursor-pointer mb-2 gap-2 " onClick={() => options.onClick && options.onClick()}>
+          <span className="inline-flex align-items-center justify-content-center border-circle bg-primary w-3rem h-3rem">
+            <i className={`${item.icon} text-lg`}></i>
+          </span>
+          <span className="inline-flex flex-column gap-1">
+            <span className="font-medium text-lg text-900">{item.label}</span>
+            <span className="white-space-nowrap">{item.subtext}</span>
+          </span>
+        </a>
+      );
+    } else {
+      return (
+        <div className="flex flex-column align-items-start gap-3" onClick={() => options.onClick && options.onClick()}>
+          <img alt="megamenu-demo" src={item.image} className="w-full" />
+          <span>{item.subtext}</span>
+          <Button className="p-button p-component p-button-outlined" label={item.label} />
+        </div>
+      );
+    }
+  };
+  const items = [
+    {
+      label: 'Home',
+      root: true,
+      template: itemRenderer,
+      command: () => {
+        navRouter.push('/');
+      }
+    },
+    {
+      label: '🎨 Art Gallery',
+      root: true,
+      template: itemRenderer,
+      items: [
+        [
+          {
+            items: [
+              {
+                label: 'Fumetti', icon: 'pi pi-list', template: itemRenderer, command: () => {
+                  navRouter.push('/fumetti');
+                },
+              },
+              {
+                label: 'Personaggi', icon: 'pi pi-users', template: itemRenderer, command: () => {
+                  navRouter.push('/personaggi');
+                },
+              }
+            ]
+          }
+        ]
+      ]
+    },
+    {
+      label: 'Contact',
+      root: true,
+      template: itemRenderer
+    }
+  ];
+
+  const end = <Avatar image="https://primefaces.org/cdn/primereact/images/avatar/amyelsner.png" shape="circle" />;
+
+  const start = <Image src="/logo.jpeg" alt="Logo" width={75} height={25} />;
+
+
+
+
+
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-purple-50 to-white">
       {/* Navigation Bar */}
-      <nav className="bg-white shadow-md sticky top-0 z-50">
+      <div className="card">
+        <MegaMenu model={items} orientation="horizontal" start={start} end={end} breakpoint="960px" className="p-3 surface-0 shadow-2" style={{ borderRadius: '3rem' }} />
+      </div>
+
+
+
+
+
+      {/* <nav className="bg-white shadow-md sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center">
@@ -31,7 +129,7 @@ export default function Home() {
             </div>
           </div>
         </div>
-      </nav>
+      </nav> */}
 
       {/* Hero Section */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
@@ -98,7 +196,7 @@ export default function Home() {
             <h2 className="text-2xl font-semibold mb-4 text-gray-900">Shop</h2>
             <p className="text-gray-600">Browse and purchase artwork from our collection</p>
           </Link>
-          
+
           <Link href="/cart" className="block p-8 border-2 border-purple-200 rounded-lg hover:shadow-xl transition-shadow bg-white hover:border-purple-400">
             <div className="text-5xl mb-4">🛒</div>
             <h2 className="text-2xl font-semibold mb-4 text-gray-900">Shopping Cart</h2>
@@ -110,7 +208,7 @@ export default function Home() {
             <h2 className="text-2xl font-semibold mb-4 text-gray-900">Checkout</h2>
             <p className="text-gray-600">Complete your purchase securely</p>
           </Link>
-          
+
           <Link href="/admin" className="block p-8 border-2 border-purple-200 rounded-lg hover:shadow-xl transition-shadow bg-white hover:border-purple-400">
             <div className="text-5xl mb-4">🔐</div>
             <h2 className="text-2xl font-semibold mb-4 text-gray-900">Admin</h2>
@@ -129,7 +227,7 @@ export default function Home() {
             <p className="text-gray-600">Sign in to access admin features</p>
           </Link>
         </div>
-        
+
         {/* Features Section */}
         <div className="mt-16 p-8 bg-white rounded-lg shadow-lg">
           <h3 className="text-3xl font-bold mb-6 text-center text-gray-900">Platform Features</h3>
