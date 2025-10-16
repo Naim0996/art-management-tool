@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { PrimeReactProvider } from 'primereact/api';
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -13,9 +14,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className="antialiased">
-        {children}
-      </body>
+      <PrimeReactProvider>
+        <body className="antialiased">
+          {children}
+        </body>
+      </PrimeReactProvider>
     </html>
   );
 }
