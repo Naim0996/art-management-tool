@@ -1,138 +1,14 @@
-"use client";
+
 import Link from "next/link";
-import Image from "next/image";
-
-import { Avatar } from "primereact/avatar";
-import { Button } from "primereact/button";
-import { MegaMenu } from "primereact/megamenu";
-import { Ripple } from "primereact/ripple";
-import { useRouter } from "next/navigation";
-
 
 export default function Home() {
-  const navRouter = useRouter();
-
-  const itemRenderer = (item: any, options: any) => {
-    if (item.root) {
-      return (
-        <a className="flex align-items-center cursor-pointer px-3 py-2 overflow-hidden relative font-semibold text-lg uppercase p-ripple hover:surface-ground" style={{ borderRadius: '2rem' }} onClick={() => options.onClick && options.onClick()} >
-          <span className={item.icon} />
-          <span className="ml-2">{item.label}</span>
-          <Ripple />
-        </a>
-      );
-    } else if (!item.image) {
-      return (
-        <a className="flex align-items-center p-3 cursor-pointer mb-2 gap-2 " onClick={() => options.onClick && options.onClick()}>
-          <span className="inline-flex align-items-center justify-content-center border-circle bg-primary w-3rem h-3rem">
-            <i className={`${item.icon} text-lg`}></i>
-          </span>
-          <span className="inline-flex flex-column gap-1">
-            <span className="font-medium text-lg text-900">{item.label}</span>
-            <span className="white-space-nowrap">{item.subtext}</span>
-          </span>
-        </a>
-      );
-    } else {
-      return (
-        <div className="flex flex-column align-items-start gap-3" onClick={() => options.onClick && options.onClick()}>
-          <img alt="megamenu-demo" src={item.image} className="w-full" />
-          <span>{item.subtext}</span>
-          <Button className="p-button p-component p-button-outlined" label={item.label} />
-        </div>
-      );
-    }
-  };
-  const items = [
-    {
-      label: 'Home',
-      root: true,
-      template: itemRenderer,
-      command: () => {
-        navRouter.push('/');
-      }
-    },
-    {
-      label: '🎨 Art Gallery',
-      root: true,
-      template: itemRenderer,
-      items: [
-        [
-          {
-            items: [
-              {
-                label: 'Fumetti', icon: 'pi pi-list', template: itemRenderer, command: () => {
-                  navRouter.push('/fumetti');
-                },
-              },
-              {
-                label: 'Personaggi', icon: 'pi pi-users', template: itemRenderer, command: () => {
-                  navRouter.push('/personaggi');
-                },
-              }
-            ]
-          }
-        ]
-      ]
-    },
-    {
-      label: 'Contact',
-      root: true,
-      template: itemRenderer
-    }
-  ];
-
-  const end = <Avatar image="https://primefaces.org/cdn/primereact/images/avatar/amyelsner.png" shape="circle" />;
-
-  const start = <Image src="/logo.jpeg" alt="Logo" width={75} height={25} />;
-
-
-
 
 
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-purple-50 to-white">
-      {/* Navigation Bar */}
-      <div className="card">
-        <MegaMenu model={items} orientation="horizontal" start={start} end={end} breakpoint="960px" className="p-3 surface-0 shadow-2" style={{ borderRadius: '3rem' }} />
-      </div>
-
-
-
-
-
-      {/* <nav className="bg-white shadow-md sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center">
-              <Link href="/" className="text-2xl font-bold text-purple-600">
-                🎨 Art Gallery
-              </Link>
-            </div>
-            <div className="hidden md:flex space-x-8">
-              <Link href="/shop" className="text-gray-700 hover:text-purple-600 transition-colors font-medium">
-                Shop
-              </Link>
-              <Link href="/cart" className="text-gray-700 hover:text-purple-600 transition-colors font-medium">
-                Cart
-              </Link>
-              <Link href="/checkout" className="text-gray-700 hover:text-purple-600 transition-colors font-medium">
-                Checkout
-              </Link>
-              <Link href="/admin" className="text-gray-700 hover:text-purple-600 transition-colors font-medium">
-                Admin
-              </Link>
-              <Link href="/primereact-demo" className="text-gray-700 hover:text-purple-600 transition-colors font-medium">
-                Demo
-              </Link>
-            </div>
-          </div>
-        </div>
-      </nav> */}
-
-      {/* Hero Section */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+    <>
+          {/* Hero Section */}
+      
         <div className="text-center mb-12">
           <h1 className="text-5xl md:text-6xl font-bold text-gray-900 mb-4">
             Welcome to Art Gallery
@@ -276,14 +152,6 @@ export default function Home() {
             </div>
           </div>
         </div>
-      </section>
-
-      {/* Footer */}
-      <footer className="bg-gray-900 text-white py-8 mt-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <p className="text-gray-400">© 2025 Art Management Tool. All rights reserved.</p>
-        </div>
-      </footer>
-    </div>
+    </>
   );
 }

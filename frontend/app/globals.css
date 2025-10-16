@@ -33,3 +33,15 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* Assicura che html e body occupino tutta l'altezza dello schermo */
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+/* Garantisce che il contenuto si adatti correttamente */
+#__next {
+  height: 100%;
+}
