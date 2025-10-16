@@ -1,14 +1,18 @@
 "use client";
 
 import Image from "next/image";
+import { useTranslations, useLocale } from 'next-intl';
 
 import { Avatar } from "primereact/avatar";
 import { Button } from "primereact/button";
 import { MegaMenu } from "primereact/megamenu";
 import { Ripple } from "primereact/ripple";
 import { useRouter } from "next/navigation";
+import LanguageSwitcher from "./LanguageSwitcher";
 
 export default function HeaderComponent() {
+    const t = useTranslations('navigation');
+    const locale = useLocale();
     const navRouter = useRouter();
 
     const itemRenderer = (item: any, options: any) => {
@@ -44,15 +48,15 @@ export default function HeaderComponent() {
     };
     const items = [
         {
-            label: 'Home',
+            label: t('home'),
             root: true,
             template: itemRenderer,
             command: () => {
-                navRouter.push('/');
+                navRouter.push(`/${locale}`);
             }
         },
         {
-            label: '🎨 Art Gallery',
+            label: t('artGallery'),
             root: true,
             template: itemRenderer,
             items: [
@@ -60,13 +64,13 @@ export default function HeaderComponent() {
                     {
                         items: [
                             {
-                                label: 'Fumetti', icon: 'pi pi-list', template: itemRenderer, command: () => {
-                                    navRouter.push('/fumetti');
+                                label: t('fumetti'), icon: 'pi pi-list', template: itemRenderer, command: () => {
+                                    navRouter.push(`/${locale}/fumetti`);
                                 },
                             },
                             {
-                                label: 'Personaggi', icon: 'pi pi-users', template: itemRenderer, command: () => {
-                                    navRouter.push('/personaggi');
+                                label: t('personaggi'), icon: 'pi pi-users', template: itemRenderer, command: () => {
+                                    navRouter.push(`/${locale}/personaggi`);
                                 },
                             }
                         ]
@@ -75,13 +79,18 @@ export default function HeaderComponent() {
             ]
         },
         {
-            label: 'Contact',
+            label: t('contact'),
             root: true,
             template: itemRenderer
         }
     ];
 
-    const end = <Avatar image="https://primefaces.org/cdn/primereact/images/avatar/amyelsner.png" shape="circle" />;
+    const end = (
+        <div className="flex align-items-center gap-3">
+            <LanguageSwitcher />
+            <Avatar image="https://primefaces.org/cdn/primereact/images/avatar/amyelsner.png" shape="circle" />
+        </div>
+    );
 
     const start = <Image src="/logo.jpeg" alt="Logo" width={75} height={25} />;
 

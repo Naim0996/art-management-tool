@@ -1,0 +1,34 @@
+{
+  "navigation": {
+    "home": "Home",
+    "artGallery": "🎨 Galleria d'Arte",
+    "contact": "Contatti",
+    "fumetti": "Fumetti",
+    "personaggi": "Personaggi"
+  },
+  "personaggi": {
+    "title": "Personaggi",
+    "modal": {
+      "title": "Galleria Personaggi",
+      "charactersTitle": "I Personaggi",
+      "description1": "Ribelle il Pigro è il protagonista della nostra galleria d'arte. Un personaggio unico che rappresenta la creatività e l'originalità dell'arte contemporanea.",
+      "description2": "Questa collezione presenta diverse interpretazioni artistiche del personaggio, mostrando l'evoluzione stilistica e le diverse tecniche utilizzate dall'artista.",
+      "characteristicsTitle": "Caratteristiche principali:",
+      "characteristics": {
+        "style": "Stile distintivo e riconoscibile",
+        "color": "Uso creativo del colore e della forma",
+        "emotion": "Rappresentazione emotiva e espressiva",
+        "technique": "Tecnica mista su supporti diversi"
+      },
+      "finalNote": "Ogni opera racconta una storia diversa, mantenendo sempre l'essenza del personaggio che l'ha ispirata."
+    }
+  },
+  "footer": {
+    "copyright": "© 2025 Art Management Tool. Tutti i diritti riservati."
+  },
+  "language": {
+    "switch": "Cambia lingua",
+    "italian": "Italiano",
+    "english": "Inglese"
+  }
+}

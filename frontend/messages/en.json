@@ -1,0 +1,34 @@
+{
+  "navigation": {
+    "home": "Home",
+    "artGallery": "🎨 Art Gallery",
+    "contact": "Contact",
+    "fumetti": "Comics",
+    "personaggi": "Characters"
+  },
+  "personaggi": {
+    "title": "Characters",
+    "modal": {
+      "title": "Characters Gallery",
+      "charactersTitle": "The Characters",
+      "description1": "Ribelle il Pigro is the protagonist of our art gallery. A unique character that represents creativity and originality of contemporary art.",
+      "description2": "This collection presents different artistic interpretations of the character, showing the stylistic evolution and the various techniques used by the artist.",
+      "characteristicsTitle": "Main characteristics:",
+      "characteristics": {
+        "style": "Distinctive and recognizable style",
+        "color": "Creative use of color and form",
+        "emotion": "Emotional and expressive representation",
+        "technique": "Mixed technique on different supports"
+      },
+      "finalNote": "Each artwork tells a different story, always maintaining the essence of the character that inspired it."
+    }
+  },
+  "footer": {
+    "copyright": "© 2025 Art Management Tool. All rights reserved."
+  },
+  "language": {
+    "switch": "Switch language",
+    "italian": "Italian",
+    "english": "English"
+  }
+}
