@@ -14,16 +14,31 @@ art-management-tool/
 
 ## Features
 
+### E-Commerce Shop (New!)
+- **Product Catalog**: Comprehensive product management with variants, categories, images
+- **Shopping Cart**: Session-based cart with guest and authenticated user support
+- **Checkout**: Integrated payment processing with stock reservation
+- **Order Management**: Complete order lifecycle from creation to fulfillment
+- **Notifications**: Real-time event notifications (low stock, payment events, orders)
+- **Discount Codes**: Promotional code system with validation
+- **Admin Dashboard**: Full management interface for products, orders, and inventory
+- **Payment Integration**: Abstracted payment provider (Stripe support ready)
+- **Shopify Ready**: Prepared for Shopify API integration
+
 ### Customer Features
-- Browse art products
+- Browse art products with advanced filtering
 - Add items to shopping cart
 - Multiple payment methods (Credit Card, PayPal, Stripe)
 - Checkout with shipping information
+- Order tracking
 
 ### Admin Features
 - Secure admin login
 - Product management (Create, Read, Update, Delete)
-- Inventory management
+- Variant management (sizes, colors, attributes)
+- Inventory management with bulk operations
+- Order management and fulfillment tracking
+- Notification center
 - Dashboard interface
 
 ## Technology Stack
@@ -98,22 +113,57 @@ The frontend will be available at `http://localhost:3000`
 
 ## API Endpoints
 
+### Enhanced Shop API (New)
+
+#### Public Shop Endpoints
+- `GET /api/shop/products` - List products with advanced filters
+- `GET /api/shop/products/{slug}` - Get product by slug
+- `GET /api/shop/cart` - Get shopping cart
+- `POST /api/shop/cart/items` - Add item to cart
+- `PATCH /api/shop/cart/items/{id}` - Update cart item
+- `DELETE /api/shop/cart/items/{id}` - Remove cart item
+- `DELETE /api/shop/cart` - Clear cart
+- `POST /api/shop/cart/discount` - Apply discount code
+- `POST /api/shop/checkout` - Process checkout
+
+#### Webhooks
+- `POST /api/webhooks/payment/stripe` - Stripe payment webhooks
+
+#### Admin Shop Endpoints (Requires Authentication)
+- `GET /api/admin/shop/products` - List all products
+- `POST /api/admin/shop/products` - Create product
+- `GET /api/admin/shop/products/{id}` - Get product details
+- `PATCH /api/admin/shop/products/{id}` - Update product
+- `DELETE /api/admin/shop/products/{id}` - Delete product
+- `POST /api/admin/shop/products/{id}/variants` - Add variant
+- `PATCH /api/admin/shop/variants/{id}` - Update variant
+- `POST /api/admin/shop/inventory/adjust` - Adjust inventory
+- `GET /api/admin/shop/orders` - List orders
+- `GET /api/admin/shop/orders/{id}` - Get order details
+- `PATCH /api/admin/shop/orders/{id}/fulfillment` - Update fulfillment
+- `POST /api/admin/shop/orders/{id}/refund` - Process refund
+- `GET /api/admin/notifications` - List notifications
+- `PATCH /api/admin/notifications/{id}/read` - Mark as read
+- `POST /api/admin/shopify/sync` - Trigger Shopify sync
+
 ### Authentication
 - `POST /api/auth/login` - Admin login
 
-### Admin Endpoints (Requires Authentication)
+### Legacy Admin Endpoints (Backward Compatible)
 - `GET /api/admin/products` - List all products
 - `POST /api/admin/products` - Create a new product
 - `PUT /api/admin/products/{id}` - Update a product
 - `DELETE /api/admin/products/{id}` - Delete a product
 
-### Customer Endpoints
+### Legacy Customer Endpoints (Backward Compatible)
 - `GET /api/products` - List all products
 - `GET /api/products/{id}` - Get a single product
 - `POST /api/cart` - Add item to cart
 - `GET /api/cart` - Get cart contents
 - `DELETE /api/cart/{id}` - Remove item from cart
 - `POST /api/checkout` - Process checkout
+
+See [SHOP_API.md](./SHOP_API.md) for complete API documentation.
 
 ## Demo Credentials
 
@@ -123,12 +173,35 @@ The frontend will be available at `http://localhost:3000`
 
 ## Payment Methods
 
-The checkout process supports three payment methods:
-- Credit Card
-- PayPal
-- Stripe
+The enhanced shop supports multiple payment methods:
+- **Stripe**: Production-ready integration (requires API keys)
+- **Mock Provider**: For development and testing
+- Credit Card, PayPal (legacy placeholders)
 
-*Note: This is a demo application. Payment processing is simulated and does not charge real payments.*
+### Payment Configuration
+
+For development (default):
+```go
+// Uses mock provider with €0.01 minimum
+paymentProvider := payment.NewMockProvider("mock", 1, false)
+```
+
+For production with Stripe:
+```env
+STRIPE_API_KEY=sk_live_...
+STRIPE_WEBHOOK_SECRET=whsec_...
+```
+
+```go
+paymentProvider := payment.NewStripeProvider()
+```
+
+### Transaction Limits
+- Minimum: €0.01
+- Zero-amount transactions: Not supported by most providers
+- Test mode: Use Stripe test cards or mock provider
+
+*Note: Payment processing in development mode is simulated and does not charge real payments.*
 
 ## Development
 
