@@ -13,7 +13,7 @@ import { Toast } from 'primereact/toast';
 import { ConfirmDialog, confirmDialog } from 'primereact/confirmdialog';
 import { Tag } from 'primereact/tag';
 import { TabView, TabPanel } from 'primereact/tabview';
-import { adminShopAPI, Product, ProductVariant } from '@/services/AdminShopAPIService';
+import { adminShopAPI, Product } from '@/services/AdminShopAPIService';
 
 export default function ShopProductsManagement() {
   const toast = useRef<Toast>(null);
@@ -143,12 +143,13 @@ export default function ShopProductsManagement() {
       });
       setShowFormDialog(false);
       fetchProducts();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error saving product:', error);
+      const message = error instanceof Error ? error.message : 'Failed to save product';
       toast.current?.show({
         severity: 'error',
         summary: 'Error',
-        detail: error.message || 'Failed to save product',
+        detail: message,
         life: 3000,
       });
     }
@@ -234,12 +235,13 @@ export default function ShopProductsManagement() {
         price_adjustment: 0,
         stock: 0,
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error adding variant:', error);
+      const message = error instanceof Error ? error.message : 'Failed to add variant';
       toast.current?.show({
         severity: 'error',
         summary: 'Error',
-        detail: error.message || 'Failed to add variant',
+        detail: message,
         life: 3000,
       });
     }
@@ -259,12 +261,13 @@ export default function ShopProductsManagement() {
         const updated = await adminShopAPI.getProduct(selectedProduct.id);
         setSelectedProduct(updated);
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error updating inventory:', error);
+      const message = error instanceof Error ? error.message : 'Failed to update inventory';
       toast.current?.show({
         severity: 'error',
         summary: 'Error',
-        detail: error.message || 'Failed to update inventory',
+        detail: message,
         life: 3000,
       });
     }

@@ -100,12 +100,13 @@ export default function ShopOrdersManagement() {
         const updated = await adminShopAPI.getOrder(orderId);
         setSelectedOrder(updated);
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error updating fulfillment:', error);
+      const message = error instanceof Error ? error.message : 'Failed to update fulfillment status';
       toast.current?.show({
         severity: 'error',
         summary: 'Error',
-        detail: error.message || 'Failed to update fulfillment status',
+        detail: message,
         life: 3000,
       });
     }
@@ -129,12 +130,13 @@ export default function ShopOrdersManagement() {
           if (selectedOrder && selectedOrder.id === order.id) {
             setShowDetailsDialog(false);
           }
-        } catch (error: any) {
+        } catch (error: unknown) {
           console.error('Error refunding order:', error);
+          const message = error instanceof Error ? error.message : 'Failed to refund order';
           toast.current?.show({
             severity: 'error',
             summary: 'Error',
-            detail: error.message || 'Failed to refund order',
+            detail: message,
             life: 3000,
           });
         }

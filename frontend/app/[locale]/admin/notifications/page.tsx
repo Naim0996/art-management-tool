@@ -124,6 +124,7 @@ export default function NotificationsPage() {
           });
           fetchNotifications();
         } catch (error) {
+          console.error('Error deleting notification:', error);
           toast.current?.show({
             severity: 'error',
             summary: 'Error',
@@ -311,7 +312,7 @@ export default function NotificationsPage() {
         <div className="text-center py-16 bg-white rounded-lg shadow-sm">
           <i className="pi pi-bell-slash text-6xl text-gray-400 mb-4"></i>
           <h3 className="text-xl font-semibold text-gray-800 mb-2">No Notifications</h3>
-          <p className="text-gray-600">You're all caught up! No notifications to display.</p>
+          <p className="text-gray-600">You&apos;re all caught up! No notifications to display.</p>
         </div>
       )}
     </div>

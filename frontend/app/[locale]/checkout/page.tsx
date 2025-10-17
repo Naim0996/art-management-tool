@@ -57,12 +57,13 @@ export default function CheckoutPage() {
       setTimeout(() => {
         router.push(`/${locale}/shop`);
       }, 2000);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error during checkout:', error);
+      const message = error instanceof Error ? error.message : 'An error occurred. Please try again.';
       toast.current?.show({
         severity: 'error',
         summary: 'Checkout Failed',
-        detail: error.message || 'An error occurred. Please try again.',
+        detail: message,
         life: 5000,
       });
     } finally {
