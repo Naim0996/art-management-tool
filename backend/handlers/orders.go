@@ -102,7 +102,7 @@ func (h *OrdersHandler) UpdateOrderStatus(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	order.Status = input.Status
+	order.PaymentStatus = models.PaymentStatus(input.Status)
 	if err := h.db.Save(&order).Error; err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
