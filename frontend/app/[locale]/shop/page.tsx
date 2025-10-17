@@ -2,109 +2,266 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-
-interface Product {
-  id: string;
-  name: string;
-  description: string;
-  price: number;
-  image_url: string;
-  stock: number;
-}
+import { useLocale } from 'next-intl';
+import { shopAPI, Product } from '@/services/ShopAPIService';
+import { Button } from 'primereact/button';
+import { InputText } from 'primereact/inputtext';
+import { Dropdown } from 'primereact/dropdown';
+import { Card } from 'primereact/card';
+import { Toast } from 'primereact/toast';
+import { useRef } from 'react';
 
 export default function ShopPage() {
+  const locale = useLocale();
+  const toast = useRef<Toast>(null);
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [sortBy, setSortBy] = useState('created_at');
+  const [page, setPage] = useState(1);
+  const [totalProducts, setTotalProducts] = useState(0);
+  const perPage = 12;
 
   useEffect(() => {
     fetchProducts();
-  }, []);
+  }, [searchQuery, sortBy, page]);
 
   const fetchProducts = async () => {
+    setLoading(true);
     try {
-      const response = await fetch('http://localhost:8080/api/products');
-      const data = await response.json();
-      setProducts(data);
+      const response = await shopAPI.listProducts({
+        status: 'published',
+        search: searchQuery || undefined,
+        sort_by: sortBy,
+        sort_order: 'DESC',
+        page,
+        per_page: perPage,
+        in_stock: true,
+      });
+      setProducts(response.products || []);
+      setTotalProducts(response.total || 0);
     } catch (error) {
       console.error('Error fetching products:', error);
+      toast.current?.show({
+        severity: 'error',
+        summary: 'Error',
+        detail: 'Failed to load products',
+        life: 3000,
+      });
     } finally {
       setLoading(false);
     }
   };
 
-  const addToCart = async (productId: string) => {
+  const addToCart = async (productId: number) => {
     try {
-      await fetch('http://localhost:8080/api/cart', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          product_id: productId,
-          quantity: 1,
-        }),
+      await shopAPI.addToCart({
+        product_id: productId,
+        quantity: 1,
       });
-      alert('Product added to cart!');
+      toast.current?.show({
+        severity: 'success',
+        summary: 'Success',
+        detail: 'Product added to cart!',
+        life: 3000,
+      });
     } catch (error) {
       console.error('Error adding to cart:', error);
-      alert('Failed to add product to cart');
+      toast.current?.show({
+        severity: 'error',
+        summary: 'Error',
+        detail: 'Failed to add product to cart',
+        life: 3000,
+      });
     }
+  };
+
+  const sortOptions = [
+    { label: 'Newest', value: 'created_at' },
+    { label: 'Price', value: 'base_price' },
+    { label: 'Title', value: 'title' },
+  ];
+
+  const totalPages = Math.ceil(totalProducts / perPage);
+
+  const getStockQuantity = (product: Product): number => {
+    if (product.variants && product.variants.length > 0) {
+      return product.variants.reduce((sum, v) => sum + v.stock, 0);
+    }
+    return 0;
+  };
+
+  const getPrimaryImage = (product: Product): string => {
+    const primaryImg = product.images?.find(img => img.is_primary);
+    return primaryImg?.url || product.images?.[0]?.url || '/placeholder-art.png';
   };
 
   if (loading) {
     return (
       <div className="min-h-screen p-8">
-        <div className="max-w-6xl mx-auto">
-          <p>Loading products...</p>
+        <div className="max-w-7xl mx-auto">
+          <Toast ref={toast} />
+          <div className="flex items-center justify-center h-64">
+            <i className="pi pi-spin pi-spinner text-4xl text-purple-600"></i>
+          </div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen p-8">
-      <header className="max-w-6xl mx-auto mb-8 flex justify-between items-center">
-        <div>
-          <Link href="/" className="text-blue-600 hover:underline mb-2 block">
-            ← Back to Home
-          </Link>
-          <h1 className="text-4xl font-bold">Shop</h1>
+    <div className="min-h-screen bg-gray-50">
+      <Toast ref={toast} />
+      
+      {/* Header */}
+      <header className="bg-white shadow-sm border-b">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+          <div className="flex justify-between items-center">
+            <div>
+              <Link href={`/${locale}`} className="text-purple-600 hover:underline mb-2 inline-block">
+                <i className="pi pi-arrow-left mr-2"></i>
+                Back to Home
+              </Link>
+              <h1 className="text-4xl font-bold text-gray-900">Art Shop</h1>
+              <p className="text-gray-600 mt-1">Discover unique artworks</p>
+            </div>
+            <Link
+              href={`/${locale}/cart`}
+              className="bg-purple-600 text-white px-6 py-3 rounded-lg hover:bg-purple-700 transition-colors flex items-center gap-2"
+            >
+              <i className="pi pi-shopping-cart"></i>
+              Cart
+            </Link>
+          </div>
         </div>
-        <Link
-          href="/cart"
-          className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700"
-        >
-          View Cart 🛒
-        </Link>
       </header>
 
-      <main className="max-w-6xl mx-auto">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {products.map((product) => (
-            <div key={product.id} className="border rounded-lg p-6 bg-white shadow-sm">
-              <div className="bg-gray-200 h-48 mb-4 rounded flex items-center justify-center">
-                <span className="text-gray-500">🎨 Art Image</span>
-              </div>
-              <h2 className="text-xl font-semibold mb-2">{product.name}</h2>
-              <p className="text-gray-600 mb-4">{product.description}</p>
-              <div className="flex justify-between items-center mb-4">
-                <span className="text-2xl font-bold">${product.price.toFixed(2)}</span>
-                <span className="text-sm text-gray-500">Stock: {product.stock}</span>
-              </div>
-              <button
-                onClick={() => addToCart(product.id)}
-                disabled={product.stock === 0}
-                className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
-              >
-                {product.stock === 0 ? 'Out of Stock' : 'Add to Cart'}
-              </button>
+      {/* Filters */}
+      <div className="bg-white shadow-sm border-b">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+          <div className="flex flex-col md:flex-row gap-4 items-center">
+            <div className="flex-1 w-full">
+              <span className="p-input-icon-left w-full">
+                <i className="pi pi-search" />
+                <InputText
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Search products..."
+                  className="w-full"
+                />
+              </span>
             </div>
-          ))}
+            <div className="flex gap-2 items-center">
+              <label className="text-sm text-gray-600">Sort by:</label>
+              <Dropdown
+                value={sortBy}
+                options={sortOptions}
+                onChange={(e) => setSortBy(e.value)}
+                className="w-40"
+              />
+            </div>
+          </div>
         </div>
+      </div>
 
-        {products.length === 0 && (
-          <div className="text-center py-12">
-            <p className="text-gray-600">No products available at the moment.</p>
+      {/* Products Grid */}
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {products.length > 0 ? (
+          <>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-8">
+              {products.map((product) => {
+                const stockQty = getStockQuantity(product);
+                const inStock = stockQty > 0;
+                
+                return (
+                  <Card key={product.id} className="hover:shadow-lg transition-shadow">
+                    <div className="space-y-3">
+                      <div className="relative bg-gray-100 h-48 rounded-lg overflow-hidden">
+                        {product.images && product.images.length > 0 ? (
+                          <img
+                            src={getPrimaryImage(product)}
+                            alt={product.title}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <div className="flex items-center justify-center h-full">
+                            <i className="pi pi-image text-6xl text-gray-400"></i>
+                          </div>
+                        )}
+                        {!inStock && (
+                          <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+                            <span className="text-white font-semibold">Out of Stock</span>
+                          </div>
+                        )}
+                      </div>
+                      
+                      <div>
+                        <h3 className="text-lg font-semibold text-gray-900 line-clamp-2">
+                          {product.title}
+                        </h3>
+                        <p className="text-sm text-gray-600 mt-1 line-clamp-2">
+                          {product.short_description}
+                        </p>
+                      </div>
+
+                      <div className="flex justify-between items-center">
+                        <div>
+                          <span className="text-2xl font-bold text-purple-600">
+                            {product.currency === 'EUR' ? '€' : '$'}{product.base_price.toFixed(2)}
+                          </span>
+                        </div>
+                        <span className={`text-sm ${inStock ? 'text-green-600' : 'text-red-600'}`}>
+                          {inStock ? `${stockQty} in stock` : 'Out of stock'}
+                        </span>
+                      </div>
+
+                      <div className="flex gap-2">
+                        <Button
+                          label="View"
+                          icon="pi pi-eye"
+                          className="flex-1"
+                          outlined
+                          onClick={() => window.location.href = `/${locale}/shop/${product.slug}`}
+                        />
+                        <Button
+                          label="Add to Cart"
+                          icon="pi pi-shopping-cart"
+                          className="flex-1"
+                          onClick={() => addToCart(product.id)}
+                          disabled={!inStock}
+                        />
+                      </div>
+                    </div>
+                  </Card>
+                );
+              })}
+            </div>
+
+            {/* Pagination */}
+            {totalPages > 1 && (
+              <div className="flex justify-center items-center gap-2">
+                <Button
+                  icon="pi pi-chevron-left"
+                  onClick={() => setPage(p => Math.max(1, p - 1))}
+                  disabled={page === 1}
+                  outlined
+                />
+                <span className="px-4 py-2 text-gray-700">
+                  Page {page} of {totalPages}
+                </span>
+                <Button
+                  icon="pi pi-chevron-right"
+                  onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+                  disabled={page === totalPages}
+                  outlined
+                />
+              </div>
+            )}
+          </>
+        ) : (
+          <div className="text-center py-16 bg-white rounded-lg shadow-sm">
+            <i className="pi pi-inbox text-6xl text-gray-400 mb-4"></i>
+            <p className="text-xl text-gray-600">No products available at the moment.</p>
           </div>
         )}
       </main>

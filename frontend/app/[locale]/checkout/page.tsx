@@ -3,12 +3,25 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { useLocale } from 'next-intl';
+import { shopAPI, CheckoutRequest } from '@/services/ShopAPIService';
+import { Button } from 'primereact/button';
+import { InputText } from 'primereact/inputtext';
+import { RadioButton } from 'primereact/radiobutton';
+import { Toast } from 'primereact/toast';
+import { Card } from 'primereact/card';
+import { useRef } from 'react';
 
-type PaymentMethod = 'credit_card' | 'paypal' | 'stripe';
+type PaymentMethod = 'stripe' | 'mock';
 
 export default function CheckoutPage() {
-  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('credit_card');
+  const locale = useLocale();
+  const router = useRouter();
+  const toast = useRef<Toast>(null);
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('stripe');
   const [email, setEmail] = useState('');
+  const [name, setName] = useState('');
+  const [discountCode, setDiscountCode] = useState('');
   const [address, setAddress] = useState({
     street: '',
     city: '',
@@ -17,173 +30,231 @@ export default function CheckoutPage() {
     country: '',
   });
   const [loading, setLoading] = useState(false);
-  const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
     try {
-      const response = await fetch('http://localhost:8080/api/checkout', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          cart_id: 'default-cart',
-          payment_method: paymentMethod,
-          email,
-          shipping_address: address,
-        }),
+      const checkoutData: CheckoutRequest = {
+        email,
+        name,
+        payment_method: paymentMethod,
+        shipping_address: address,
+        ...(discountCode && { discount_code: discountCode }),
+      };
+
+      const response = await shopAPI.checkout(checkoutData);
+      
+      toast.current?.show({
+        severity: 'success',
+        summary: 'Success',
+        detail: `Order placed successfully! Order #${response.order_number}`,
+        life: 5000,
       });
 
-      if (response.ok) {
-        const data = await response.json();
-        alert(`Order placed successfully! Order ID: ${data.order_id}`);
-        router.push('/shop');
-      } else {
-        alert('Checkout failed. Please try again.');
-      }
-    } catch (error) {
+      // Redirect to shop after successful checkout
+      setTimeout(() => {
+        router.push(`/${locale}/shop`);
+      }, 2000);
+    } catch (error: any) {
       console.error('Error during checkout:', error);
-      alert('An error occurred. Please try again.');
+      toast.current?.show({
+        severity: 'error',
+        summary: 'Checkout Failed',
+        detail: error.message || 'An error occurred. Please try again.',
+        life: 5000,
+      });
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen p-8">
-      <header className="max-w-4xl mx-auto mb-8">
-        <Link href="/cart" className="text-blue-600 hover:underline mb-2 block">
-          ← Back to Cart
-        </Link>
-        <h1 className="text-4xl font-bold">Checkout</h1>
+    <div className="min-h-screen bg-gray-50">
+      <Toast ref={toast} />
+      
+      {/* Header */}
+      <header className="bg-white shadow-sm border-b">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+          <Link href={`/${locale}/cart`} className="text-purple-600 hover:underline mb-2 inline-block">
+            <i className="pi pi-arrow-left mr-2"></i>
+            Back to Cart
+          </Link>
+          <h1 className="text-4xl font-bold text-gray-900">Checkout</h1>
+        </div>
       </header>
 
-      <main className="max-w-4xl mx-auto">
-        <form onSubmit={handleSubmit} className="bg-white p-8 rounded-lg border">
-          <div className="mb-6">
-            <h2 className="text-2xl font-semibold mb-4">Contact Information</h2>
-            <div>
-              <label className="block text-sm font-medium mb-2">Email</label>
-              <input
-                type="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full border rounded-lg px-4 py-2"
-                placeholder="your@email.com"
+      <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <form onSubmit={handleSubmit}>
+          <div className="space-y-6">
+            {/* Contact Information */}
+            <Card title="Contact Information" className="shadow-sm">
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium mb-2 text-gray-700">
+                    Name <span className="text-red-500">*</span>
+                  </label>
+                  <InputText
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    placeholder="John Doe"
+                    required
+                    className="w-full"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-2 text-gray-700">
+                    Email <span className="text-red-500">*</span>
+                  </label>
+                  <InputText
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="your@email.com"
+                    required
+                    className="w-full"
+                  />
+                </div>
+              </div>
+            </Card>
+
+            {/* Shipping Address */}
+            <Card title="Shipping Address" className="shadow-sm">
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium mb-2 text-gray-700">
+                    Street Address <span className="text-red-500">*</span>
+                  </label>
+                  <InputText
+                    value={address.street}
+                    onChange={(e) => setAddress({ ...address, street: e.target.value })}
+                    placeholder="123 Main St"
+                    required
+                    className="w-full"
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium mb-2 text-gray-700">
+                      City <span className="text-red-500">*</span>
+                    </label>
+                    <InputText
+                      value={address.city}
+                      onChange={(e) => setAddress({ ...address, city: e.target.value })}
+                      placeholder="New York"
+                      required
+                      className="w-full"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-2 text-gray-700">
+                      State <span className="text-red-500">*</span>
+                    </label>
+                    <InputText
+                      value={address.state}
+                      onChange={(e) => setAddress({ ...address, state: e.target.value })}
+                      placeholder="NY"
+                      required
+                      className="w-full"
+                    />
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium mb-2 text-gray-700">
+                      Zip Code <span className="text-red-500">*</span>
+                    </label>
+                    <InputText
+                      value={address.zip_code}
+                      onChange={(e) => setAddress({ ...address, zip_code: e.target.value })}
+                      placeholder="10001"
+                      required
+                      className="w-full"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-2 text-gray-700">
+                      Country <span className="text-red-500">*</span>
+                    </label>
+                    <InputText
+                      value={address.country}
+                      onChange={(e) => setAddress({ ...address, country: e.target.value })}
+                      placeholder="US"
+                      required
+                      className="w-full"
+                    />
+                  </div>
+                </div>
+              </div>
+            </Card>
+
+            {/* Discount Code */}
+            <Card title="Discount Code (Optional)" className="shadow-sm">
+              <div>
+                <InputText
+                  value={discountCode}
+                  onChange={(e) => setDiscountCode(e.target.value)}
+                  placeholder="Enter discount code"
+                  className="w-full"
+                />
+              </div>
+            </Card>
+
+            {/* Payment Method */}
+            <Card title="Payment Method" className="shadow-sm">
+              <div className="space-y-3">
+                <div className="flex items-center p-4 border rounded-lg cursor-pointer hover:bg-gray-50">
+                  <RadioButton
+                    inputId="stripe"
+                    name="payment"
+                    value="stripe"
+                    onChange={(e) => setPaymentMethod(e.value)}
+                    checked={paymentMethod === 'stripe'}
+                  />
+                  <label htmlFor="stripe" className="ml-3 cursor-pointer flex items-center">
+                    <i className="pi pi-credit-card text-xl mr-2 text-blue-600"></i>
+                    <span className="text-lg">Stripe Payment</span>
+                  </label>
+                </div>
+                <div className="flex items-center p-4 border rounded-lg cursor-pointer hover:bg-gray-50">
+                  <RadioButton
+                    inputId="mock"
+                    name="payment"
+                    value="mock"
+                    onChange={(e) => setPaymentMethod(e.value)}
+                    checked={paymentMethod === 'mock'}
+                  />
+                  <label htmlFor="mock" className="ml-3 cursor-pointer flex items-center">
+                    <i className="pi pi-dollar text-xl mr-2 text-green-600"></i>
+                    <span className="text-lg">Mock Payment (Testing)</span>
+                  </label>
+                </div>
+              </div>
+            </Card>
+
+            {/* Submit Button */}
+            <div className="flex gap-4">
+              <Link href={`/${locale}/cart`} className="flex-1">
+                <Button
+                  label="Back to Cart"
+                  icon="pi pi-arrow-left"
+                  outlined
+                  className="w-full"
+                  type="button"
+                />
+              </Link>
+              <Button
+                label={loading ? 'Processing...' : 'Place Order'}
+                icon="pi pi-check"
+                iconPos="right"
+                className="flex-1"
+                type="submit"
+                loading={loading}
+                size="large"
               />
             </div>
           </div>
-
-          <div className="mb-6">
-            <h2 className="text-2xl font-semibold mb-4">Shipping Address</h2>
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium mb-2">Street Address</label>
-                <input
-                  type="text"
-                  required
-                  value={address.street}
-                  onChange={(e) => setAddress({ ...address, street: e.target.value })}
-                  className="w-full border rounded-lg px-4 py-2"
-                />
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium mb-2">City</label>
-                  <input
-                    type="text"
-                    required
-                    value={address.city}
-                    onChange={(e) => setAddress({ ...address, city: e.target.value })}
-                    className="w-full border rounded-lg px-4 py-2"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium mb-2">State</label>
-                  <input
-                    type="text"
-                    required
-                    value={address.state}
-                    onChange={(e) => setAddress({ ...address, state: e.target.value })}
-                    className="w-full border rounded-lg px-4 py-2"
-                  />
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium mb-2">Zip Code</label>
-                  <input
-                    type="text"
-                    required
-                    value={address.zip_code}
-                    onChange={(e) => setAddress({ ...address, zip_code: e.target.value })}
-                    className="w-full border rounded-lg px-4 py-2"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium mb-2">Country</label>
-                  <input
-                    type="text"
-                    required
-                    value={address.country}
-                    onChange={(e) => setAddress({ ...address, country: e.target.value })}
-                    className="w-full border rounded-lg px-4 py-2"
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="mb-6">
-            <h2 className="text-2xl font-semibold mb-4">Payment Method</h2>
-            <div className="space-y-3">
-              <label className="flex items-center p-4 border rounded-lg cursor-pointer hover:bg-gray-50">
-                <input
-                  type="radio"
-                  name="payment"
-                  value="credit_card"
-                  checked={paymentMethod === 'credit_card'}
-                  onChange={(e) => setPaymentMethod(e.target.value as PaymentMethod)}
-                  className="mr-3"
-                />
-                <span className="text-lg">💳 Credit Card</span>
-              </label>
-              <label className="flex items-center p-4 border rounded-lg cursor-pointer hover:bg-gray-50">
-                <input
-                  type="radio"
-                  name="payment"
-                  value="paypal"
-                  checked={paymentMethod === 'paypal'}
-                  onChange={(e) => setPaymentMethod(e.target.value as PaymentMethod)}
-                  className="mr-3"
-                />
-                <span className="text-lg">💰 PayPal</span>
-              </label>
-              <label className="flex items-center p-4 border rounded-lg cursor-pointer hover:bg-gray-50">
-                <input
-                  type="radio"
-                  name="payment"
-                  value="stripe"
-                  checked={paymentMethod === 'stripe'}
-                  onChange={(e) => setPaymentMethod(e.target.value as PaymentMethod)}
-                  className="mr-3"
-                />
-                <span className="text-lg">🔷 Stripe</span>
-              </label>
-            </div>
-          </div>
-
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-green-600 text-white py-4 rounded-lg text-lg font-semibold hover:bg-green-700 disabled:bg-gray-400"
-          >
-            {loading ? 'Processing...' : 'Place Order'}
-          </button>
         </form>
       </main>
     </div>
