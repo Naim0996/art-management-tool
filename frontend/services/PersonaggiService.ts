@@ -47,28 +47,46 @@ export const personaggiData: PersonaggioData[] = [
   {
     id: 'giullare',
     name: 'Il Giullare',
-    description: 'Un personaggio divertente e colorato che porta allegria in ogni opera.',
+    description: 'Un personaggio divertente e colorato che porta allegria in ogni opera. Con il suo spirito giocoso e la sua natura esuberante, rappresenta la gioia dell\'arte.',
     folder: 'giullare',
+    icon: '/personaggi/giullare/Giullare_icon.png',
     images: [
-      // Aggiungi qui le immagini del giullare quando le carichi
+      {
+        src: '/personaggi/giullare/Giullare_muddica.jpeg',
+        alt: 'Giullare Muddica',
+        title: 'Il Giullare - Muddica',
+        thumbnail: '/personaggi/giullare/Giullare_icon.png'
+      }
     ]
   },
   {
     id: 'leon',
     name: 'Leon',
-    description: 'Un personaggio forte e determinato con uno stile unico.',
+    description: 'Un personaggio forte e determinato con uno stile unico. Leon rappresenta la forza interiore e la determinazione attraverso tratti artistici decisi e caratteristici.',
     folder: 'leon',
+    icon: '/personaggi/leon/Leon_icon.png',
     images: [
-      // Aggiungi qui le immagini di Leon quando le carichi
+      {
+        src: '/personaggi/leon/Leon_lingua.jpeg',
+        alt: 'Leon Lingua',
+        title: 'Leon - Lingua',
+        thumbnail: '/personaggi/leon/Leon_icon.png'
+      }
     ]
   },
   {
     id: 'polemico',
     name: 'Il Polemico',
-    description: 'Un personaggio che esprime opinioni forti attraverso l\'arte.',
+    description: 'Un personaggio che esprime opinioni forti attraverso l\'arte. Con il suo carattere provocatorio e riflessivo, sfida le convenzioni e stimola il dibattito artistico.',
     folder: 'polemico',
+    icon: '/personaggi/polemico/Polemico_icon.png',
     images: [
-      // Aggiungi qui le immagini del Polemico quando le carichi
+      {
+        src: '/personaggi/polemico/Polemico_lupo.jpeg',
+        alt: 'Polemico Lupo',
+        title: 'Il Polemico - Lupo',
+        thumbnail: '/personaggi/polemico/Polemico_icon.png'
+      }
     ]
   }
 ];

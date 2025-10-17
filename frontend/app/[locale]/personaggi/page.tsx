@@ -52,19 +52,10 @@ export default function PersonaggiPage() {
               )}
             </div>
             
-            <h3 className="text-lg font-semibold text-center text-gray-800 mb-2">
+            <h3 className="text-lg font-semibold text-center text-gray-800 mb-12">
               {personaggio.name}
             </h3>
-            
-            <p className="text-sm text-gray-600 text-center line-clamp-3">
-              {personaggio.description}
-            </p>
-            
-            <div className="mt-3 text-center">
-              <span className="inline-block bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full">
-                {personaggio.images.length} {personaggio.images.length === 1 ? 'immagine' : 'immagini'}
-              </span>
-            </div>
+
           </div>
         ))}
       </div>

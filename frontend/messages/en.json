@@ -11,7 +11,7 @@
     "modal": {
       "title": "Characters Gallery",
       "charactersTitle": "The Characters",
-      "description1": "Ribelle il Pigro is the protagonist of our art gallery. A unique character that represents creativity and originality of contemporary art.",
+      "description1": "is the protagonist of our art gallery. A unique character that represents creativity and originality of contemporary art.",
       "description2": "This collection presents different artistic interpretations of the character, showing the stylistic evolution and the various techniques used by the artist.",
       "characteristicsTitle": "Main characteristics:",
       "characteristics": {
@@ -21,6 +21,24 @@
         "technique": "Mixed technique on different supports"
       },
       "finalNote": "Each artwork tells a different story, always maintaining the essence of the character that inspired it."
+    },
+    "characters": {
+      "ribelle": {
+        "name": "Ribelle il Pigro",
+        "description": "The protagonist of our art gallery. A unique character that represents creativity and originality of contemporary art."
+      },
+      "giullare": {
+        "name": "The Jester",
+        "description": "A fun and colorful character that brings joy to every artwork. With his playful spirit and exuberant nature, he represents the joy of art."
+      },
+      "leon": {
+        "name": "Leon",
+        "description": "A strong and determined character with a unique style. Leon represents inner strength and determination through decisive and characteristic artistic traits."
+      },
+      "polemico": {
+        "name": "The Controversial",
+        "description": "A character who expresses strong opinions through art. With his provocative and reflective character, he challenges conventions and stimulates artistic debate."
+      }
     }
   },
   "footer": {
