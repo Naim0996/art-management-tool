@@ -85,9 +85,19 @@ func AutoMigrate() error {
 
 	err := DB.AutoMigrate(
 		&models.Personaggio{},
+		// E-commerce models
+		&models.Category{},
+		&models.EnhancedProduct{},
+		&models.ProductImage{},
+		&models.ProductVariant{},
+		&models.Cart{},
+		&models.CartItem{},
 		&models.Order{},
 		&models.OrderItem{},
-		// Aggiungi qui altri modelli quando necessario
+		&models.Notification{},
+		&models.AuditLog{},
+		&models.DiscountCode{},
+		&models.ShopifyLink{},
 	)
 
 	if err != nil {
