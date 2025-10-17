@@ -261,7 +261,18 @@ export default function AdminDashboard() {
             >
               <div className="flex items-center gap-3">
                 <i className="pi pi-shopping-cart text-2xl"></i>
-                <span className="font-medium">Manage Products</span>
+                <span className="font-medium">Manage Products (Legacy)</span>
+              </div>
+              <i className="pi pi-arrow-right"></i>
+            </button>
+
+            <button
+              onClick={() => (window.location.href = `/${locale}/admin/shop-products`)}
+              className="w-full flex items-center justify-between p-4 bg-gradient-to-r from-cyan-500 to-blue-500 text-white rounded-lg hover:shadow-lg transition-all"
+            >
+              <div className="flex items-center gap-3">
+                <i className="pi pi-shopping-bag text-2xl"></i>
+                <span className="font-medium">Shop Products</span>
               </div>
               <i className="pi pi-arrow-right"></i>
             </button>
@@ -272,7 +283,29 @@ export default function AdminDashboard() {
             >
               <div className="flex items-center gap-3">
                 <i className="pi pi-list text-2xl"></i>
-                <span className="font-medium">View Orders</span>
+                <span className="font-medium">View Orders (Legacy)</span>
+              </div>
+              <i className="pi pi-arrow-right"></i>
+            </button>
+
+            <button
+              onClick={() => (window.location.href = `/${locale}/admin/shop-orders`)}
+              className="w-full flex items-center justify-between p-4 bg-gradient-to-r from-teal-500 to-green-500 text-white rounded-lg hover:shadow-lg transition-all"
+            >
+              <div className="flex items-center gap-3">
+                <i className="pi pi-box text-2xl"></i>
+                <span className="font-medium">Shop Orders</span>
+              </div>
+              <i className="pi pi-arrow-right"></i>
+            </button>
+
+            <button
+              onClick={() => (window.location.href = `/${locale}/admin/notifications`)}
+              className="w-full flex items-center justify-between p-4 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-lg hover:shadow-lg transition-all"
+            >
+              <div className="flex items-center gap-3">
+                <i className="pi pi-bell text-2xl"></i>
+                <span className="font-medium">Notifications</span>
               </div>
               <i className="pi pi-arrow-right"></i>
             </button>
