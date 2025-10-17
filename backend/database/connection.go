@@ -85,6 +85,8 @@ func AutoMigrate() error {
 
 	err := DB.AutoMigrate(
 		&models.Personaggio{},
+		&models.Order{},
+		&models.OrderItem{},
 		// Aggiungi qui altri modelli quando necessario
 	)
 

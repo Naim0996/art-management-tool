@@ -1,18 +1,45 @@
 "use client";
 
 import Image from "next/image";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useTranslations } from 'next-intl';
 import PersonaggioModal from "@/components/PersonaggioModal";
-import { PersonaggiService, PersonaggioData } from "@/services/PersonaggiService";
+import { PersonaggiAPIService, type PersonaggioDTO } from "@/services/PersonaggiAPIService";
 
 export default function PersonaggiPage() {
   const t = useTranslations('personaggi');
   const [modalVisible, setModalVisible] = useState(false);
-  const [selectedPersonaggio, setSelectedPersonaggio] = useState<PersonaggioData | null>(null);
+  const [selectedPersonaggio, setSelectedPersonaggio] = useState<PersonaggioDTO | null>(null);
+  const [personaggi, setPersonaggi] = useState<PersonaggioDTO[]>([]);
+  const [loading, setLoading] = useState(true);
   
-  // Ottieni tutti i personaggi che hanno immagini
-  const personaggi = PersonaggiService.getPersonaggiWithImages();
+  useEffect(() => {
+    const fetchPersonaggi = async () => {
+      setLoading(true);
+      const data = await PersonaggiAPIService.getAllPersonaggi();
+      // Filtra solo i personaggi che hanno immagini
+      const personaggiWithImages = data.filter((p: PersonaggioDTO) => p.images && p.images.length > 0);
+      setPersonaggi(personaggiWithImages);
+      setLoading(false);
+    };
+    
+    fetchPersonaggi();
+  }, []);
+  
+  if (loading) {
+    return (
+      <div className="container mx-auto px-4">
+        <h1 className="text-3xl font-bold text-center mb-8">{t('title')}</h1>
+        <div className="flex justify-center items-center py-12">
+          <div className="text-center">
+            <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900"></div>
+            <p className="mt-4 text-gray-600">Caricamento personaggi...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+  
   return (
     <div className="container mx-auto px-4">
       <h1 className="text-3xl font-bold text-center mb-8">{t('title')}</h1>
@@ -51,10 +78,10 @@ export default function PersonaggiPage() {
                   className="object-contain rounded-lg"
                   sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
                 />
-              ) : personaggio.images[0] ? (
+              ) : personaggio.images && personaggio.images[0] ? (
                 <Image
-                  src={personaggio.images[0].src}
-                  alt={personaggio.images[0].alt}
+                  src={personaggio.images[0]}
+                  alt={personaggio.name}
                   fill
                   className="object-contain rounded-lg"
                   sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
@@ -76,7 +103,7 @@ export default function PersonaggiPage() {
       </div>
 
       {/* Messaggio se non ci sono personaggi */}
-      {personaggi.length === 0 && (
+      {personaggi.length === 0 && !loading && (
         <div className="text-center py-12">
           <p className="text-gray-500 text-lg">Nessun personaggio disponibile al momento.</p>
         </div>

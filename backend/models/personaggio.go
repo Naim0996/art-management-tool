@@ -2,23 +2,25 @@ package models
 
 import (
 	"time"
+
+	"gorm.io/datatypes"
 )
 
 // Personaggio rappresenta un personaggio della galleria
 type Personaggio struct {
-	ID              uint       `json:"id" gorm:"primaryKey"`
-	Name            string     `json:"name" gorm:"not null"`
-	Description     string     `json:"description" gorm:"type:text"`
-	Icon            string     `json:"icon"`                                     // Path dell'icona principale
-	Images          []string   `json:"images" gorm:"type:json"`                  // Array di path alle immagini
-	BackgroundColor string     `json:"backgroundColor" gorm:"default:'#E0E7FF'"` // Colore di sfondo card
-	BackgroundType  string     `json:"backgroundType" gorm:"default:'solid'"`    // 'solid', 'gradient'
-	GradientFrom    string     `json:"gradientFrom"`                             // Colore iniziale gradient
-	GradientTo      string     `json:"gradientTo"`                               // Colore finale gradient
-	Order           int        `json:"order" gorm:"default:0"`                   // Ordine di visualizzazione
-	CreatedAt       time.Time  `json:"createdAt"`
-	UpdatedAt       time.Time  `json:"updatedAt"`
-	DeletedAt       *time.Time `json:"deletedAt,omitempty" gorm:"index"` // Soft delete
+	ID              uint           `json:"id" gorm:"primaryKey"`
+	Name            string         `json:"name" gorm:"not null"`
+	Description     string         `json:"description" gorm:"type:text"`
+	Icon            string         `json:"icon"`                                     // Path dell'icona principale
+	Images          datatypes.JSON `json:"images" gorm:"type:json"`                  // Array di path alle immagini
+	BackgroundColor string         `json:"backgroundColor" gorm:"default:'#E0E7FF'"` // Colore di sfondo card
+	BackgroundType  string         `json:"backgroundType" gorm:"default:'solid'"`    // 'solid', 'gradient'
+	GradientFrom    string         `json:"gradientFrom"`                             // Colore iniziale gradient
+	GradientTo      string         `json:"gradientTo"`                               // Colore finale gradient
+	Order           int            `json:"order" gorm:"default:0"`                   // Ordine di visualizzazione
+	CreatedAt       time.Time      `json:"createdAt"`
+	UpdatedAt       time.Time      `json:"updatedAt"`
+	DeletedAt       *time.Time     `json:"deletedAt,omitempty" gorm:"index"` // Soft delete
 }
 
 // PersonaggioInput rappresenta i dati in input per creare/aggiornare un personaggio

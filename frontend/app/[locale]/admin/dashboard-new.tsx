@@ -12,12 +12,12 @@ interface Stats {
   totalRevenue: number;
 }
 
-interface MonthlySales {
+interface SalesDataItem {
   month: string;
   sales: number;
 }
 
-interface Activity {
+interface ActivityItem {
   type: string;
   description: string;
   time: string;
@@ -28,8 +28,8 @@ interface DashboardData {
   totalOrders: number;
   totalPersonaggi: number;
   totalRevenue: number;
-  salesData: MonthlySales[];
-  recentActivity: Activity[];
+  salesData?: SalesDataItem[];
+  recentActivity?: ActivityItem[];
 }
 
 export default function AdminDashboard() {
@@ -40,21 +40,33 @@ export default function AdminDashboard() {
     totalPersonaggi: 0,
     totalRevenue: 0,
   });
-  const [recentActivity, setRecentActivity] = useState<Activity[]>([]);
   const [loading, setLoading] = useState(true);
-
-  const [chartData, setChartData] = useState({
-    labels: ['January', 'February', 'March', 'April', 'May', 'June'],
+  const [chartData, setChartData] = useState<{
+    labels: string[];
+    datasets: Array<{
+      label: string;
+      data: number[];
+      fill: boolean;
+      borderColor: string;
+      tension: number;
+    }>;
+  }>({
+    labels: [],
     datasets: [
       {
         label: 'Sales',
-        data: [0, 0, 0, 0, 0, 0],
+        data: [],
         fill: false,
         borderColor: '#8B5CF6',
         tension: 0.4,
       },
     ],
   });
+  const [recentActivities, setRecentActivities] = useState<Array<{
+    type: string;
+    description: string;
+    time: string;
+  }>>([]);
 
   const [chartOptions] = useState({
     maintainAspectRatio: false,
@@ -87,35 +99,38 @@ export default function AdminDashboard() {
   });
 
   useEffect(() => {
-    fetchDashboardStats();
-  }, []);
-
-  const fetchDashboardStats = async () => {
-    try {
-      const token = localStorage.getItem('adminToken');
-      const response = await fetch('http://localhost:8080/api/admin/stats', {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      if (response.ok) {
-        const data: DashboardData = await response.json();
-        setStats({
-          totalProducts: data.totalProducts,
-          totalOrders: data.totalOrders,
-          totalPersonaggi: data.totalPersonaggi,
-          totalRevenue: data.totalRevenue,
+    const fetchStats = async () => {
+      try {
+        setLoading(true);
+        const token = localStorage.getItem('adminToken');
+        
+        // Fetch all stats from single endpoint
+        const response = await fetch('http://localhost:8080/api/admin/stats', {
+          headers: { 'Authorization': `Bearer ${token}` }
         });
-
+        
+        if (!response.ok) {
+          throw new Error('Failed to fetch stats');
+        }
+        
+        const data: DashboardData = await response.json();
+        
+        // Update stats
+        setStats({
+          totalProducts: data.totalProducts || 0,
+          totalOrders: data.totalOrders || 0,
+          totalPersonaggi: data.totalPersonaggi || 0,
+          totalRevenue: data.totalRevenue || 0,
+        });
+        
         // Update chart data
         if (data.salesData && data.salesData.length > 0) {
           setChartData({
-            labels: data.salesData.map((d) => d.month),
+            labels: data.salesData.map((item: SalesDataItem) => item.month),
             datasets: [
               {
                 label: 'Sales',
-                data: data.salesData.map((d) => d.sales),
+                data: data.salesData.map((item: SalesDataItem) => item.sales),
                 fill: false,
                 borderColor: '#8B5CF6',
                 tension: 0.4,
@@ -123,45 +138,34 @@ export default function AdminDashboard() {
             ],
           });
         }
-
-        // Update recent activity
-        if (data.recentActivity) {
-          setRecentActivity(data.recentActivity);
+        
+        // Update recent activities
+        if (data.recentActivity && data.recentActivity.length > 0) {
+          setRecentActivities(data.recentActivity.map((activity: ActivityItem) => ({
+            type: activity.type,
+            description: activity.description,
+            time: formatTimeAgo(new Date(activity.time)),
+          })));
         }
+      } catch (error) {
+        console.error('Error fetching stats:', error);
+      } finally {
+        setLoading(false);
       }
-    } catch (error) {
-      console.error('Error fetching dashboard stats:', error);
-    } finally {
-      setLoading(false);
-    }
+    };
+
+    fetchStats();
+  }, []);
+  
+  const formatTimeAgo = (date: Date) => {
+    const seconds = Math.floor((new Date().getTime() - date.getTime()) / 1000);
+    
+    if (seconds < 60) return 'just now';
+    if (seconds < 3600) return `${Math.floor(seconds / 60)} minutes ago`;
+    if (seconds < 86400) return `${Math.floor(seconds / 3600)} hours ago`;
+    if (seconds < 2592000) return `${Math.floor(seconds / 86400)} days ago`;
+    return `${Math.floor(seconds / 2592000)} months ago`;
   };
-
-  const getActivityIcon = (type: string) => {
-    switch (type) {
-      case 'personaggio':
-        return { icon: 'pi pi-users', color: 'purple' };
-      case 'product':
-        return { icon: 'pi pi-shopping-cart', color: 'blue' };
-      case 'order':
-        return { icon: 'pi pi-check-circle', color: 'green' };
-      default:
-        return { icon: 'pi pi-info-circle', color: 'gray' };
-    }
-  };
-
-  const formatTimeAgo = (timeString: string) => {
-    const date = new Date(timeString);
-    const now = new Date();
-    const diffMs = now.getTime() - date.getTime();
-    const diffMins = Math.floor(diffMs / 60000);
-    const diffHours = Math.floor(diffMins / 60);
-    const diffDays = Math.floor(diffHours / 24);
-
-    if (diffMins < 60) return `${diffMins} minutes ago`;
-    if (diffHours < 24) return `${diffHours} hours ago`;
-    return `${diffDays} days ago`;
-  };
-
 
   const statCards = [
     {
@@ -198,17 +202,6 @@ export default function AdminDashboard() {
     },
   ];
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center">
-          <i className="pi pi-spin pi-spinner text-4xl text-purple-600 mb-4"></i>
-          <p className="text-gray-600">Loading dashboard...</p>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -220,11 +213,15 @@ export default function AdminDashboard() {
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {statCards.map((stat, index) => (
-          <Card key={index} className="shadow-lg border-0 hover:shadow-xl transition-shadow">
+          <Card key={index} className="shadow-lg border-0">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600 mb-2">{stat.title}</p>
-                <h3 className={`text-3xl font-bold ${stat.textColor}`}>{stat.value}</h3>
+                {loading ? (
+                  <i className="pi pi-spin pi-spinner text-2xl text-gray-400"></i>
+                ) : (
+                  <h3 className={`text-3xl font-bold ${stat.textColor}`}>{stat.value}</h3>
+                )}
               </div>
               <div
                 className={`w-16 h-16 rounded-full ${stat.bgColor} flex items-center justify-center`}
@@ -276,48 +273,41 @@ export default function AdminDashboard() {
               </div>
               <i className="pi pi-arrow-right"></i>
             </button>
-
-            <button
-              onClick={() => (window.location.href = `/${locale}/admin/settings`)}
-              className="w-full flex items-center justify-between p-4 bg-gradient-to-r from-gray-500 to-gray-600 text-white rounded-lg hover:shadow-lg transition-all"
-            >
-              <div className="flex items-center gap-3">
-                <i className="pi pi-cog text-2xl"></i>
-                <span className="font-medium">Settings</span>
-              </div>
-              <i className="pi pi-arrow-right"></i>
-            </button>
           </div>
         </Card>
       </div>
 
       {/* Recent Activity */}
       <Card title="Recent Activity" className="shadow-lg">
-        <div className="space-y-4">
-          {recentActivity.length === 0 ? (
-            <div className="text-center py-8 text-gray-500">
-              <i className="pi pi-inbox text-4xl mb-2"></i>
-              <p>No recent activity</p>
-            </div>
-          ) : (
-            recentActivity.map((activity, index) => {
-              const { icon, color } = getActivityIcon(activity.type);
+        {loading ? (
+          <div className="text-center py-8">
+            <i className="pi pi-spin pi-spinner text-3xl text-gray-400"></i>
+          </div>
+        ) : recentActivities.length > 0 ? (
+          <div className="space-y-4">
+            {recentActivities.map((activity, index) => {
+              const iconClass = activity.type === 'personaggio' 
+                ? 'pi-users text-purple-600 bg-purple-100'
+                : 'pi-shopping-cart text-blue-600 bg-blue-100';
+              
               return (
-                <div key={index} className="flex items-center gap-4 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
-                  <div
-                    className={`w-10 h-10 rounded-full bg-${color}-100 flex items-center justify-center`}
-                  >
-                    <i className={`${icon} text-${color}-600`}></i>
+                <div key={index} className="flex items-center gap-4 p-3 bg-gray-50 rounded-lg">
+                  <div className={`w-10 h-10 rounded-full flex items-center justify-center ${iconClass}`}>
+                    <i className={`pi ${iconClass.split(' ')[0]}`}></i>
                   </div>
                   <div className="flex-1">
                     <p className="font-medium text-gray-800">{activity.description}</p>
-                    <p className="text-sm text-gray-500">{formatTimeAgo(activity.time)}</p>
+                    <p className="text-sm text-gray-500">{activity.time}</p>
                   </div>
                 </div>
               );
-            })
-          )}
-        </div>
+            })}
+          </div>
+        ) : (
+          <div className="text-center py-8 text-gray-500">
+            <p>No recent activity</p>
+          </div>
+        )}
       </Card>
     </div>
   );

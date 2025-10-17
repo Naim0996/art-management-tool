@@ -7,8 +7,68 @@ import (
 
 	"github.com/Naim0996/art-management-tool/backend/models"
 	"github.com/gorilla/mux"
+	"gorm.io/datatypes"
 	"gorm.io/gorm"
 )
+
+// Helper function per convertire []string in datatypes.JSON
+func toJSON(data interface{}) datatypes.JSON {
+	bytes, err := json.Marshal(data)
+	if err != nil {
+		return datatypes.JSON{}
+	}
+	return datatypes.JSON(bytes)
+}
+
+// PersonaggioResponse è la struttura usata per la risposta JSON
+type PersonaggioResponse struct {
+	ID              uint     `json:"id"`
+	Name            string   `json:"name"`
+	Description     string   `json:"description"`
+	Icon            string   `json:"icon"`
+	Images          []string `json:"images"`
+	BackgroundColor string   `json:"backgroundColor"`
+	BackgroundType  string   `json:"backgroundType"`
+	GradientFrom    string   `json:"gradientFrom"`
+	GradientTo      string   `json:"gradientTo"`
+	Order           int      `json:"order"`
+	CreatedAt       string   `json:"createdAt"`
+	UpdatedAt       string   `json:"updatedAt"`
+	DeletedAt       *string  `json:"deletedAt,omitempty"`
+}
+
+// toResponse converte un Personaggio del database in PersonaggioResponse
+func toResponse(p models.Personaggio) PersonaggioResponse {
+	var images []string
+	if len(p.Images) > 0 {
+		json.Unmarshal(p.Images, &images)
+	}
+	if images == nil {
+		images = []string{}
+	}
+
+	var deletedAt *string
+	if p.DeletedAt != nil {
+		deletedAtStr := p.DeletedAt.Format(time.RFC3339)
+		deletedAt = &deletedAtStr
+	}
+
+	return PersonaggioResponse{
+		ID:              p.ID,
+		Name:            p.Name,
+		Description:     p.Description,
+		Icon:            p.Icon,
+		Images:          images,
+		BackgroundColor: p.BackgroundColor,
+		BackgroundType:  p.BackgroundType,
+		GradientFrom:    p.GradientFrom,
+		GradientTo:      p.GradientTo,
+		Order:           p.Order,
+		CreatedAt:       p.CreatedAt.Format(time.RFC3339),
+		UpdatedAt:       p.UpdatedAt.Format(time.RFC3339),
+		DeletedAt:       deletedAt,
+	}
+}
 
 // PersonaggiHandler gestisce le operazioni CRUD sui personaggi
 type PersonaggiHandler struct {
@@ -32,10 +92,16 @@ func (h *PersonaggiHandler) GetPersonaggi(w http.ResponseWriter, r *http.Request
 		return
 	}
 
+	// Converti in response format
+	responses := make([]PersonaggioResponse, len(personaggi))
+	for i, p := range personaggi {
+		responses[i] = toResponse(p)
+	}
+
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(map[string]interface{}{
-		"personaggi": personaggi,
-		"count":      len(personaggi),
+		"personaggi": responses,
+		"count":      len(responses),
 	})
 }
 
@@ -58,7 +124,7 @@ func (h *PersonaggiHandler) GetPersonaggio(w http.ResponseWriter, r *http.Reques
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(personaggio)
+	json.NewEncoder(w).Encode(toResponse(personaggio))
 }
 
 // CreatePersonaggio crea un nuovo personaggio
@@ -80,7 +146,7 @@ func (h *PersonaggiHandler) CreatePersonaggio(w http.ResponseWriter, r *http.Req
 		Name:            input.Name,
 		Description:     input.Description,
 		Icon:            input.Icon,
-		Images:          input.Images,
+		Images:          toJSON(input.Images),
 		BackgroundColor: input.BackgroundColor,
 		BackgroundType:  input.BackgroundType,
 		GradientFrom:    input.GradientFrom,
@@ -94,8 +160,8 @@ func (h *PersonaggiHandler) CreatePersonaggio(w http.ResponseWriter, r *http.Req
 	if personaggio.BackgroundType == "" {
 		personaggio.BackgroundType = "solid"
 	}
-	if personaggio.Images == nil {
-		personaggio.Images = []string{}
+	if len(input.Images) == 0 {
+		personaggio.Images = toJSON([]string{})
 	}
 
 	result := h.db.Create(&personaggio)
@@ -107,7 +173,7 @@ func (h *PersonaggiHandler) CreatePersonaggio(w http.ResponseWriter, r *http.Req
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(personaggio)
+	json.NewEncoder(w).Encode(toResponse(personaggio))
 }
 
 // UpdatePersonaggio aggiorna un personaggio esistente
@@ -137,7 +203,7 @@ func (h *PersonaggiHandler) UpdatePersonaggio(w http.ResponseWriter, r *http.Req
 	personaggio.Name = input.Name
 	personaggio.Description = input.Description
 	personaggio.Icon = input.Icon
-	personaggio.Images = input.Images
+	personaggio.Images = toJSON(input.Images)
 	personaggio.BackgroundColor = input.BackgroundColor
 	personaggio.BackgroundType = input.BackgroundType
 	personaggio.GradientFrom = input.GradientFrom
@@ -152,7 +218,7 @@ func (h *PersonaggiHandler) UpdatePersonaggio(w http.ResponseWriter, r *http.Req
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(personaggio)
+	json.NewEncoder(w).Encode(toResponse(personaggio))
 }
 
 // DeletePersonaggio esegue soft delete di un personaggio
@@ -223,7 +289,7 @@ func (h *PersonaggiHandler) RestorePersonaggio(w http.ResponseWriter, r *http.Re
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(personaggio)
+	json.NewEncoder(w).Encode(toResponse(personaggio))
 }
 
 // GetDeletedPersonaggi restituisce tutti i personaggi soft deleted
@@ -238,9 +304,15 @@ func (h *PersonaggiHandler) GetDeletedPersonaggi(w http.ResponseWriter, r *http.
 		return
 	}
 
+	// Converti in response format
+	responses := make([]PersonaggioResponse, len(personaggi))
+	for i, p := range personaggi {
+		responses[i] = toResponse(p)
+	}
+
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(map[string]interface{}{
-		"personaggi": personaggi,
-		"count":      len(personaggi),
+		"personaggi": responses,
+		"count":      len(responses),
 	})
 }

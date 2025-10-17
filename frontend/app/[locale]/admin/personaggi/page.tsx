@@ -2,7 +2,6 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Button } from 'primereact/button';
@@ -15,17 +14,14 @@ import { Toast } from 'primereact/toast';
 import { ConfirmDialog, confirmDialog } from 'primereact/confirmdialog';
 import { TabView, TabPanel } from 'primereact/tabview';
 import { useRef } from 'react';
-import { useTranslations } from 'next-intl';
-import { PersonaggioDTO, personaggiAPI } from '@/services/PersonaggiAPIService';
+import { PersonaggioDTO, PersonaggiAPIService } from '@/services/PersonaggiAPIService';
 
 export default function AdminPersonaggiPage() {
-  const router = useRouter();
   const toast = useRef<Toast>(null);
 
   const [personaggi, setPersonaggi] = useState<PersonaggioDTO[]>([]);
   const [deletedPersonaggi, setDeletedPersonaggi] = useState<PersonaggioDTO[]>([]);
   const [loading, setLoading] = useState(true);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [showFormDialog, setShowFormDialog] = useState(false);
   const [editingPersonaggio, setEditingPersonaggio] = useState<PersonaggioDTO | null>(null);
   const [activeTab, setActiveTab] = useState(0);
@@ -48,24 +44,18 @@ export default function AdminPersonaggiPage() {
   ];
 
   useEffect(() => {
-    const token = localStorage.getItem('adminToken');
-    if (!token) {
-      router.push('/admin/login');
-      return;
-    }
-    setIsAuthenticated(true);
     loadPersonaggi();
-  }, [router]);
+  }, []);
 
   const loadPersonaggi = async () => {
     setLoading(true);
     try {
       const [activeResponse, deletedResponse] = await Promise.all([
-        personaggiAPI.getAllPersonaggi(),
-        personaggiAPI.getDeletedPersonaggi(),
+        PersonaggiAPIService.getAllPersonaggiAdmin(),
+        PersonaggiAPIService.getDeletedPersonaggi(),
       ]);
-      setPersonaggi(activeResponse.personaggi);
-      setDeletedPersonaggi(deletedResponse.personaggi);
+      setPersonaggi(activeResponse);
+      setDeletedPersonaggi(deletedResponse);
     } catch (error) {
       console.error('Error loading personaggi:', error);
       toast.current?.show({
@@ -124,7 +114,7 @@ export default function AdminPersonaggiPage() {
       }
 
       if (editingPersonaggio) {
-        await personaggiAPI.updatePersonaggio(editingPersonaggio.id!, formData as PersonaggioDTO);
+        await PersonaggiAPIService.updatePersonaggio(editingPersonaggio.id!, formData as PersonaggioDTO);
         toast.current?.show({
           severity: 'success',
           summary: 'Success',
@@ -132,7 +122,7 @@ export default function AdminPersonaggiPage() {
           life: 3000,
         });
       } else {
-        await personaggiAPI.createPersonaggio(formData as PersonaggioDTO);
+        await PersonaggiAPIService.createPersonaggio(formData as PersonaggioDTO);
         toast.current?.show({
           severity: 'success',
           summary: 'Success',
@@ -161,7 +151,7 @@ export default function AdminPersonaggiPage() {
       icon: 'pi pi-exclamation-triangle',
       accept: async () => {
         try {
-          await personaggiAPI.deletePersonaggio(personaggio.id!);
+          await PersonaggiAPIService.deletePersonaggio(personaggio.id!);
           toast.current?.show({
             severity: 'success',
             summary: 'Success',
@@ -184,7 +174,7 @@ export default function AdminPersonaggiPage() {
 
   const handleRestore = async (personaggio: PersonaggioDTO) => {
     try {
-      await personaggiAPI.restorePersonaggio(personaggio.id!);
+      await PersonaggiAPIService.restorePersonaggio(personaggio.id!);
       toast.current?.show({
         severity: 'success',
         summary: 'Success',
@@ -262,12 +252,8 @@ export default function AdminPersonaggiPage() {
     </div>
   );
 
-  if (!isAuthenticated) {
-    return null;
-  }
-
   return (
-    <div className="container mx-auto p-6">
+    <div className="space-y-6">{" "}
       <Toast ref={toast} />
       <ConfirmDialog />
 

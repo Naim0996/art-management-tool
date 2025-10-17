@@ -41,23 +41,33 @@ func main() {
 
 	// Crea gli handler
 	personaggiHandler := handlers.NewPersonaggiHandler(database.DB)
+	ordersHandler := handlers.NewOrdersHandler(database.DB)
 
 	r := mux.NewRouter()
 
 	// Management API endpoints (authenticated)
 	adminRouter := r.PathPrefix("/api/admin").Subrouter()
 	adminRouter.Use(middleware.AuthMiddleware)
+	adminRouter.HandleFunc("/stats", handlers.GetDashboardStats(database.DB)).Methods("GET")
 	adminRouter.HandleFunc("/products", handlers.GetAdminProducts).Methods("GET")
 	adminRouter.HandleFunc("/products", handlers.CreateProduct).Methods("POST")
 	adminRouter.HandleFunc("/products/{id}", handlers.UpdateProduct).Methods("PUT")
 	adminRouter.HandleFunc("/products/{id}", handlers.DeleteProduct).Methods("DELETE")
 
+	// Orders management routes (authenticated)
+	adminRouter.HandleFunc("/orders", ordersHandler.GetOrders).Methods("GET")
+	adminRouter.HandleFunc("/orders/stats", ordersHandler.GetOrderStats).Methods("GET")
+	adminRouter.HandleFunc("/orders/{id}", ordersHandler.GetOrder).Methods("GET")
+	adminRouter.HandleFunc("/orders/{id}/status", ordersHandler.UpdateOrderStatus).Methods("PUT")
+
 	// Personaggi management routes (authenticated)
+	adminRouter.HandleFunc("/personaggi", personaggiHandler.GetPersonaggi).Methods("GET")
 	adminRouter.HandleFunc("/personaggi", personaggiHandler.CreatePersonaggio).Methods("POST")
+	adminRouter.HandleFunc("/personaggi/deleted", personaggiHandler.GetDeletedPersonaggi).Methods("GET")
+	adminRouter.HandleFunc("/personaggi/{id}", personaggiHandler.GetPersonaggio).Methods("GET")
 	adminRouter.HandleFunc("/personaggi/{id}", personaggiHandler.UpdatePersonaggio).Methods("PUT")
 	adminRouter.HandleFunc("/personaggi/{id}", personaggiHandler.DeletePersonaggio).Methods("DELETE")
 	adminRouter.HandleFunc("/personaggi/{id}/restore", personaggiHandler.RestorePersonaggio).Methods("POST")
-	adminRouter.HandleFunc("/personaggi/deleted", personaggiHandler.GetDeletedPersonaggi).Methods("GET")
 
 	// Authentication endpoints
 	r.HandleFunc("/api/auth/login", handlers.Login).Methods("POST")

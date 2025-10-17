@@ -1,15 +1,14 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @next/next/no-img-element */
 import React, { useState, useEffect } from 'react';
 import { Galleria } from 'primereact/galleria';
 import { Dialog } from 'primereact/dialog';
 import { useTranslations } from 'next-intl';
-import { PersonaggioData } from '@/services/PersonaggiService';
+import type { PersonaggioDTO } from '@/services/PersonaggiAPIService';
 
 interface PersonaggioModalProps {
     visible: boolean;
     onHide: () => void;
-    personaggio: PersonaggioData | null;
+    personaggio: PersonaggioDTO | null;
 }
 
 interface GalleriaImage {
@@ -25,32 +24,14 @@ export default function PersonaggioModal({ visible, onHide, personaggio }: Perso
     useEffect(() => {
         // Usa le immagini del personaggio selezionato
         if (personaggio && personaggio.images && personaggio.images.length > 0) {
-            const formattedImages = personaggio.images.map(img => ({
-                itemImageSrc: img.src,
-                thumbnailImageSrc: img.thumbnail || img.src,
-                alt: img.alt,
-                title: img.title
+            const formattedImages = personaggio.images.map((imgSrc: string, index: number) => ({
+                itemImageSrc: imgSrc,
+                thumbnailImageSrc: personaggio.icon || imgSrc,
+                alt: `${personaggio.name} - Image ${index + 1}`
             }));
             setImages(formattedImages);
-        } else if (visible) {
-            // Fallback alle immagini predefinite solo se il modal è visibile
-            const mockImages = [
-                {
-                    itemImageSrc: '/personaggi/ribelle/Ribelle_pigro_ink.jpeg',
-                    thumbnailImageSrc: '/personaggi/ribelle/Ribelle_pigro_ink.jpeg',
-                    alt: 'Ribelle Pigro Ink',
-                    title: 'Ribelle Pigro Ink'
-                },
-                {
-                    itemImageSrc: '/personaggi/ribelle/Ribellepigro_nome.jpeg',
-                    thumbnailImageSrc: '/personaggi/ribelle/Ribellepigro_nome.jpeg',
-                    alt: 'Ribelle il Pigro Sign',
-                    title: 'Ribelle il Pigro Sign'
-                }
-            ];
-            setImages(mockImages);
         } else {
-            // Svuota le immagini quando il modal è chiuso
+            // Svuota le immagini quando non ci sono personaggi
             setImages([]);
         }
     }, [personaggio, visible]);
