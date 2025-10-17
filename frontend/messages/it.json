@@ -1,0 +1,52 @@
+{
+  "navigation": {
+    "home": "Home",
+    "artGallery": "🎨 Galleria d'Arte",
+    "contact": "Contatti",
+    "fumetti": "Fumetti",
+    "personaggi": "Personaggi"
+  },
+  "personaggi": {
+    "title": "Personaggi",
+    "modal": {
+      "title": "Galleria Personaggi",
+      "charactersTitle": "I Personaggi",
+      "description1": "è il protagonista della nostra galleria d'arte. Un personaggio unico che rappresenta la creatività e l'originalità dell'arte contemporanea.",
+      "description2": "Questa collezione presenta diverse interpretazioni artistiche del personaggio, mostrando l'evoluzione stilistica e le diverse tecniche utilizzate dall'artista.",
+      "characteristicsTitle": "Caratteristiche principali:",
+      "characteristics": {
+        "style": "Stile distintivo e riconoscibile",
+        "color": "Uso creativo del colore e della forma",
+        "emotion": "Rappresentazione emotiva e espressiva",
+        "technique": "Tecnica mista su supporti diversi"
+      },
+      "finalNote": "Ogni opera racconta una storia diversa, mantenendo sempre l'essenza del personaggio che l'ha ispirata."
+    },
+    "characters": {
+      "ribelle": {
+        "name": "Ribelle il Pigro",
+        "description": "Il protagonista della nostra galleria d'arte. Un personaggio unico che rappresenta la creatività e l'originalità dell'arte contemporanea."
+      },
+      "giullare": {
+        "name": "Il Giullare", 
+        "description": "Un personaggio divertente e colorato che porta allegria in ogni opera. Con il suo spirito giocoso e la sua natura esuberante, rappresenta la gioia dell'arte."
+      },
+      "leon": {
+        "name": "Leon",
+        "description": "Un personaggio forte e determinato con uno stile unico. Leon rappresenta la forza interiore e la determinazione attraverso tratti artistici decisi e caratteristici."
+      },
+      "polemico": {
+        "name": "Il Polemico",
+        "description": "Un personaggio che esprime opinioni forti attraverso l'arte. Con il suo carattere provocatorio e riflessivo, sfida le convenzioni e stimola il dibattito artistico."
+      }
+    }
+  },
+  "footer": {
+    "copyright": "© 2025 Art Management Tool. Tutti i diritti riservati."
+  },
+  "language": {
+    "switch": "Cambia lingua",
+    "italian": "Italiano",
+    "english": "Inglese"
+  }
+}

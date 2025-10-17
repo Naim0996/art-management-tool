@@ -10,13 +10,13 @@ import (
 )
 
 var (
-	carts   = make(map[string]models.Cart)
+	carts   = make(map[string]models.LegacyCart)
 	cartsMu sync.RWMutex
 )
 
 // AddToCart adds a product to the cart
 func AddToCart(w http.ResponseWriter, r *http.Request) {
-	var item models.CartItem
+	var item models.LegacyCartItem
 	if err := json.NewDecoder(r.Body).Decode(&item); err != nil {
 		http.Error(w, "Invalid request body", http.StatusBadRequest)
 		return
@@ -28,9 +28,9 @@ func AddToCart(w http.ResponseWriter, r *http.Request) {
 	cartsMu.Lock()
 	cart, exists := carts[cartID]
 	if !exists {
-		cart = models.Cart{
+		cart = models.LegacyCart{
 			ID:    cartID,
-			Items: []models.CartItem{},
+			Items: []models.LegacyCartItem{},
 		}
 	}
 	
@@ -63,9 +63,9 @@ func GetCart(w http.ResponseWriter, r *http.Request) {
 	cartsMu.RUnlock()
 
 	if !exists {
-		cart = models.Cart{
+		cart = models.LegacyCart{
 			ID:    cartID,
-			Items: []models.CartItem{},
+			Items: []models.LegacyCartItem{},
 		}
 	}
 
@@ -89,7 +89,7 @@ func RemoveFromCart(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Remove item from cart
-	newItems := []models.CartItem{}
+	newItems := []models.LegacyCartItem{}
 	for _, item := range cart.Items {
 		if item.ProductID != productID {
 			newItems = append(newItems, item)

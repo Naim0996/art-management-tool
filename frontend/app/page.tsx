@@ -1,40 +1,14 @@
+
 import Link from "next/link";
 
 export default function Home() {
-  return (
-    <div className="min-h-screen bg-gradient-to-b from-purple-50 to-white">
-      {/* Navigation Bar */}
-      <nav className="bg-white shadow-md sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center">
-              <Link href="/" className="text-2xl font-bold text-purple-600">
-                🎨 Art Gallery
-              </Link>
-            </div>
-            <div className="hidden md:flex space-x-8">
-              <Link href="/shop" className="text-gray-700 hover:text-purple-600 transition-colors font-medium">
-                Shop
-              </Link>
-              <Link href="/cart" className="text-gray-700 hover:text-purple-600 transition-colors font-medium">
-                Cart
-              </Link>
-              <Link href="/checkout" className="text-gray-700 hover:text-purple-600 transition-colors font-medium">
-                Checkout
-              </Link>
-              <Link href="/admin" className="text-gray-700 hover:text-purple-600 transition-colors font-medium">
-                Admin
-              </Link>
-              <Link href="/primereact-demo" className="text-gray-700 hover:text-purple-600 transition-colors font-medium">
-                Demo
-              </Link>
-            </div>
-          </div>
-        </div>
-      </nav>
 
-      {/* Hero Section */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+
+
+  return (
+    <>
+          {/* Hero Section */}
+      
         <div className="text-center mb-12">
           <h1 className="text-5xl md:text-6xl font-bold text-gray-900 mb-4">
             Welcome to Art Gallery
@@ -98,7 +72,7 @@ export default function Home() {
             <h2 className="text-2xl font-semibold mb-4 text-gray-900">Shop</h2>
             <p className="text-gray-600">Browse and purchase artwork from our collection</p>
           </Link>
-          
+
           <Link href="/cart" className="block p-8 border-2 border-purple-200 rounded-lg hover:shadow-xl transition-shadow bg-white hover:border-purple-400">
             <div className="text-5xl mb-4">🛒</div>
             <h2 className="text-2xl font-semibold mb-4 text-gray-900">Shopping Cart</h2>
@@ -110,7 +84,7 @@ export default function Home() {
             <h2 className="text-2xl font-semibold mb-4 text-gray-900">Checkout</h2>
             <p className="text-gray-600">Complete your purchase securely</p>
           </Link>
-          
+
           <Link href="/admin" className="block p-8 border-2 border-purple-200 rounded-lg hover:shadow-xl transition-shadow bg-white hover:border-purple-400">
             <div className="text-5xl mb-4">🔐</div>
             <h2 className="text-2xl font-semibold mb-4 text-gray-900">Admin</h2>
@@ -129,7 +103,7 @@ export default function Home() {
             <p className="text-gray-600">Sign in to access admin features</p>
           </Link>
         </div>
-        
+
         {/* Features Section */}
         <div className="mt-16 p-8 bg-white rounded-lg shadow-lg">
           <h3 className="text-3xl font-bold mb-6 text-center text-gray-900">Platform Features</h3>
@@ -178,14 +152,6 @@ export default function Home() {
             </div>
           </div>
         </div>
-      </section>
-
-      {/* Footer */}
-      <footer className="bg-gray-900 text-white py-8 mt-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <p className="text-gray-400">© 2025 Art Management Tool. All rights reserved.</p>
-        </div>
-      </footer>
-    </div>
+    </>
   );
 }
