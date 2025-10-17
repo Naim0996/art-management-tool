@@ -50,8 +50,8 @@ export default function LanguageSwitcher() {
   const valueTemplate = (option: LanguageOption) => {
     if (option) {
       return (
-        <div className="flex align-items-center justify-content-center">
-          <span className="text-lg">{option.flag}</span>
+        <div className="flex align-items-center justify-content-center" style={{ padding: '0.25rem 0' }}>
+          <span className="text-xl">{option.flag}</span>
         </div>
       );
     }
@@ -65,8 +65,11 @@ export default function LanguageSwitcher() {
       onChange={handleLanguageChange}
       itemTemplate={itemTemplate}
       valueTemplate={valueTemplate}
-      className="w-12 h-10"
-      style={{ minWidth: '3rem' }}
+      className="w-12"
+      style={{ 
+        minWidth: '3rem',
+        height: '2.5rem'
+      }}
       panelClassName="text-sm w-auto"
       showClear={false}
     />

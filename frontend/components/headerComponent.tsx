@@ -3,7 +3,6 @@
 import Image from "next/image";
 import { useTranslations, useLocale } from 'next-intl';
 
-import { Avatar } from "primereact/avatar";
 import { Button } from "primereact/button";
 import { MegaMenu } from "primereact/megamenu";
 import { Ripple } from "primereact/ripple";
@@ -86,9 +85,8 @@ export default function HeaderComponent() {
     ];
 
     const end = (
-        <div className="flex align-items-center gap-3">
+        <div className="flex align-items-center justify-content-center mr-4" style={{ height: '100%' }}>
             <LanguageSwitcher />
-            <Avatar image="https://primefaces.org/cdn/primereact/images/avatar/amyelsner.png" shape="circle" />
         </div>
     );
 
@@ -101,7 +99,17 @@ export default function HeaderComponent() {
             {/* Navigation Bar - Sticky Header */}
             <div className="sticky top-0 z-50 bg-white/95 backdrop-blur-sm">
                 <div className="card">
-                    <MegaMenu model={items} orientation="horizontal" start={start} end={end} breakpoint="960px" className="p-3 surface-0 shadow-2" style={{ borderRadius: '3rem' }} />
+                    <MegaMenu 
+                        model={items} 
+                        orientation="horizontal" 
+                        start={start} 
+                        end={end} 
+                        breakpoint="960px" 
+                        className="p-3 surface-0 shadow-2" 
+                        style={{ 
+                            borderRadius: '3rem',
+                        }} 
+                    />
                 </div>
             </div>
         </>

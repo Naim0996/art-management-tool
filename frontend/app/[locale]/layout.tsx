@@ -20,15 +20,15 @@ export default async function LocaleLayout({
  
   return (
     <html lang={locale} className="h-full">
-      <body className="antialiased h-full">
+      <body className="antialiased h-full overflow-x-hidden">
         <NextIntlClientProvider messages={messages}>
           <PrimeReactProvider>
-            <div className="min-h-screen bg-gradient-to-b from-purple-50 to-white flex flex-col">
+            <div className="min-h-screen bg-gradient-to-b from-purple-50 to-white flex flex-col overflow-x-hidden">
               {/* Header sempre in alto e sticky */}
               <HeaderComponent />
 
               {/* Contenuto principale che si espande per riempire lo spazio disponibile */}
-              <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+              <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full overflow-x-hidden">
                 <div className="pt-4">
                   {children}
                 </div>
