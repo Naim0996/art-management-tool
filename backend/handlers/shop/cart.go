@@ -68,15 +68,7 @@ func (h *CartHandler) AddItem(w http.ResponseWriter, r *http.Request) {
 	
 	cart, err := h.cartService.AddItem(sessionToken, req.ProductID, req.VariantID, req.Quantity)
 	if err != nil {
-		if err == cart.ErrOutOfStock {
-			http.Error(w, "Product out of stock", http.StatusBadRequest)
-			return
-		}
-		if err == cart.ErrProductNotFound {
-			http.Error(w, "Product not found", http.StatusNotFound)
-			return
-		}
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 	
@@ -112,11 +104,7 @@ func (h *CartHandler) UpdateItem(w http.ResponseWriter, r *http.Request) {
 	
 	cart, err := h.cartService.UpdateItemQuantity(sessionToken, uint(itemID), req.Quantity)
 	if err != nil {
-		if err == cart.ErrItemNotFound {
-			http.Error(w, "Item not found", http.StatusNotFound)
-			return
-		}
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 	
@@ -137,11 +125,7 @@ func (h *CartHandler) RemoveItem(w http.ResponseWriter, r *http.Request) {
 	
 	_, err = h.cartService.RemoveItem(sessionToken, uint(itemID))
 	if err != nil {
-		if err == cart.ErrItemNotFound {
-			http.Error(w, "Item not found", http.StatusNotFound)
-			return
-		}
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 	

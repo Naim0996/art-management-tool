@@ -7,7 +7,6 @@ import (
 
 	"github.com/Naim0996/art-management-tool/backend/models"
 	"github.com/Naim0996/art-management-tool/backend/services/cart"
-	"github.com/Naim0996/art-management-tool/backend/services/notification"
 	"github.com/Naim0996/art-management-tool/backend/services/order"
 	"github.com/Naim0996/art-management-tool/backend/services/payment"
 	"gorm.io/gorm"

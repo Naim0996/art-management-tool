@@ -105,11 +105,7 @@ func (h *CatalogHandler) GetProduct(w http.ResponseWriter, r *http.Request) {
 	
 	product, err := h.productService.GetProductBySlug(slug)
 	if err != nil {
-		if err == product.ErrProductNotFound {
-			http.Error(w, "Product not found", http.StatusNotFound)
-			return
-		}
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(w, "Product not found", http.StatusNotFound)
 		return
 	}
 	

@@ -93,11 +93,7 @@ func (h *OrderHandler) GetOrder(w http.ResponseWriter, r *http.Request) {
 	
 	order, err := h.orderService.GetOrder(uint(id))
 	if err != nil {
-		if err == order.ErrOrderNotFound {
-			http.Error(w, "Order not found", http.StatusNotFound)
-			return
-		}
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(w, "Order not found", http.StatusNotFound)
 		return
 	}
 	
@@ -124,11 +120,7 @@ func (h *OrderHandler) UpdateFulfillmentStatus(w http.ResponseWriter, r *http.Re
 	}
 	
 	if err := h.orderService.UpdateFulfillmentStatus(uint(id), req.Status); err != nil {
-		if err == order.ErrOrderNotFound {
-			http.Error(w, "Order not found", http.StatusNotFound)
-			return
-		}
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 	
@@ -154,10 +146,6 @@ func (h *OrderHandler) RefundOrder(w http.ResponseWriter, r *http.Request) {
 	}
 	
 	if err := h.orderService.RefundOrder(uint(id), req.Amount); err != nil {
-		if err == order.ErrOrderNotFound {
-			http.Error(w, "Order not found", http.StatusNotFound)
-			return
-		}
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}

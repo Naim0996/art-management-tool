@@ -83,11 +83,7 @@ func (h *ProductHandler) GetProduct(w http.ResponseWriter, r *http.Request) {
 	
 	product, err := h.productService.GetProduct(uint(id))
 	if err != nil {
-		if err == product.ErrProductNotFound {
-			http.Error(w, "Product not found", http.StatusNotFound)
-			return
-		}
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(w, "Product not found", http.StatusNotFound)
 		return
 	}
 	
@@ -110,11 +106,7 @@ func (h *ProductHandler) CreateProduct(w http.ResponseWriter, r *http.Request) {
 	}
 	
 	if err := h.productService.CreateProduct(&product); err != nil {
-		if err == product.ErrDuplicateSKU {
-			http.Error(w, "SKU already exists", http.StatusConflict)
-			return
-		}
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 	
@@ -139,15 +131,7 @@ func (h *ProductHandler) UpdateProduct(w http.ResponseWriter, r *http.Request) {
 	}
 	
 	if err := h.productService.UpdateProduct(uint(id), &updates); err != nil {
-		if err == product.ErrProductNotFound {
-			http.Error(w, "Product not found", http.StatusNotFound)
-			return
-		}
-		if err == product.ErrDuplicateSKU {
-			http.Error(w, "SKU already exists", http.StatusConflict)
-			return
-		}
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 	
@@ -164,11 +148,7 @@ func (h *ProductHandler) DeleteProduct(w http.ResponseWriter, r *http.Request) {
 	}
 	
 	if err := h.productService.DeleteProduct(uint(id)); err != nil {
-		if err == product.ErrProductNotFound {
-			http.Error(w, "Product not found", http.StatusNotFound)
-			return
-		}
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 	
@@ -196,15 +176,7 @@ func (h *ProductHandler) AddVariant(w http.ResponseWriter, r *http.Request) {
 	}
 	
 	if err := h.productService.AddVariant(uint(productID), &variant); err != nil {
-		if err == product.ErrProductNotFound {
-			http.Error(w, "Product not found", http.StatusNotFound)
-			return
-		}
-		if err == product.ErrDuplicateSKU {
-			http.Error(w, "SKU already exists", http.StatusConflict)
-			return
-		}
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 	
@@ -229,15 +201,7 @@ func (h *ProductHandler) UpdateVariant(w http.ResponseWriter, r *http.Request) {
 	}
 	
 	if err := h.productService.UpdateVariant(uint(id), &updates); err != nil {
-		if err == product.ErrVariantNotFound {
-			http.Error(w, "Variant not found", http.StatusNotFound)
-			return
-		}
-		if err == product.ErrDuplicateSKU {
-			http.Error(w, "SKU already exists", http.StatusConflict)
-			return
-		}
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 	
@@ -264,11 +228,7 @@ func (h *ProductHandler) UpdateInventory(w http.ResponseWriter, r *http.Request)
 	}
 	
 	if err := h.productService.UpdateInventory(req.VariantID, req.Quantity, req.Operation); err != nil {
-		if err == product.ErrVariantNotFound {
-			http.Error(w, "Variant not found", http.StatusNotFound)
-			return
-		}
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 	
