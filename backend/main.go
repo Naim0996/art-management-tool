@@ -68,6 +68,8 @@ func main() {
 	adminRouter.HandleFunc("/personaggi/{id}", personaggiHandler.UpdatePersonaggio).Methods("PUT")
 	adminRouter.HandleFunc("/personaggi/{id}", personaggiHandler.DeletePersonaggio).Methods("DELETE")
 	adminRouter.HandleFunc("/personaggi/{id}/restore", personaggiHandler.RestorePersonaggio).Methods("POST")
+	adminRouter.HandleFunc("/personaggi/{id}/upload", personaggiHandler.UploadImage).Methods("POST")
+	adminRouter.HandleFunc("/personaggi/{id}/images", personaggiHandler.DeleteImage).Methods("DELETE")
 
 	// Authentication endpoints
 	r.HandleFunc("/api/auth/login", handlers.Login).Methods("POST")
@@ -83,6 +85,9 @@ func main() {
 	// Personaggi public routes (read-only)
 	r.HandleFunc("/api/personaggi", personaggiHandler.GetPersonaggi).Methods("GET")
 	r.HandleFunc("/api/personaggi/{id}", personaggiHandler.GetPersonaggio).Methods("GET")
+
+	// Serve uploaded files
+	r.PathPrefix("/uploads/").Handler(http.StripPrefix("/uploads/", http.FileServer(http.Dir("./uploads"))))
 
 	// Health check
 	r.HandleFunc("/health", handlers.HealthCheck).Methods("GET")

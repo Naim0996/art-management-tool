@@ -120,7 +120,7 @@ export class PersonaggiAPIService {
   }
 
   // POST /api/admin/personaggi/{id}/upload - Upload immagine per un personaggio
-  static async uploadImage(id: number, file: File, type: 'icon' | 'gallery'): Promise<{ path: string }> {
+  static async uploadImage(id: number, file: File, type: 'icon' | 'image'): Promise<{ message: string; url: string; type: string }> {
     const formData = new FormData();
     formData.append('file', file);
     formData.append('type', type);
@@ -132,6 +132,30 @@ export class PersonaggiAPIService {
       method: 'POST',
       headers,
       body: formData,
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`HTTP ${response.status}: ${errorText}`);
+    }
+
+    return response.json();
+  }
+
+  // DELETE /api/admin/personaggi/{id}/images - Elimina un'immagine da un personaggio
+  static async deleteImage(id: number, imageUrl: string, type: 'icon' | 'image'): Promise<{ message: string }> {
+    const token = typeof window !== 'undefined' ? localStorage.getItem('adminToken') : null;
+    const headers: HeadersInit = {
+      'Content-Type': 'application/json',
+    };
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+
+    const response = await fetch(`${API_BASE_URL}/api/admin/personaggi/${id}/images`, {
+      method: 'DELETE',
+      headers,
+      body: JSON.stringify({ imageUrl, type }),
     });
 
     if (!response.ok) {

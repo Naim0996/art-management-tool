@@ -57,12 +57,10 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
 
   // Admin pages with sidebar
   return (
-    <div className="flex h-screen bg-gray-100">
+    <div className="flex h-screen bg-gray-100 overflow-hidden">
       <AdminSidebar />
       <main className="flex-1 overflow-y-auto">
-        <div className="p-6">
-          {children}
-        </div>
+        {children}
       </main>
     </div>
   );

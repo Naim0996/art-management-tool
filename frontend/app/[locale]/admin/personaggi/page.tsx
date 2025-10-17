@@ -15,6 +15,7 @@ import { ConfirmDialog, confirmDialog } from 'primereact/confirmdialog';
 import { TabView, TabPanel } from 'primereact/tabview';
 import { useRef } from 'react';
 import { PersonaggioDTO, PersonaggiAPIService } from '@/services/PersonaggiAPIService';
+import PersonaggioPreview from '@/components/PersonaggioPreview';
 
 export default function AdminPersonaggiPage() {
   const toast = useRef<Toast>(null);
@@ -23,6 +24,7 @@ export default function AdminPersonaggiPage() {
   const [deletedPersonaggi, setDeletedPersonaggi] = useState<PersonaggioDTO[]>([]);
   const [loading, setLoading] = useState(true);
   const [showFormDialog, setShowFormDialog] = useState(false);
+  const [showPreviewDialog, setShowPreviewDialog] = useState(false);
   const [editingPersonaggio, setEditingPersonaggio] = useState<PersonaggioDTO | null>(null);
   const [activeTab, setActiveTab] = useState(0);
 
@@ -193,9 +195,34 @@ export default function AdminPersonaggiPage() {
     }
   };
 
+  const handlePreview = (personaggio?: PersonaggioDTO) => {
+    if (personaggio) {
+      setFormData({
+        name: personaggio.name,
+        description: personaggio.description,
+        icon: personaggio.icon,
+        images: personaggio.images || [],
+        backgroundColor: personaggio.backgroundColor,
+        backgroundType: personaggio.backgroundType,
+        gradientFrom: personaggio.gradientFrom,
+        gradientTo: personaggio.gradientTo,
+        order: personaggio.order,
+      });
+    }
+    setShowPreviewDialog(true);
+  };
+
   const actionBodyTemplate = (rowData: PersonaggioDTO) => {
     return (
       <div className="flex gap-2">
+        <Button
+          icon="pi pi-eye"
+          rounded
+          outlined
+          severity="secondary"
+          onClick={() => handlePreview(rowData)}
+          tooltip="Preview"
+        />
         <Button
           icon="pi pi-pencil"
           rounded
@@ -253,7 +280,7 @@ export default function AdminPersonaggiPage() {
   );
 
   return (
-    <div className="space-y-6">{" "}
+    <div className="p-6 space-y-6">
       <Toast ref={toast} />
       <ConfirmDialog />
 
@@ -279,7 +306,7 @@ export default function AdminPersonaggiPage() {
             paginator
             rows={10}
             rowsPerPageOptions={[5, 10, 25, 50]}
-            tableStyle={{ minWidth: '60rem' }}
+            tableStyle={{ maxWidth: '60rem' }}
             emptyMessage="No active personaggi found"
           >
             <Column field="id" header="ID" sortable style={{ width: '5%' }} />
@@ -287,9 +314,11 @@ export default function AdminPersonaggiPage() {
             <Column
               field="description"
               header="Description"
-              style={{ width: '25%' }}
+              style={{ width: '20%' }}
               body={(rowData) => (
-                <div className="max-w-xs truncate">{rowData.description}</div>
+                <div className="overflow-hidden text-ellipsis whitespace-nowrap" title={rowData.description}>
+                  {rowData.description}
+                </div>
               )}
             />
             <Column
@@ -314,7 +343,7 @@ export default function AdminPersonaggiPage() {
             <Column
               header="Actions"
               body={actionBodyTemplate}
-              style={{ width: '15%' }}
+              style={{ width: '20%' }}
             />
           </DataTable>
         </TabPanel>
@@ -334,9 +363,11 @@ export default function AdminPersonaggiPage() {
             <Column
               field="description"
               header="Description"
-              style={{ width: '30%' }}
+              style={{ width: '25%' }}
               body={(rowData) => (
-                <div className="max-w-xs truncate">{rowData.description}</div>
+                <div className="overflow-hidden text-ellipsis whitespace-nowrap" title={rowData.description}>
+                  {rowData.description}
+                </div>
               )}
             />
             <Column
@@ -504,6 +535,19 @@ export default function AdminPersonaggiPage() {
             />
           </div>
         </div>
+      </Dialog>
+
+      {/* Preview Dialog */}
+      <Dialog
+        visible={showPreviewDialog}
+        onHide={() => setShowPreviewDialog(false)}
+        header="Personaggio Preview"
+        modal
+        style={{ width: '95vw', maxWidth: '1400px' }}
+        draggable={false}
+        resizable={false}
+      >
+        <PersonaggioPreview personaggio={formData} />
       </Dialog>
     </div>
   );
