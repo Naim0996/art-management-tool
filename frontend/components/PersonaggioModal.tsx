@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @next/next/no-img-element */
 import React, { useState, useEffect } from 'react';
 import { Galleria } from 'primereact/galleria';
 import { Dialog } from 'primereact/dialog';
@@ -10,9 +12,15 @@ interface PersonaggioModalProps {
     personaggio: PersonaggioData | null;
 }
 
+interface GalleriaImage {
+    itemImageSrc: string;
+    thumbnailImageSrc: string;
+    alt: string;
+}
+
 export default function PersonaggioModal({ visible, onHide, personaggio }: PersonaggioModalProps) {
     const t = useTranslations('personaggi.modal');
-    const [images, setImages] = useState<any[]>([]);
+    const [images, setImages] = useState<GalleriaImage[]>([]);
 
     useEffect(() => {
         // Usa le immagini del personaggio selezionato
@@ -47,7 +55,7 @@ export default function PersonaggioModal({ visible, onHide, personaggio }: Perso
         }
     }, [personaggio, visible]);
 
-    const itemTemplate = (item: any) => {
+    const itemTemplate = (item: GalleriaImage) => {
         if (!item || !item.itemImageSrc) {
             return <div className="w-full h-96 bg-gray-200 flex items-center justify-center">No Image</div>;
         }
@@ -60,7 +68,7 @@ export default function PersonaggioModal({ visible, onHide, personaggio }: Perso
         );
     };
 
-    const thumbnailTemplate = (item: any) => {
+    const thumbnailTemplate = (item: GalleriaImage) => {
         if (!item || !item.thumbnailImageSrc) {
             return <div className="w-15 h-15 bg-gray-200"></div>;
         }
@@ -80,7 +88,8 @@ export default function PersonaggioModal({ visible, onHide, personaggio }: Perso
             header={personaggio?.name || t('title')}
             style={{ width: '90vw', maxWidth: '1000px' }}
             modal
-            maximizable
+            draggable={false}
+            resizable={false}
         >
             <div className="flex flex-col md:flex-row gap-6">
                 {/* Galleria a sinistra */}

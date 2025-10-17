@@ -4,6 +4,7 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/Naim0996/art-management-tool/backend/database"
 	"github.com/Naim0996/art-management-tool/backend/handlers"
 	"github.com/Naim0996/art-management-tool/backend/middleware"
 	"github.com/gorilla/mux"
@@ -26,6 +27,21 @@ func corsMiddleware(next http.Handler) http.Handler {
 }
 
 func main() {
+	// Inizializza il database
+	if err := database.Connect(); err != nil {
+		log.Fatal("Failed to connect to database:", err)
+	}
+
+	// Esegui le migrazioni
+	if err := database.AutoMigrate(); err != nil {
+		log.Fatal("Failed to run database migrations:", err)
+	}
+
+	log.Println("Database initialized successfully")
+
+	// Crea gli handler
+	personaggiHandler := handlers.NewPersonaggiHandler(database.DB)
+
 	r := mux.NewRouter()
 
 	// Management API endpoints (authenticated)
@@ -35,6 +51,13 @@ func main() {
 	adminRouter.HandleFunc("/products", handlers.CreateProduct).Methods("POST")
 	adminRouter.HandleFunc("/products/{id}", handlers.UpdateProduct).Methods("PUT")
 	adminRouter.HandleFunc("/products/{id}", handlers.DeleteProduct).Methods("DELETE")
+
+	// Personaggi management routes (authenticated)
+	adminRouter.HandleFunc("/personaggi", personaggiHandler.CreatePersonaggio).Methods("POST")
+	adminRouter.HandleFunc("/personaggi/{id}", personaggiHandler.UpdatePersonaggio).Methods("PUT")
+	adminRouter.HandleFunc("/personaggi/{id}", personaggiHandler.DeletePersonaggio).Methods("DELETE")
+	adminRouter.HandleFunc("/personaggi/{id}/restore", personaggiHandler.RestorePersonaggio).Methods("POST")
+	adminRouter.HandleFunc("/personaggi/deleted", personaggiHandler.GetDeletedPersonaggi).Methods("GET")
 
 	// Authentication endpoints
 	r.HandleFunc("/api/auth/login", handlers.Login).Methods("POST")
@@ -46,6 +69,10 @@ func main() {
 	r.HandleFunc("/api/cart", handlers.GetCart).Methods("GET")
 	r.HandleFunc("/api/cart/{id}", handlers.RemoveFromCart).Methods("DELETE")
 	r.HandleFunc("/api/checkout", handlers.Checkout).Methods("POST")
+
+	// Personaggi public routes (read-only)
+	r.HandleFunc("/api/personaggi", personaggiHandler.GetPersonaggi).Methods("GET")
+	r.HandleFunc("/api/personaggi/{id}", personaggiHandler.GetPersonaggio).Methods("GET")
 
 	// Health check
 	r.HandleFunc("/health", handlers.HealthCheck).Methods("GET")

@@ -6,6 +6,11 @@ export interface PersonaggioData {
   folder: string;
   images: PersonaggioImage[];
   icon?: string;
+  backgroundColor?: string;
+  backgroundType?: 'solid' | 'gradient';
+  gradientFrom?: string;
+  gradientTo?: string;
+  order?: number;
 }
 
 export interface PersonaggioImage {

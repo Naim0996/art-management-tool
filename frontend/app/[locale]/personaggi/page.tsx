@@ -19,10 +19,24 @@ export default function PersonaggiPage() {
 
       {/* Grid responsive per tutti i personaggi */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        {personaggi.map((personaggio) => (
+        {personaggi.map((personaggio) => {
+          // Genera lo stile del background in base al tipo
+          const getBackgroundStyle = () => {
+            if (personaggio.backgroundType === 'gradient' && personaggio.gradientFrom && personaggio.gradientTo) {
+              return {
+                background: `linear-gradient(to bottom right, ${personaggio.gradientFrom}, ${personaggio.gradientTo})`
+              };
+            }
+            return {
+              backgroundColor: personaggio.backgroundColor || '#E0E7FF'
+            };
+          };
+
+          return (
           <div 
             key={personaggio.id}
-            className="bg-gradient-to-br from-blue-50 to-purple-50 rounded-lg p-4 cursor-pointer hover:shadow-lg transition-all duration-300 hover:scale-105"
+            className="rounded-lg p-4 cursor-pointer hover:shadow-lg transition-all duration-300 hover:scale-105"
+            style={getBackgroundStyle()}
             onClick={() => {
               setSelectedPersonaggio(personaggio);
               setModalVisible(true);
@@ -57,7 +71,8 @@ export default function PersonaggiPage() {
             </h3>
 
           </div>
-        ))}
+          );
+        })}
       </div>
 
       {/* Messaggio se non ci sono personaggi */}
