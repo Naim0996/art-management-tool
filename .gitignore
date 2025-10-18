@@ -19,7 +19,39 @@ Thumbs.db
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+pnpm-debug.log*
 
 # Temporary files
 tmp/
 temp/
+*.tmp
+
+# Build artifacts
+dist/
+build/
+.next/
+out/
+*.exe
+*.out
+server
+backend/server
+
+# Dependencies
+node_modules/
+vendor/
+
+# Test coverage
+coverage/
+*.cover
+*.coverage
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+data.db
+
+# Backup files
+*.bak
+*.backup
+backup_*.sql

@@ -41,7 +41,10 @@ art-management-tool/
 │
 ├── infrastructure/      # Terraform IaC (optional)
 ├── docker-compose.yml   # Docker orchestration
-└── docs/               # Additional documentation
+└── docs/               # Documentation
+    ├── guides/         # Deployment and usage guides
+    ├── api/            # API documentation
+    └── troubleshooting/ # Debugging and troubleshooting
 ```
 
 ## ✨ Features
@@ -268,7 +271,7 @@ Access admin panel at: http://localhost:3000/admin
 | `GET` | `/health` | Application health check |
 | `GET` | `/api/stats` | System statistics (if enabled) |
 
-📖 **Complete API documentation**: See [SHOP_API.md](./SHOP_API.md) for detailed request/response schemas.
+📖 **Complete API documentation**: See [docs/api/SHOP_API.md](./docs/api/SHOP_API.md) for detailed request/response schemas.
 
 ## 💳 Payment Configuration
 
@@ -585,9 +588,9 @@ terraform destroy
 ```
 
 For detailed deployment instructions, see:
-- 📘 [DEPLOYMENT.md](./DEPLOYMENT.md) - Comprehensive deployment guide
-- 🐳 [DOCKER.md](./DOCKER.md) - Docker-specific instructions
-- 🏗️ [ARCHITECTURE.md](./ARCHITECTURE.md) - System architecture overview
+- 📘 [DEPLOYMENT.md](./docs/guides/DEPLOYMENT.md) - Comprehensive deployment guide
+- 🐳 [DOCKER.md](./docs/guides/DOCKER.md) - Docker-specific instructions
+- 🏗️ [ARCHITECTURE.md](./docs/ARCHITECTURE.md) - System architecture overview
 
 ### Production Checklist
 
@@ -606,11 +609,15 @@ For detailed deployment instructions, see:
 
 ## 📖 Documentation
 
-- 📋 [API Documentation](./SHOP_API.md) - Complete API reference
-- 🏗️ [Architecture](./ARCHITECTURE.md) - System design and architecture
-- 🐳 [Docker Guide](./DOCKER.md) - Container deployment
-- 🚀 [Deployment Guide](./DEPLOYMENT.md) - Production deployment
-- 🤝 [Contributing](./CONTRIBUTING.md) - How to contribute
+- 📋 [API Documentation](./docs/api/SHOP_API.md) - Complete API reference
+- 🏗️ [Architecture](./docs/ARCHITECTURE.md) - System design and architecture
+- 🐳 [Docker Guide](./docs/guides/DOCKER.md) - Container deployment
+- 🚀 [Deployment Guide](./docs/guides/DEPLOYMENT.md) - Production deployment
+- 🧪 [Testing Guide](./docs/guides/TESTING_GUIDE.md) - Testing strategies
+- 🔧 [Integration Summary](./docs/guides/INTEGRATION_SUMMARY.md) - Integration details
+- 🤝 [Contributing](./docs/CONTRIBUTING.md) - How to contribute
+- 🛒 [Cart Troubleshooting](./docs/troubleshooting/CART_TROUBLESHOOTING.md) - Shopping cart debugging
+- 🔌 [Proxy Solution](./docs/troubleshooting/PROXY_SOLUTION.md) - API proxy configuration
 
 ## 🤝 Contributing
 
@@ -655,7 +662,7 @@ We welcome contributions! Please follow these steps:
 - Keep dependencies up to date
 - Use meaningful variable and function names
 
-See [CONTRIBUTING.md](./CONTRIBUTING.md) for detailed guidelines.
+See [docs/CONTRIBUTING.md](./docs/CONTRIBUTING.md) for detailed guidelines.
 
 ## 📄 License
 
