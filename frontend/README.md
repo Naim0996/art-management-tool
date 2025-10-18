@@ -690,13 +690,13 @@ npm run export
 
 ### Project Documentation
 
-- 📋 [API Documentation](../SHOP_API.md)
-- 🏗️ [Architecture](../ARCHITECTURE.md)
-- 🚀 [Deployment Guide](../DEPLOYMENT.md)
+- 📋 [API Documentation](../docs/api/SHOP_API.md)
+- 🏗️ [Architecture](../docs/ARCHITECTURE.md)
+- 🚀 [Deployment Guide](../docs/guides/DEPLOYMENT.md)
 
 ## 🤝 Contributing
 
-See the main [CONTRIBUTING.md](../CONTRIBUTING.md) for guidelines.
+See the main [CONTRIBUTING.md](../docs/CONTRIBUTING.md) for guidelines.
 
 ## 📄 License
 

@@ -64,13 +64,13 @@ export class PersonaggiAPIService {
   // GET /api/personaggi - Ottieni tutti i personaggi attivi (public)
   static async getAllPersonaggi(): Promise<PersonaggioDTO[]> {
     const response = await this.fetchJSON<PersonaggiListResponse>('/api/personaggi');
-    return response.personaggi || response as any;
+    return response.personaggi || (Array.isArray(response) ? response as PersonaggioDTO[] : []);
   }
 
   // GET /api/admin/personaggi - Ottieni tutti i personaggi attivi (admin)
   static async getAllPersonaggiAdmin(): Promise<PersonaggioDTO[]> {
     const response = await this.fetchJSON<PersonaggiListResponse>('/api/admin/personaggi', {}, true);
-    return response.personaggi || response as any;
+    return response.personaggi || (Array.isArray(response) ? response as PersonaggioDTO[] : []);
   }
 
   // GET /api/personaggi/{id} - Ottieni un personaggio specifico (public)
@@ -116,7 +116,7 @@ export class PersonaggiAPIService {
   // GET /api/admin/personaggi/deleted - Ottieni tutti i personaggi cancellati
   static async getDeletedPersonaggi(): Promise<PersonaggioDTO[]> {
     const response = await this.fetchJSON<PersonaggiListResponse>('/api/admin/personaggi/deleted', {}, true);
-    return response.personaggi || response as any;
+    return response.personaggi || (Array.isArray(response) ? response as PersonaggioDTO[] : []);
   }
 
   // POST /api/admin/personaggi/{id}/upload - Upload immagine per un personaggio

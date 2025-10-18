@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Button } from 'primereact/button';
@@ -58,11 +58,7 @@ export default function ShopProductsManagement() {
     { label: 'USD ($)', value: 'USD' },
   ];
 
-  useEffect(() => {
-    fetchProducts();
-  }, [page, searchQuery]);
-
-  const fetchProducts = async () => {
+  const fetchProducts = useCallback(async () => {
     setLoading(true);
     try {
       const response = await adminShopAPI.listProducts({
@@ -83,7 +79,11 @@ export default function ShopProductsManagement() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [page, searchQuery]);
+
+  useEffect(() => {
+    fetchProducts();
+  }, [fetchProducts]);
 
   const handleCreate = () => {
     setEditingProduct(null);
@@ -195,7 +195,7 @@ export default function ShopProductsManagement() {
         stock: 0,
       });
       setShowVariantDialog(true);
-    } catch (error) {
+    } catch {
       toast.current?.show({
         severity: 'error',
         summary: 'Error',

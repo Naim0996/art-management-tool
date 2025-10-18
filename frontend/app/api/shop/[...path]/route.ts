@@ -8,30 +8,34 @@ const BACKEND_URL = process.env.BACKEND_URL || 'http://localhost:8080';
  */
 export async function GET(
   request: NextRequest,
-  { params }: { params: { path: string[] } }
+  { params }: { params: Promise<{ path: string[] }> }
 ) {
-  return proxyRequest(request, params.path, 'GET');
+  const resolvedParams = await params;
+  return proxyRequest(request, resolvedParams.path, 'GET');
 }
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { path: string[] } }
+  { params }: { params: Promise<{ path: string[] }> }
 ) {
-  return proxyRequest(request, params.path, 'POST');
+  const resolvedParams = await params;
+  return proxyRequest(request, resolvedParams.path, 'POST');
 }
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { path: string[] } }
+  { params }: { params: Promise<{ path: string[] }> }
 ) {
-  return proxyRequest(request, params.path, 'PATCH');
+  const resolvedParams = await params;
+  return proxyRequest(request, resolvedParams.path, 'PATCH');
 }
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { path: string[] } }
+  { params }: { params: Promise<{ path: string[] }> }
 ) {
-  return proxyRequest(request, params.path, 'DELETE');
+  const resolvedParams = await params;
+  return proxyRequest(request, resolvedParams.path, 'DELETE');
 }
 
 async function proxyRequest(

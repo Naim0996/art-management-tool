@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 import Link from 'next/link';
 import { useLocale } from 'next-intl';
 import { shopAPI, Product } from '@/services/ShopAPIService';
@@ -9,7 +9,6 @@ import { InputText } from 'primereact/inputtext';
 import { Dropdown } from 'primereact/dropdown';
 import { Card } from 'primereact/card';
 import { Toast } from 'primereact/toast';
-import { useRef } from 'react';
 
 export default function ShopPage() {
   const locale = useLocale();
@@ -23,11 +22,7 @@ export default function ShopPage() {
   const [apiError, setApiError] = useState<string | null>(null);
   const perPage = 12;
 
-  useEffect(() => {
-    fetchProducts();
-  }, [searchQuery, sortBy, page]);
-
-  const fetchProducts = async () => {
+  const fetchProducts = useCallback(async () => {
     setLoading(true);
     setApiError(null);
     try {
@@ -63,7 +58,11 @@ export default function ShopPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [searchQuery, sortBy, page, perPage]);
+
+  useEffect(() => {
+    fetchProducts();
+  }, [fetchProducts]);
 
   const addToCart = async (productId: number) => {
     try {

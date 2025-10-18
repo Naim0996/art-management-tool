@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Button } from 'primereact/button';
@@ -38,11 +38,7 @@ export default function NotificationsPage() {
     { label: 'Critical', value: 'critical' },
   ];
 
-  useEffect(() => {
-    fetchNotifications();
-  }, [page, filterType, filterSeverity, showUnreadOnly]);
-
-  const fetchNotifications = async () => {
+  const fetchNotifications = useCallback(async () => {
     setLoading(true);
     try {
       const response = await adminShopAPI.listNotifications({
@@ -66,7 +62,11 @@ export default function NotificationsPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [page, filterType, filterSeverity, showUnreadOnly]);
+
+  useEffect(() => {
+    fetchNotifications();
+  }, [fetchNotifications]);
 
   const handleMarkAsRead = async (id: number) => {
     try {
@@ -78,7 +78,7 @@ export default function NotificationsPage() {
         life: 2000,
       });
       fetchNotifications();
-    } catch (error) {
+    } catch {
       toast.current?.show({
         severity: 'error',
         summary: 'Error',
@@ -98,7 +98,7 @@ export default function NotificationsPage() {
         life: 2000,
       });
       fetchNotifications();
-    } catch (error) {
+    } catch {
       toast.current?.show({
         severity: 'error',
         summary: 'Error',

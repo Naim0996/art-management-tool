@@ -961,7 +961,7 @@ STRIPE_API_KEY=sk_live_...
 
 ## 🤝 Contributing
 
-See the main [CONTRIBUTING.md](../CONTRIBUTING.md) for guidelines.
+See the main [CONTRIBUTING.md](../docs/CONTRIBUTING.md) for guidelines.
 
 ## 📄 License
 
