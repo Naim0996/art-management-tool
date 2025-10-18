@@ -48,16 +48,25 @@ async function proxyRequest(
     const fullUrl = searchParams ? `${url}?${searchParams}` : url;
     
     console.log(`🔄 Proxying ${method} ${fullUrl}`);
+    console.log(`🍪 Incoming cookies: ${request.headers.get('cookie') || 'none'}`);
+    console.log(`🍪 Incoming session header: ${request.headers.get('x-cart-session') || 'none'}`);
     
     // Forward cart_session cookie to backend
     const cartSession = request.cookies.get('cart_session');
+    const sessionHeader = request.headers.get('x-cart-session');
+    
     const headers: HeadersInit = {
       'Content-Type': 'application/json',
     };
     
-    if (cartSession) {
-      headers['Cookie'] = `cart_session=${cartSession.value}`;
-      console.log(`🍪 Forwarding cookie: ${cartSession.value.substring(0, 20)}...`);
+    // Use cookie first, then header as fallback
+    const sessionToken = cartSession?.value || sessionHeader;
+    
+    if (sessionToken) {
+      headers['Cookie'] = `cart_session=${sessionToken}`;
+      console.log(`🍪 Forwarding session token: ${sessionToken.substring(0, 20)}... (source: ${cartSession ? 'cookie' : 'header'})`);
+    } else {
+      console.log(`🍪 No session token found in request`);
     }
     
     // Prepare fetch options
@@ -106,15 +115,18 @@ async function proxyRequest(
         maxAge = parseInt(maxAgeMatch[1]);
       }
       
-      // Set cookie in Next.js response
+      // Set cookie in Next.js response with relaxed settings for development
       nextResponse.cookies.set({
         name: name.trim(),
         value: value.trim(),
         maxAge,
         path: '/',
-        httpOnly: true,
+        httpOnly: false, // Allow JavaScript access for development
+        secure: false,   // Allow over HTTP for development  
         sameSite: 'lax',
       });
+      
+      console.log(`🍪 Cookie set: ${name.trim()}=${value.trim().substring(0, 20)}... (${maxAge}s)`);
     }
     
     console.log(`✅ Proxy completed: ${response.status}`);

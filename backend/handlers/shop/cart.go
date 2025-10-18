@@ -183,15 +183,26 @@ func (h *CartHandler) ClearCart(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNoContent)
 }
 
-// getSessionToken gets the session token from cookie or generates one
+// getSessionToken gets the session token from cookie or header, or generates one
 func (h *CartHandler) getSessionToken(r *http.Request) string {
+	// Try cookie first
 	cookie, err := r.Cookie("cart_session")
 	if err == nil {
+		log.Printf("🍪 Backend: Found existing cookie cart_session=%s", cookie.Value)
 		return cookie.Value
 	}
 
+	// Try header as fallback
+	headerToken := r.Header.Get("X-Cart-Session")
+	if headerToken != "" {
+		log.Printf("🍪 Backend: Found session token in header: %s", headerToken)
+		return headerToken
+	}
+
 	// Generate new token
-	return cart.GenerateSessionToken()
+	newToken := cart.GenerateSessionToken()
+	log.Printf("🍪 Backend: No session token found, generating new token: %s", newToken)
+	return newToken
 }
 
 // setSessionCookie sets the cart session cookie
@@ -201,8 +212,10 @@ func (h *CartHandler) setSessionCookie(w http.ResponseWriter, sessionToken strin
 		Value:    sessionToken,
 		Path:     "/",
 		MaxAge:   86400 * 7, // 7 days
-		HttpOnly: true,
+		HttpOnly: false,     // Allow JS access for development debugging
 		SameSite: http.SameSiteLaxMode,
+		Secure:   false, // Allow over HTTP for development
 	}
 	http.SetCookie(w, cookie)
+	log.Printf("🍪 Backend: Setting cookie cart_session=%s (MaxAge: %d)", sessionToken, cookie.MaxAge)
 }

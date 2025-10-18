@@ -15,8 +15,10 @@ export default function CartTestPage() {
 
   const updateCookies = () => {
     const allCookies = document.cookie;
+    const localStorage_backup = localStorage.getItem('cart_session_backup');
     setCookies(allCookies || 'No cookies');
     addLog(`Cookies: ${allCookies || 'None'}`);
+    addLog(`LocalStorage backup: ${localStorage_backup || 'None'}`);
   };
 
   const addLog = (message: string) => {
@@ -81,6 +83,16 @@ export default function CartTestPage() {
     setLogs([]);
   };
 
+  const clearSession = () => {
+    addLog('🧹 Clearing session data...');
+    // Clear cookie
+    document.cookie = 'cart_session=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+    // Clear localStorage
+    localStorage.removeItem('cart_session_backup');
+    updateCookies();
+    addLog('✅ Session cleared');
+  };
+
   return (
     <div className="min-h-screen p-8 bg-gray-50">
       <div className="max-w-6xl mx-auto">
@@ -106,6 +118,12 @@ export default function CartTestPage() {
                 icon="pi pi-refresh"
                 onClick={updateCookies}
                 className="p-button-secondary"
+              />
+              <Button 
+                label="Clear Session" 
+                icon="pi pi-times"
+                onClick={clearSession}
+                className="p-button-warning"
               />
               <Button 
                 label="Clear Logs" 

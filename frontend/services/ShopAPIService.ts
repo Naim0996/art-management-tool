@@ -134,12 +134,52 @@ class ShopAPIService {
   }
 
   /**
-   * Get cart session token from cookie
+   * Get or generate cart session token
+   * Uses hybrid approach: cookie first, localStorage fallback, generate new if needed
    */
   private getSessionToken(): string | null {
     if (typeof document === 'undefined') return null;
-    const match = document.cookie.match(/cart_session=([^;]+)/);
-    return match ? match[1] : null;
+    
+    const allCookies = document.cookie;
+    console.log(`🍪 Frontend: All cookies: ${allCookies || 'none'}`);
+    
+    // Try to get from cookie first
+    const cookieMatch = document.cookie.match(/cart_session=([^;]+)/);
+    let token = cookieMatch ? cookieMatch[1] : null;
+    
+    if (token) {
+      console.log(`🍪 Frontend: Found cookie token: ${token.substring(0, 20)}...`);
+      // Store in localStorage as backup
+      localStorage.setItem('cart_session_backup', token);
+      return token;
+    }
+    
+    // Fallback to localStorage
+    token = localStorage.getItem('cart_session_backup');
+    if (token) {
+      console.log(`🍪 Frontend: Using localStorage backup token: ${token.substring(0, 20)}...`);
+      // Try to restore cookie
+      document.cookie = `cart_session=${token}; path=/; max-age=${86400 * 7}; SameSite=Lax`;
+      return token;
+    }
+    
+    console.log(`🍪 Frontend: No session token found`);
+    return null;
+  }
+
+  /**
+   * Set session token in both cookie and localStorage
+   */
+  private setSessionToken(token: string): void {
+    if (typeof document === 'undefined') return;
+    
+    console.log(`🍪 Frontend: Setting session token: ${token.substring(0, 20)}...`);
+    
+    // Set cookie
+    document.cookie = `cart_session=${token}; path=/; max-age=${86400 * 7}; SameSite=Lax`;
+    
+    // Set localStorage backup
+    localStorage.setItem('cart_session_backup', token);
   }
 
   /**
@@ -151,12 +191,22 @@ class ShopAPIService {
   ): Promise<T> {
     const url = `${this.baseUrl}${endpoint}`;
     
+    // Get session token for header fallback
+    const sessionToken = this.getSessionToken();
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+      ...(options.headers as Record<string, string>),
+    };
+    
+    // Add session token to header as fallback
+    if (sessionToken) {
+      headers['X-Cart-Session'] = sessionToken;
+      console.log(`🍪 Frontend: Adding session token to header: ${sessionToken.substring(0, 20)}...`);
+    }
+    
     const response = await fetch(url, {
       ...options,
-      headers: {
-        'Content-Type': 'application/json',
-        ...options.headers,
-      },
+      headers,
       credentials: 'include', // Include cookies for cart session
     });
 
@@ -165,7 +215,15 @@ class ShopAPIService {
       throw new Error(error.error || `HTTP ${response.status}`);
     }
 
-    return response.json();
+    const data = await response.json();
+    
+    // Check if response contains a cart with session_token and save it
+    if (data && typeof data === 'object' && data.cart && data.cart.session_token) {
+      console.log(`🍪 Frontend: Response contains session token: ${data.cart.session_token.substring(0, 20)}...`);
+      this.setSessionToken(data.cart.session_token);
+    }
+
+    return data;
   }
 
   // ==================== Products ====================
@@ -214,7 +272,10 @@ class ShopAPIService {
    * Get current cart
    */
   async getCart(): Promise<CartResponse> {
-    return this.request<CartResponse>('/cart');
+    console.log(`🛒 Frontend: Getting cart...`);
+    const result = await this.request<CartResponse>('/cart');
+    console.log(`🛒 Frontend: Cart response:`, result);
+    return result;
   }
 
   /**
@@ -225,10 +286,13 @@ class ShopAPIService {
     variant_id?: number;
     quantity: number;
   }): Promise<CartResponse> {
-    return this.request<CartResponse>('/cart/items', {
+    console.log(`🛒 Frontend: Adding to cart:`, data);
+    const result = await this.request<CartResponse>('/cart/items', {
       method: 'POST',
       body: JSON.stringify(data),
     });
+    console.log(`🛒 Frontend: Add to cart response:`, result);
+    return result;
   }
 
   /**
