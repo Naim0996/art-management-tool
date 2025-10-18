@@ -34,6 +34,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **Moved** `backup.sql` to `docs/troubleshooting/` (not in root directory)
 
+#### Code Quality Improvements
+- **Fixed** all ESLint errors (3 errors → 0 errors)
+  - Replaced `any` types with proper type checking in `PersonaggiAPIService.ts`
+  - Fixed Next.js 15 API route handlers to handle Promise-based params
+  - Removed unused error variables in catch blocks
+  
+- **Fixed** React Hook dependencies (10 warnings → 2 warnings)
+  - Used `useCallback` pattern for fetch functions
+  - Properly included all dependencies in useEffect hooks
+  - Files affected: notifications, shop-orders, shop-products, shop pages
+  
+- **Removed** unused variables and imports
+  - Removed `ENABLE_OPTIMISTIC_UPDATES` unused constant
+  - Cleaned up unused error catches
+
+- **Build Status**: ✅ Both frontend and backend build successfully
+  - Frontend: Type checking passed, linting passed (2 minor img warnings)
+  - Backend: Compilation successful, no errors
+
 #### Files Refactored (Planned)
 The following files exceed 300 lines and are planned for refactoring:
 - `frontend/app/[locale]/admin/shop-products/page.tsx` (650 lines)
