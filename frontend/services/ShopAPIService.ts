@@ -224,7 +224,7 @@ class ShopAPIService {
       try {
         errorDetails = await response.json();
         console.error(`🌐 Frontend: Error response body:`, errorDetails);
-      } catch (e) {
+      } catch {
         errorDetails = { error: `HTTP ${response.status}: ${response.statusText}` };
         console.error(`🌐 Frontend: Could not parse error response, status: ${response.status}`);
       }

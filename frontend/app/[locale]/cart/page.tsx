@@ -20,8 +20,8 @@ export default function CartPage() {
   const [clearingCart, setClearingCart] = useState(false);
   const [apiError, setApiError] = useState<string | null>(null);
   
-  // Debug flag - set to false to disable optimistic updates
-  const ENABLE_OPTIMISTIC_UPDATES = false;
+  // Debug flag - set to false to disable optimistic updates (currently disabled)
+  // const ENABLE_OPTIMISTIC_UPDATES = false;
   
   const router = useRouter();
 

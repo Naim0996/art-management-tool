@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Button } from 'primereact/button';
@@ -39,11 +39,7 @@ export default function ShopOrdersManagement() {
     { label: 'Partially Fulfilled', value: 'partially_fulfilled' },
   ];
 
-  useEffect(() => {
-    fetchOrders();
-  }, [page, searchEmail, filterPaymentStatus, filterFulfillmentStatus]);
-
-  const fetchOrders = async () => {
+  const fetchOrders = useCallback(async () => {
     setLoading(true);
     try {
       const response = await adminShopAPI.listOrders({
@@ -66,14 +62,18 @@ export default function ShopOrdersManagement() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [page, searchEmail, filterPaymentStatus, filterFulfillmentStatus]);
+
+  useEffect(() => {
+    fetchOrders();
+  }, [fetchOrders]);
 
   const handleViewDetails = async (order: Order) => {
     try {
       const fullOrder = await adminShopAPI.getOrder(order.id);
       setSelectedOrder(fullOrder);
       setShowDetailsDialog(true);
-    } catch (error) {
+    } catch {
       toast.current?.show({
         severity: 'error',
         summary: 'Error',
