@@ -204,18 +204,37 @@ class ShopAPIService {
       console.log(`🍪 Frontend: Adding session token to header: ${sessionToken.substring(0, 20)}...`);
     }
     
+    console.log(`🌐 Frontend: Making ${options.method || 'GET'} request to ${url}`);
+    console.log(`🌐 Frontend: Headers:`, headers);
+    if (options.body) {
+      console.log(`🌐 Frontend: Body:`, options.body);
+    }
+    
     const response = await fetch(url, {
       ...options,
       headers,
       credentials: 'include', // Include cookies for cart session
     });
 
+    console.log(`🌐 Frontend: Response status: ${response.status} ${response.statusText}`);
+    console.log(`🌐 Frontend: Response headers:`, Object.fromEntries(response.headers.entries()));
+
     if (!response.ok) {
-      const error = await response.json().catch(() => ({ error: 'Request failed' }));
-      throw new Error(error.error || `HTTP ${response.status}`);
+      let errorDetails;
+      try {
+        errorDetails = await response.json();
+        console.error(`🌐 Frontend: Error response body:`, errorDetails);
+      } catch (e) {
+        errorDetails = { error: `HTTP ${response.status}: ${response.statusText}` };
+        console.error(`🌐 Frontend: Could not parse error response, status: ${response.status}`);
+      }
+      
+      const errorMessage = errorDetails.error || errorDetails.message || `HTTP ${response.status}`;
+      throw new Error(errorMessage);
     }
 
     const data = await response.json();
+    console.log(`🌐 Frontend: Response data:`, data);
     
     // Check if response contains a cart with session_token and save it
     if (data && typeof data === 'object' && data.cart && data.cart.session_token) {
@@ -224,6 +243,28 @@ class ShopAPIService {
     }
 
     return data;
+  }
+
+  // ==================== Health Check ====================
+
+  /**
+   * Check if backend is responding
+   */
+  async healthCheck(): Promise<{ status: string; message?: string }> {
+    try {
+      const response = await fetch(`${this.baseUrl}/health`, {
+        method: 'GET',
+        credentials: 'include',
+      });
+      
+      if (!response.ok) {
+        throw new Error(`Health check failed: ${response.status}`);
+      }
+      
+      return await response.json();
+    } catch (error) {
+      throw new Error(`Backend not responding: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
   }
 
   // ==================== Products ====================
@@ -299,28 +340,45 @@ class ShopAPIService {
    * Update cart item quantity
    */
   async updateCartItem(itemId: number, quantity: number): Promise<CartResponse> {
-    return this.request<CartResponse>(`/cart/items/${itemId}`, {
+    console.log(`🛒 Frontend: Updating cart item ${itemId} to quantity ${quantity}`);
+    
+    if (quantity < 1) {
+      throw new Error('Quantity must be at least 1');
+    }
+    
+    const result = await this.request<CartResponse>(`/cart/items/${itemId}`, {
       method: 'PATCH',
       body: JSON.stringify({ quantity }),
     });
+    
+    console.log(`🛒 Frontend: Update cart item response:`, result);
+    return result;
   }
 
   /**
    * Remove item from cart
    */
   async removeCartItem(itemId: number): Promise<void> {
+    console.log(`🛒 Frontend: Removing cart item ${itemId}`);
+    
     await this.request(`/cart/items/${itemId}`, {
       method: 'DELETE',
     });
+    
+    console.log(`🛒 Frontend: Cart item ${itemId} removed successfully`);
   }
 
   /**
    * Clear entire cart
    */
   async clearCart(): Promise<void> {
+    console.log(`🛒 Frontend: Clearing entire cart`);
+    
     await this.request('/cart', {
       method: 'DELETE',
     });
+    
+    console.log(`🛒 Frontend: Cart cleared successfully`);
   }
 
   // ==================== Checkout ====================
