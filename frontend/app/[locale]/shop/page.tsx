@@ -20,6 +20,7 @@ export default function ShopPage() {
   const [sortBy, setSortBy] = useState('created_at');
   const [page, setPage] = useState(1);
   const [totalProducts, setTotalProducts] = useState(0);
+  const [apiError, setApiError] = useState<string | null>(null);
   const perPage = 12;
 
   useEffect(() => {
@@ -28,7 +29,14 @@ export default function ShopPage() {
 
   const fetchProducts = async () => {
     setLoading(true);
+    setApiError(null);
     try {
+      console.log('🔄 Fetching products from API...', {
+        mode: 'Next.js Proxy',
+        endpoint: '/api/shop/products',
+        proxiesTo: 'http://localhost:8080/api/shop/products',
+      });
+      
       const response = await shopAPI.listProducts({
         status: 'published',
         search: searchQuery || undefined,
@@ -36,16 +44,20 @@ export default function ShopPage() {
         sort_order: 'DESC',
         page,
         per_page: perPage,
-        in_stock: true,
+        // RIMOSSO: in_stock: true - Ora mostriamo tutti i prodotti published, anche senza stock
       });
+      
+      console.log('✅ Products fetched successfully:', response);
       setProducts(response.products || []);
       setTotalProducts(response.total || 0);
     } catch (error) {
-      console.error('Error fetching products:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Failed to load products';
+      console.error('❌ Error fetching products:', error);
+      setApiError(errorMessage);
       toast.current?.show({
         severity: 'error',
         summary: 'Error',
-        detail: 'Failed to load products',
+        detail: errorMessage,
         life: 3000,
       });
     } finally {
@@ -112,6 +124,28 @@ export default function ShopPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       <Toast ref={toast} />
+      
+      {/* Debug Banner - Remove in production */}
+      {apiError && (
+        <div className="bg-red-50 border-l-4 border-red-500 p-4">
+          <div className="max-w-7xl mx-auto">
+            <div className="flex items-start">
+              <i className="pi pi-exclamation-triangle text-red-500 text-xl mr-3 mt-1"></i>
+              <div className="flex-1">
+                <h3 className="text-red-800 font-semibold">API Connection Error</h3>
+                <p className="text-red-700 text-sm mt-1">{apiError}</p>
+                <p className="text-red-600 text-xs mt-2">
+                  Mode: Next.js Proxy → http://localhost:8080 • 
+                  Testing page: <Link href={`/${locale}/api-test`} className="underline">Click here</Link>
+                </p>
+              </div>
+              <button onClick={fetchProducts} className="text-red-600 hover:text-red-800">
+                <i className="pi pi-refresh text-xl"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       
       {/* Header */}
       <header className="bg-white shadow-sm border-b">

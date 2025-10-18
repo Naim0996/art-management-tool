@@ -228,6 +228,13 @@ export default function ShopProductsManagement() {
       const updated = await adminShopAPI.getProduct(selectedProduct.id);
       setSelectedProduct(updated);
       
+      // AGGIORNAMENTO TEMPO REALE: Aggiorna anche la lista principale
+      setProducts(prevProducts => 
+        prevProducts.map(p => 
+          p.id === updated.id ? updated : p
+        )
+      );
+      
       setVariantData({
         sku: '',
         name: '',
@@ -257,9 +264,17 @@ export default function ShopProductsManagement() {
         life: 2000,
       });
       
+      // Aggiorna il prodotto selezionato nella dialog
       if (selectedProduct) {
         const updated = await adminShopAPI.getProduct(selectedProduct.id);
         setSelectedProduct(updated);
+        
+        // AGGIORNAMENTO TEMPO REALE: Aggiorna anche la lista principale
+        setProducts(prevProducts => 
+          prevProducts.map(p => 
+            p.id === updated.id ? updated : p
+          )
+        );
       }
     } catch (error: unknown) {
       console.error('Error updating inventory:', error);
@@ -514,7 +529,9 @@ export default function ShopProductsManagement() {
         header={`Manage Variants - ${selectedProduct?.title}`}
         visible={showVariantDialog}
         style={{ width: '70vw' }}
-        onHide={() => setShowVariantDialog(false)}
+        onHide={
+          () => setShowVariantDialog(false)
+        }
       >
         <TabView>
           <TabPanel header="Variants">

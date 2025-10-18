@@ -3,7 +3,12 @@
  * Handles authenticated admin operations (products, orders, inventory, notifications)
  */
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
+// Use relative path for API calls - Next.js will proxy to backend via rewrites
+/**
+ * Admin Shop API Service - Frontend client for admin shop management
+ */
+
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || '';
 
 // ==================== Types ====================
 

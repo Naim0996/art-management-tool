@@ -254,7 +254,7 @@ export default function AdminDashboard() {
               </div>
               <i className="pi pi-arrow-right"></i>
             </button>
-
+{/* 
             <button
               onClick={() => (window.location.href = `/${locale}/admin/products`)}
               className="w-full flex items-center justify-between p-4 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg hover:shadow-lg transition-all"
@@ -264,7 +264,7 @@ export default function AdminDashboard() {
                 <span className="font-medium">Manage Products (Legacy)</span>
               </div>
               <i className="pi pi-arrow-right"></i>
-            </button>
+            </button> */}
 
             <button
               onClick={() => (window.location.href = `/${locale}/admin/shop-products`)}
@@ -277,7 +277,7 @@ export default function AdminDashboard() {
               <i className="pi pi-arrow-right"></i>
             </button>
 
-            <button
+            {/* <button
               onClick={() => (window.location.href = `/${locale}/admin/orders`)}
               className="w-full flex items-center justify-between p-4 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-lg hover:shadow-lg transition-all"
             >
@@ -286,7 +286,7 @@ export default function AdminDashboard() {
                 <span className="font-medium">View Orders (Legacy)</span>
               </div>
               <i className="pi pi-arrow-right"></i>
-            </button>
+            </button> */}
 
             <button
               onClick={() => (window.location.href = `/${locale}/admin/shop-orders`)}

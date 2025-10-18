@@ -21,9 +21,16 @@ import (
 // CORS middleware
 func corsMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		origin := r.Header.Get("Origin")
+
+		// Log CORS requests for debugging
+		log.Printf("CORS Request: %s %s from Origin: %s", r.Method, r.URL.Path, origin)
+
+		// Allow all origins in development (be more restrictive in production)
 		w.Header().Set("Access-Control-Allow-Origin", "*")
-		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS")
 		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
+		w.Header().Set("Access-Control-Allow-Credentials", "true")
 
 		if r.Method == "OPTIONS" {
 			w.WriteHeader(http.StatusOK)
@@ -51,21 +58,21 @@ func main() {
 	cartService := cart.NewService(database.DB)
 	productService := product.NewService(database.DB)
 	notifService := notification.NewService(database.DB)
-	
+
 	// Initialize payment provider (use mock for development)
 	paymentProvider := payment.NewMockProvider("mock", 1, false) // Minimum 1 cent
 	// For production with Stripe:
 	// paymentProvider := payment.NewStripeProvider()
-	
+
 	orderService := order.NewService(database.DB, paymentProvider, notifService)
 	shopifyService := shopify.NewSyncService(database.DB, "", "", "")
-	
+
 	// Create shop handlers
 	catalogHandler := shop.NewCatalogHandler(productService)
 	cartHandler := shop.NewCartHandler(cartService)
 	checkoutHandler := shop.NewCheckoutHandler(database.DB, cartService, orderService, paymentProvider)
 	webhookHandler := shop.NewWebhookHandler(orderService, paymentProvider)
-	
+
 	// Create admin handlers
 	adminProductHandler := admin.NewProductHandler(productService)
 	adminOrderHandler := admin.NewOrderHandler(orderService)
@@ -73,7 +80,6 @@ func main() {
 
 	// Legacy handlers
 	personaggiHandler := handlers.NewPersonaggiHandler(database.DB)
-	ordersHandler := handlers.NewOrdersHandler(database.DB)
 
 	r := mux.NewRouter()
 
@@ -89,17 +95,17 @@ func main() {
 	shopRouter.HandleFunc("/cart", cartHandler.ClearCart).Methods("DELETE")
 	shopRouter.HandleFunc("/cart/discount", checkoutHandler.ApplyDiscount).Methods("POST")
 	shopRouter.HandleFunc("/checkout", checkoutHandler.ProcessCheckout).Methods("POST")
-	
+
 	// Webhook endpoints (public but verified)
 	r.HandleFunc("/api/webhooks/payment/stripe", webhookHandler.HandleStripeWebhook).Methods("POST")
 
 	// ===== Admin API (Enhanced) =====
 	adminRouter := r.PathPrefix("/api/admin").Subrouter()
 	adminRouter.Use(middleware.AuthMiddleware)
-	
+
 	// Stats (existing)
 	adminRouter.HandleFunc("/stats", handlers.GetDashboardStats(database.DB)).Methods("GET")
-	
+
 	// Enhanced product management
 	adminRouter.HandleFunc("/shop/products", adminProductHandler.ListProducts).Methods("GET")
 	adminRouter.HandleFunc("/shop/products", adminProductHandler.CreateProduct).Methods("POST")
@@ -109,20 +115,20 @@ func main() {
 	adminRouter.HandleFunc("/shop/products/{id}/variants", adminProductHandler.AddVariant).Methods("POST")
 	adminRouter.HandleFunc("/shop/variants/{id}", adminProductHandler.UpdateVariant).Methods("PATCH")
 	adminRouter.HandleFunc("/shop/inventory/adjust", adminProductHandler.UpdateInventory).Methods("POST")
-	
+
 	// Enhanced order management
 	adminRouter.HandleFunc("/shop/orders", adminOrderHandler.ListOrders).Methods("GET")
 	adminRouter.HandleFunc("/shop/orders/{id}", adminOrderHandler.GetOrder).Methods("GET")
 	adminRouter.HandleFunc("/shop/orders/{id}/fulfillment", adminOrderHandler.UpdateFulfillmentStatus).Methods("PATCH")
 	adminRouter.HandleFunc("/shop/orders/{id}/refund", adminOrderHandler.RefundOrder).Methods("POST")
-	
+
 	// Notifications
 	adminRouter.HandleFunc("/notifications", adminNotifHandler.ListNotifications).Methods("GET")
 	adminRouter.HandleFunc("/notifications/{id}", adminNotifHandler.GetNotification).Methods("GET")
 	adminRouter.HandleFunc("/notifications/{id}/read", adminNotifHandler.MarkAsRead).Methods("PATCH")
 	adminRouter.HandleFunc("/notifications/read-all", adminNotifHandler.MarkAllAsRead).Methods("POST")
 	adminRouter.HandleFunc("/notifications/{id}", adminNotifHandler.Delete).Methods("DELETE")
-	
+
 	// Shopify sync (stub)
 	adminRouter.HandleFunc("/shopify/sync", func(w http.ResponseWriter, r *http.Request) {
 		if !shopifyService.IsEnabled() {
@@ -133,18 +139,8 @@ func main() {
 		w.WriteHeader(http.StatusAccepted)
 		w.Write([]byte(`{"message":"Sync initiated"}`))
 	}).Methods("POST")
-	
-	// Legacy product endpoints (backward compatibility)
-	adminRouter.HandleFunc("/products", handlers.GetAdminProducts).Methods("GET")
-	adminRouter.HandleFunc("/products", handlers.CreateProduct).Methods("POST")
-	adminRouter.HandleFunc("/products/{id}", handlers.UpdateProduct).Methods("PUT")
-	adminRouter.HandleFunc("/products/{id}", handlers.DeleteProduct).Methods("DELETE")
-	
-	// Legacy orders management routes (backward compatibility)
-	adminRouter.HandleFunc("/orders", ordersHandler.GetOrders).Methods("GET")
-	adminRouter.HandleFunc("/orders/stats", ordersHandler.GetOrderStats).Methods("GET")
-	adminRouter.HandleFunc("/orders/{id}", ordersHandler.GetOrder).Methods("GET")
-	adminRouter.HandleFunc("/orders/{id}/status", ordersHandler.UpdateOrderStatus).Methods("PUT")
+
+	// Note: Legacy product and order endpoints removed - use /admin/shop/* endpoints instead
 
 	// Personaggi management routes (authenticated)
 	adminRouter.HandleFunc("/personaggi", personaggiHandler.GetPersonaggi).Methods("GET")
@@ -161,13 +157,7 @@ func main() {
 	// Authentication endpoints
 	r.HandleFunc("/api/auth/login", handlers.Login).Methods("POST")
 
-	// Legacy customer API endpoints (backward compatibility)
-	r.HandleFunc("/api/products", handlers.GetProducts).Methods("GET")
-	r.HandleFunc("/api/products/{id}", handlers.GetProduct).Methods("GET")
-	r.HandleFunc("/api/cart", handlers.AddToCart).Methods("POST")
-	r.HandleFunc("/api/cart", handlers.GetCart).Methods("GET")
-	r.HandleFunc("/api/cart/{id}", handlers.RemoveFromCart).Methods("DELETE")
-	r.HandleFunc("/api/checkout", handlers.Checkout).Methods("POST")
+	// Note: Legacy customer API endpoints removed - use /api/shop/* endpoints instead
 
 	// Personaggi public routes (read-only)
 	r.HandleFunc("/api/personaggi", personaggiHandler.GetPersonaggi).Methods("GET")

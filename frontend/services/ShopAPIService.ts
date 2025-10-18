@@ -3,7 +3,8 @@
  * Handles public shop API interactions (products, cart, checkout)
  */
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
+// Use relative paths - Next.js rewrites will proxy to backend
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || '';
 
 // ==================== Types ====================
 

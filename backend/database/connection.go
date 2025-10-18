@@ -83,6 +83,7 @@ func Connect() error {
 func AutoMigrate() error {
 	log.Println("Running database migrations...")
 
+	// Prima esegui AutoMigrate per creare le tabelle
 	err := DB.AutoMigrate(
 		&models.Personaggio{},
 		// E-commerce models
@@ -104,7 +105,74 @@ func AutoMigrate() error {
 		return fmt.Errorf("failed to run migrations: %w", err)
 	}
 
+	// Poi esegui le migrazioni personalizzate per gestire i dati esistenti
+	if err := runCustomMigrations(); err != nil {
+		return fmt.Errorf("failed to run custom migrations: %w", err)
+	}
+
 	log.Println("Database migrations completed successfully")
+	return nil
+}
+
+// runCustomMigrations gestisce migrazioni personalizzate per dati esistenti
+func runCustomMigrations() error {
+	log.Println("Running custom migrations...")
+
+	// Migrazione per order_number: gestisce ordini esistenti senza order_number
+	if err := migrateOrderNumber(); err != nil {
+		return fmt.Errorf("failed to migrate order_number: %w", err)
+	}
+
+	return nil
+}
+
+// migrateOrderNumber aggiunge order_number agli ordini esistenti
+func migrateOrderNumber() error {
+	// Verifica se la tabella orders esiste
+	var tableExists bool
+	err := DB.Raw(`
+		SELECT EXISTS (
+			SELECT 1 
+			FROM information_schema.tables 
+			WHERE table_name = 'orders'
+		)
+	`).Scan(&tableExists).Error
+
+	if err != nil {
+		return err
+	}
+
+	if !tableExists {
+		log.Println("Orders table does not exist yet, skipping order_number migration")
+		return nil
+	}
+
+	// Verifica se ci sono ordini con order_number NULL
+	var nullCount int64
+	err = DB.Raw("SELECT COUNT(*) FROM orders WHERE order_number IS NULL").Scan(&nullCount).Error
+	if err != nil {
+		log.Printf("Warning: Could not check for null order_numbers: %v", err)
+		// Non è un errore critico, continua
+		return nil
+	}
+
+	if nullCount > 0 {
+		log.Printf("Found %d orders with NULL order_number, populating...", nullCount)
+
+		// Popola order_number per i record esistenti usando l'ID
+		if err := DB.Exec(`
+			UPDATE orders 
+			SET order_number = CONCAT('ORD-', LPAD(CAST(id AS TEXT), 8, '0'))
+			WHERE order_number IS NULL OR order_number = ''
+		`).Error; err != nil {
+			return fmt.Errorf("failed to populate order_number: %w", err)
+		}
+
+		log.Println("order_number populated successfully")
+	} else {
+		log.Println("All orders already have order_number, skipping migration")
+	}
+
 	return nil
 }
 

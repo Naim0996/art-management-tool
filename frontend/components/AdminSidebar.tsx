@@ -31,12 +31,12 @@ export default function AdminSidebar() {
     {
       label: 'Products',
       icon: 'pi pi-shopping-cart',
-      path: `/${locale}/admin/products`,
+      path: `/${locale}/admin/shop-products`,
     },
     {
       label: 'Orders',
       icon: 'pi pi-list',
-      path: `/${locale}/admin/orders`,
+      path: `/${locale}/admin/shop-orders`,
     },
     {
       label: 'Settings',

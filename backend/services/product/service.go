@@ -59,8 +59,9 @@ func (s *Service) ListProducts(filters *ProductFilters) ([]models.EnhancedProduc
 	}
 	
 	if filters.InStock {
-		query = query.Joins("LEFT JOIN product_variants ON product_variants.product_id = products.id").
-			Where("product_variants.stock > 0")
+		// FIX: Usa una subquery per filtrare prodotti con almeno una variante in stock
+		// Questo funziona anche per prodotti senza varianti (non vengono esclusi)
+		query = query.Where("EXISTS (SELECT 1 FROM product_variants WHERE product_variants.product_id = products.id AND product_variants.stock > 0)")
 	}
 	
 	// Count total
