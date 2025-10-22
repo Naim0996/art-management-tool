@@ -39,6 +39,11 @@ export default function AdminSidebar() {
       path: `/${locale}/admin/shop-orders`,
     },
     {
+      label: 'Etsy Sync',
+      icon: 'pi pi-sync',
+      path: `/${locale}/admin/etsy-sync`,
+    },
+    {
       label: 'Settings',
       icon: 'pi pi-cog',
       path: `/${locale}/admin/settings`,
