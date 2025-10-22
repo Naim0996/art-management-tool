@@ -5,6 +5,74 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased] - 2025-10-22
+
+### Added - Etsy API Integration Infrastructure
+
+#### Database Layer
+- **Added** 3 new migration files for Etsy synchronization tracking
+  - `010_create_etsy_sync_config` - Sync state and rate limit tracking
+  - `011_create_etsy_products` - Etsy listings to local products mapping
+  - `012_create_etsy_inventory_sync` - Inventory synchronization log
+- **Added** Etsy domain models in `backend/models/etsy.go`
+
+#### Backend Services
+- **Added** `services/etsy/` - Etsy API client and business logic service
+  - Client with rate limit tracking
+  - Service for product and inventory synchronization
+  - Stub implementation ready for API integration
+- **Added** `services/ratelimit/` - Token bucket rate limiter
+  - Complies with Etsy API limits (10,000 requests/24 hours)
+  - Manager for multiple rate limiters by key
+- **Added** `services/scheduler/` - Background job scheduler
+  - Configurable intervals for automatic synchronization
+  - Job enable/disable functionality
+  - Status monitoring
+- **Added** `backend/config/` - Configuration loader for environment variables
+  - Type-safe configuration structures
+  - Environment-aware defaults
+
+#### Configuration Files
+- **Added** `.env.example` - Template with all Etsy configuration options
+- **Added** `.env.staging` - Staging environment configuration template
+- **Added** `.env.production` - Production environment configuration template
+- **Added** `docker-compose.staging.yml` - Dedicated staging environment setup
+- **Updated** `docker-compose.yml` with Etsy environment variables
+
+#### Documentation
+- **Added** `docs/ETSY_INTEGRATION.md` (12KB) - Comprehensive integration guide
+  - Security requirements and best practices
+  - Environment configuration for dev/staging/prod
+  - Database schema documentation
+  - Rate limiting implementation guide
+  - Scheduled job configuration
+  - Testing and troubleshooting guides
+- **Added** `docs/SECURITY_INFRASTRUCTURE.md` (11KB) - Security guide
+  - Credential management strategies
+  - Environment isolation best practices
+  - API security (HTTPS, OAuth, request signing)
+  - Rate limiting best practices
+  - Data protection (encryption at rest/in transit)
+  - Monitoring and auditing
+  - Incident response procedures
+- **Updated** `README.md` with Etsy integration references
+- **Updated** `infrastructure/README.md` with Etsy configuration step
+
+#### Developer Tools
+- **Added** `scripts/setup-etsy.sh` - Interactive setup script
+  - Credential configuration wizard
+  - Migration verification
+  - Docker service management
+  - Next steps guidance
+
+### Security
+- ✅ Environment variables for credential storage (never in code)
+- ✅ Separate configurations for development/staging/production
+- ✅ Rate limiting to comply with Etsy API limits
+- ✅ HTTPS-only communication
+- ✅ Secure token management with expiration tracking
+- ✅ Comprehensive security documentation
+
 ## [Unreleased] - 2025-10-18
 
 ### Changed - Project Restructuring
