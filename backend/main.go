@@ -108,6 +108,7 @@ func main() {
 	// Create admin handlers
 	adminProductHandler := admin.NewProductHandler(productService)
 	adminOrderHandler := admin.NewOrderHandler(orderService)
+	adminUploadHandler := admin.NewUploadHandler(database.DB)
 	adminNotifHandler := admin.NewNotificationHandler(notifService)
 	adminCategoryHandler := admin.NewCategoryHandler(database.DB)
 	adminDiscountHandler := admin.NewDiscountHandler(database.DB)
@@ -157,6 +158,12 @@ func main() {
 	adminRouter.HandleFunc("/shop/products/{id}/variants", adminProductHandler.AddVariant).Methods("POST")
 	adminRouter.HandleFunc("/shop/variants/{id}", adminProductHandler.UpdateVariant).Methods("PATCH")
 	adminRouter.HandleFunc("/shop/inventory/adjust", adminProductHandler.UpdateInventory).Methods("POST")
+	
+	// Product image upload management
+	adminRouter.HandleFunc("/shop/products/{id}/images", adminUploadHandler.ListProductImages).Methods("GET")
+	adminRouter.HandleFunc("/shop/products/{id}/images", adminUploadHandler.UploadProductImage).Methods("POST")
+	adminRouter.HandleFunc("/shop/products/{id}/images/{imageId}", adminUploadHandler.UpdateProductImagePosition).Methods("PATCH")
+	adminRouter.HandleFunc("/shop/products/{id}/images/{imageId}", adminUploadHandler.DeleteProductImage).Methods("DELETE")
 
 	// Enhanced order management
 	adminRouter.HandleFunc("/shop/orders", adminOrderHandler.ListOrders).Methods("GET")

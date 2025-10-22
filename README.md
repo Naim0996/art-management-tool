@@ -113,6 +113,7 @@ art-management-tool/
 
 - **Secure Authentication**: JWT-based admin login system
 - **Product Management**: Full CRUD operations for products and variants
+- **Image Upload System**: Secure file upload for products and personaggi with Docker-based storage
 - **Category Management**: Hierarchical category organization with referential integrity
 - **Discount Code Management**: Create and manage promotional codes with usage tracking
 - **Order Management**: View, update, and fulfill customer orders
