@@ -110,6 +110,8 @@ func main() {
 	adminOrderHandler := admin.NewOrderHandler(orderService)
 	adminUploadHandler := admin.NewUploadHandler(database.DB)
 	adminNotifHandler := admin.NewNotificationHandler(notifService)
+	adminCategoryHandler := admin.NewCategoryHandler(database.DB)
+	adminDiscountHandler := admin.NewDiscountHandler(database.DB)
 	
 	// Create Etsy handler if service is available
 	var adminEtsyHandler *admin.EtsyHandler
@@ -127,6 +129,8 @@ func main() {
 	shopRouter := r.PathPrefix("/api/shop").Subrouter()
 	shopRouter.HandleFunc("/products", catalogHandler.ListProducts).Methods("GET")
 	shopRouter.HandleFunc("/products/{slug}", catalogHandler.GetProduct).Methods("GET")
+	shopRouter.HandleFunc("/categories", handlers.ListPublicCategories(database.DB)).Methods("GET")
+	shopRouter.HandleFunc("/categories/{id}", handlers.GetPublicCategory(database.DB)).Methods("GET")
 	shopRouter.HandleFunc("/cart", cartHandler.GetCart).Methods("GET")
 	shopRouter.HandleFunc("/cart/items", cartHandler.AddItem).Methods("POST")
 	shopRouter.HandleFunc("/cart/items/{id}", cartHandler.UpdateItem).Methods("PATCH")
@@ -173,6 +177,21 @@ func main() {
 	adminRouter.HandleFunc("/notifications/{id}/read", adminNotifHandler.MarkAsRead).Methods("PATCH")
 	adminRouter.HandleFunc("/notifications/read-all", adminNotifHandler.MarkAllAsRead).Methods("POST")
 	adminRouter.HandleFunc("/notifications/{id}", adminNotifHandler.Delete).Methods("DELETE")
+
+	// Categories
+	adminRouter.HandleFunc("/categories", adminCategoryHandler.ListCategories).Methods("GET")
+	adminRouter.HandleFunc("/categories", adminCategoryHandler.CreateCategory).Methods("POST")
+	adminRouter.HandleFunc("/categories/{id}", adminCategoryHandler.GetCategory).Methods("GET")
+	adminRouter.HandleFunc("/categories/{id}", adminCategoryHandler.UpdateCategory).Methods("PATCH")
+	adminRouter.HandleFunc("/categories/{id}", adminCategoryHandler.DeleteCategory).Methods("DELETE")
+
+	// Discount codes
+	adminRouter.HandleFunc("/discounts", adminDiscountHandler.ListDiscounts).Methods("GET")
+	adminRouter.HandleFunc("/discounts", adminDiscountHandler.CreateDiscount).Methods("POST")
+	adminRouter.HandleFunc("/discounts/{id}", adminDiscountHandler.GetDiscount).Methods("GET")
+	adminRouter.HandleFunc("/discounts/{id}", adminDiscountHandler.UpdateDiscount).Methods("PATCH")
+	adminRouter.HandleFunc("/discounts/{id}", adminDiscountHandler.DeleteDiscount).Methods("DELETE")
+	adminRouter.HandleFunc("/discounts/{id}/stats", adminDiscountHandler.GetDiscountStats).Methods("GET")
 
 	// Shopify sync (stub)
 	adminRouter.HandleFunc("/shopify/sync", func(w http.ResponseWriter, r *http.Request) {

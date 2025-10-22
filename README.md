@@ -114,6 +114,8 @@ art-management-tool/
 - **Secure Authentication**: JWT-based admin login system
 - **Product Management**: Full CRUD operations for products and variants
 - **Image Upload System**: Secure file upload for products and personaggi with Docker-based storage
+- **Category Management**: Hierarchical category organization with referential integrity
+- **Discount Code Management**: Create and manage promotional codes with usage tracking
 - **Order Management**: View, update, and fulfill customer orders
 - **Inventory Control**: Bulk operations and stock adjustments
 - **Notification Center**: Real-time alerts for low stock, payments, and orders
@@ -266,6 +268,8 @@ Access admin panel at: http://localhost:3000/admin
 |--------|----------|-------------|
 | `GET` | `/api/shop/products` | List products with filters (category, price, search) |
 | `GET` | `/api/shop/products/{slug}` | Get product details by slug |
+| `GET` | `/api/shop/categories` | List product categories |
+| `GET` | `/api/shop/categories/{id}` | Get category details |
 | `GET` | `/api/shop/cart` | Get shopping cart |
 | `POST` | `/api/shop/cart/items` | Add item to cart |
 | `PATCH` | `/api/shop/cart/items/{id}` | Update cart item quantity |
@@ -295,6 +299,21 @@ Access admin panel at: http://localhost:3000/admin
 | `GET` | `/api/admin/shop/orders/{id}` | Get order details |
 | `PATCH` | `/api/admin/shop/orders/{id}/fulfillment` | Update fulfillment status |
 | `POST` | `/api/admin/shop/orders/{id}/refund` | Process order refund |
+
+#### Categories & Discounts
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/api/admin/categories` | List all categories |
+| `POST` | `/api/admin/categories` | Create new category |
+| `GET` | `/api/admin/categories/{id}` | Get category details |
+| `PATCH` | `/api/admin/categories/{id}` | Update category |
+| `DELETE` | `/api/admin/categories/{id}` | Delete category |
+| `GET` | `/api/admin/discounts` | List all discount codes |
+| `POST` | `/api/admin/discounts` | Create new discount |
+| `GET` | `/api/admin/discounts/{id}` | Get discount details |
+| `PATCH` | `/api/admin/discounts/{id}` | Update discount |
+| `DELETE` | `/api/admin/discounts/{id}` | Delete discount |
+| `GET` | `/api/admin/discounts/{id}/stats` | Get discount usage statistics |
 
 #### Notifications & System
 | Method | Endpoint | Description |

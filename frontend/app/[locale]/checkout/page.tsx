@@ -58,7 +58,9 @@ export default function CheckoutPage() {
         
         // Redirect to Etsy checkout
         setTimeout(() => {
-          window.location.href = response.client_secret;
+          if (response.client_secret) {
+            window.location.href = response.client_secret;
+          }
         }, 2000);
         return;
       }
