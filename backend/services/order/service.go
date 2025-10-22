@@ -406,3 +406,13 @@ func DefaultFilters() *OrderFilters {
 		PerPage: 20,
 	}
 }
+
+// GetPaymentProvider returns the current payment provider
+func (s *Service) GetPaymentProvider() payment.Provider {
+	return s.paymentProvider
+}
+
+// SetPaymentProvider sets the payment provider (useful for dynamic provider selection)
+func (s *Service) SetPaymentProvider(provider payment.Provider) {
+	s.paymentProvider = provider
+}

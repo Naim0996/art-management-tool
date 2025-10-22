@@ -361,3 +361,192 @@ func (h *EtsyHandler) ValidateCredentials(w http.ResponseWriter, r *http.Request
 		"message": "Credentials are valid",
 	})
 }
+
+// ========================================
+// Receipt/Payment Synchronization Handlers
+// ========================================
+
+// TriggerReceiptSync triggers synchronization of Etsy receipts (orders/payments)
+// POST /api/admin/etsy/sync/receipts
+func (h *EtsyHandler) TriggerReceiptSync(w http.ResponseWriter, r *http.Request) {
+	if !h.service.IsEnabled() {
+		http.Error(w, "Etsy integration not configured", http.StatusNotImplemented)
+		return
+	}
+
+	var req struct {
+		ShopID     string `json:"shop_id"`
+		MinCreated int64  `json:"min_created,omitempty"` // Unix timestamp
+	}
+
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		return
+	}
+
+	if req.ShopID == "" {
+		http.Error(w, "shop_id is required", http.StatusBadRequest)
+		return
+	}
+
+	// Trigger receipt sync in background
+	go func() {
+		if err := h.service.SyncReceipts(req.ShopID, req.MinCreated); err != nil {
+			log.Printf("Error syncing receipts: %v", err)
+		}
+	}()
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusAccepted)
+	json.NewEncoder(w).Encode(map[string]string{
+		"message": "Receipt synchronization started",
+		"shop_id": req.ShopID,
+	})
+}
+
+// ListEtsyReceipts lists Etsy receipts with optional filters
+// GET /api/admin/etsy/receipts
+func (h *EtsyHandler) ListEtsyReceipts(w http.ResponseWriter, r *http.Request) {
+	if !h.service.IsEnabled() {
+		http.Error(w, "Etsy integration not configured", http.StatusNotImplemented)
+		return
+	}
+
+	// Parse query parameters
+	shopID := r.URL.Query().Get("shop_id")
+	status := r.URL.Query().Get("status")
+	limit := parseInt(r.URL.Query().Get("limit"), 50)
+	offset := parseInt(r.URL.Query().Get("offset"), 0)
+
+	// Get receipts
+	receipts, total, err := h.service.ListReceipts(shopID, status, limit, offset)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	response := map[string]interface{}{
+		"receipts": receipts,
+		"total":    total,
+		"limit":    limit,
+		"offset":   offset,
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(response)
+}
+
+// GetEtsyReceipt gets a specific Etsy receipt by receipt ID
+// GET /api/admin/etsy/receipts/{receipt_id}
+func (h *EtsyHandler) GetEtsyReceipt(w http.ResponseWriter, r *http.Request) {
+	if !h.service.IsEnabled() {
+		http.Error(w, "Etsy integration not configured", http.StatusNotImplemented)
+		return
+	}
+
+	vars := mux.Vars(r)
+	receiptIDStr := vars["receipt_id"]
+
+	receiptID, err := strconv.ParseInt(receiptIDStr, 10, 64)
+	if err != nil {
+		http.Error(w, "Invalid receipt ID", http.StatusBadRequest)
+		return
+	}
+
+	receipt, err := h.service.GetReceipt(receiptID)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusNotFound)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(receipt)
+}
+
+// LinkReceiptToOrder links an Etsy receipt to a local order
+// POST /api/admin/etsy/receipts/{receipt_id}/link
+func (h *EtsyHandler) LinkReceiptToOrder(w http.ResponseWriter, r *http.Request) {
+	if !h.service.IsEnabled() {
+		http.Error(w, "Etsy integration not configured", http.StatusNotImplemented)
+		return
+	}
+
+	vars := mux.Vars(r)
+	receiptIDStr := vars["receipt_id"]
+
+	receiptID, err := strconv.ParseInt(receiptIDStr, 10, 64)
+	if err != nil {
+		http.Error(w, "Invalid receipt ID", http.StatusBadRequest)
+		return
+	}
+
+	var req struct {
+		LocalOrderID uint `json:"local_order_id"`
+	}
+
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		return
+	}
+
+	if req.LocalOrderID == 0 {
+		http.Error(w, "local_order_id is required", http.StatusBadRequest)
+		return
+	}
+
+	if err := h.service.LinkReceiptToOrder(receiptID, req.LocalOrderID); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(map[string]string{
+		"message": "Receipt linked to order successfully",
+	})
+}
+
+// UnlinkReceiptFromOrder unlinks an Etsy receipt from a local order
+// DELETE /api/admin/etsy/receipts/{receipt_id}/link
+func (h *EtsyHandler) UnlinkReceiptFromOrder(w http.ResponseWriter, r *http.Request) {
+	if !h.service.IsEnabled() {
+		http.Error(w, "Etsy integration not configured", http.StatusNotImplemented)
+		return
+	}
+
+	vars := mux.Vars(r)
+	receiptIDStr := vars["receipt_id"]
+
+	receiptID, err := strconv.ParseInt(receiptIDStr, 10, 64)
+	if err != nil {
+		http.Error(w, "Invalid receipt ID", http.StatusBadRequest)
+		return
+	}
+
+	if err := h.service.UnlinkReceiptFromOrder(receiptID); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(map[string]string{
+		"message": "Receipt unlinked from order successfully",
+	})
+}
+
+// ========================================
+// Helper Functions
+// ========================================
+
+// parseInt parses a string to int with a default value
+func parseInt(s string, defaultValue int) int {
+	if s == "" {
+		return defaultValue
+	}
+	
+	val, err := strconv.Atoi(s)
+	if err != nil {
+		return defaultValue
+	}
+	
+	return val
+}

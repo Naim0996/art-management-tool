@@ -74,6 +74,7 @@ func main() {
 	
 	// Initialize Etsy integration if configured
 	var etsyService *etsy.Service
+	var etsyPaymentProvider payment.Provider
 	if cfg.IsEtsyEnabled() {
 		etsyClient, err := etsy.NewClient(etsy.ClientConfig{
 			APIKey:      cfg.Etsy.APIKey,
@@ -86,7 +87,13 @@ func main() {
 			log.Printf("Warning: Failed to initialize Etsy client: %v", err)
 		} else {
 			etsyService = etsy.NewService(database.DB, etsyClient)
-			log.Println("Etsy integration enabled")
+			// Initialize Etsy payment provider
+			etsyPaymentProvider = payment.NewEtsyProvider(
+				cfg.Etsy.ShopName,
+				cfg.Etsy.ShopURL,
+				cfg.Etsy.PaymentCallbackURL,
+			)
+			log.Println("Etsy integration enabled (including payment)")
 		}
 	} else {
 		log.Println("Etsy integration disabled (not configured)")
@@ -95,7 +102,7 @@ func main() {
 	// Create shop handlers
 	catalogHandler := shop.NewCatalogHandler(productService)
 	cartHandler := shop.NewCartHandler(cartService)
-	checkoutHandler := shop.NewCheckoutHandler(database.DB, cartService, orderService, paymentProvider)
+	checkoutHandler := shop.NewCheckoutHandler(database.DB, cartService, orderService, paymentProvider, etsyPaymentProvider)
 	webhookHandler := shop.NewWebhookHandler(orderService, paymentProvider)
 
 	// Create admin handlers
@@ -173,14 +180,26 @@ func main() {
 	
 	// Etsy integration endpoints
 	if adminEtsyHandler != nil {
+		// Product sync
 		adminRouter.HandleFunc("/etsy/sync/products", adminEtsyHandler.TriggerProductSync).Methods("POST")
 		adminRouter.HandleFunc("/etsy/sync/inventory", adminEtsyHandler.TriggerInventorySync).Methods("POST")
 		adminRouter.HandleFunc("/etsy/sync/status", adminEtsyHandler.GetSyncStatus).Methods("GET")
 		adminRouter.HandleFunc("/etsy/sync/logs", adminEtsyHandler.GetInventorySyncLogs).Methods("GET")
+		
+		// Product management
 		adminRouter.HandleFunc("/etsy/products", adminEtsyHandler.ListEtsyProducts).Methods("GET")
 		adminRouter.HandleFunc("/etsy/products/{listing_id}", adminEtsyHandler.GetEtsyProduct).Methods("GET")
 		adminRouter.HandleFunc("/etsy/products/{listing_id}/link", adminEtsyHandler.LinkProduct).Methods("POST")
 		adminRouter.HandleFunc("/etsy/products/{listing_id}/link", adminEtsyHandler.UnlinkProduct).Methods("DELETE")
+		
+		// Receipt/payment sync
+		adminRouter.HandleFunc("/etsy/sync/receipts", adminEtsyHandler.TriggerReceiptSync).Methods("POST")
+		adminRouter.HandleFunc("/etsy/receipts", adminEtsyHandler.ListEtsyReceipts).Methods("GET")
+		adminRouter.HandleFunc("/etsy/receipts/{receipt_id}", adminEtsyHandler.GetEtsyReceipt).Methods("GET")
+		adminRouter.HandleFunc("/etsy/receipts/{receipt_id}/link", adminEtsyHandler.LinkReceiptToOrder).Methods("POST")
+		adminRouter.HandleFunc("/etsy/receipts/{receipt_id}/link", adminEtsyHandler.UnlinkReceiptFromOrder).Methods("DELETE")
+		
+		// Configuration
 		adminRouter.HandleFunc("/etsy/config", adminEtsyHandler.GetEtsyConfig).Methods("GET")
 		adminRouter.HandleFunc("/etsy/validate", adminEtsyHandler.ValidateCredentials).Methods("POST")
 	}
