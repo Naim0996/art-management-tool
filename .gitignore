@@ -35,6 +35,7 @@ out/
 *.out
 server
 backend/server
+backend/backend
 
 # Dependencies
 node_modules/

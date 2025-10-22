@@ -4,12 +4,14 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/Naim0996/art-management-tool/backend/config"
 	"github.com/Naim0996/art-management-tool/backend/database"
 	"github.com/Naim0996/art-management-tool/backend/handlers"
 	"github.com/Naim0996/art-management-tool/backend/handlers/admin"
 	"github.com/Naim0996/art-management-tool/backend/handlers/shop"
 	"github.com/Naim0996/art-management-tool/backend/middleware"
 	"github.com/Naim0996/art-management-tool/backend/services/cart"
+	"github.com/Naim0996/art-management-tool/backend/services/etsy"
 	"github.com/Naim0996/art-management-tool/backend/services/notification"
 	"github.com/Naim0996/art-management-tool/backend/services/order"
 	"github.com/Naim0996/art-management-tool/backend/services/payment"
@@ -42,6 +44,9 @@ func corsMiddleware(next http.Handler) http.Handler {
 }
 
 func main() {
+	// Load configuration
+	cfg := config.Load()
+	
 	// Inizializza il database
 	if err := database.Connect(); err != nil {
 		log.Fatal("Failed to connect to database:", err)
@@ -66,6 +71,26 @@ func main() {
 
 	orderService := order.NewService(database.DB, paymentProvider, notifService)
 	shopifyService := shopify.NewSyncService(database.DB, "", "", "")
+	
+	// Initialize Etsy integration if configured
+	var etsyService *etsy.Service
+	if cfg.IsEtsyEnabled() {
+		etsyClient, err := etsy.NewClient(etsy.ClientConfig{
+			APIKey:      cfg.Etsy.APIKey,
+			APISecret:   cfg.Etsy.APISecret,
+			ShopID:      cfg.Etsy.ShopID,
+			AccessToken: cfg.Etsy.AccessToken,
+			BaseURL:     cfg.Etsy.BaseURL,
+		})
+		if err != nil {
+			log.Printf("Warning: Failed to initialize Etsy client: %v", err)
+		} else {
+			etsyService = etsy.NewService(database.DB, etsyClient)
+			log.Println("Etsy integration enabled")
+		}
+	} else {
+		log.Println("Etsy integration disabled (not configured)")
+	}
 
 	// Create shop handlers
 	catalogHandler := shop.NewCatalogHandler(productService)
@@ -77,6 +102,12 @@ func main() {
 	adminProductHandler := admin.NewProductHandler(productService)
 	adminOrderHandler := admin.NewOrderHandler(orderService)
 	adminNotifHandler := admin.NewNotificationHandler(notifService)
+	
+	// Create Etsy handler if service is available
+	var adminEtsyHandler *admin.EtsyHandler
+	if etsyService != nil {
+		adminEtsyHandler = admin.NewEtsyHandler(etsyService)
+	}
 
 	// Legacy handlers
 	personaggiHandler := handlers.NewPersonaggiHandler(database.DB)
@@ -139,6 +170,20 @@ func main() {
 		w.WriteHeader(http.StatusAccepted)
 		w.Write([]byte(`{"message":"Sync initiated"}`))
 	}).Methods("POST")
+	
+	// Etsy integration endpoints
+	if adminEtsyHandler != nil {
+		adminRouter.HandleFunc("/etsy/sync/products", adminEtsyHandler.TriggerProductSync).Methods("POST")
+		adminRouter.HandleFunc("/etsy/sync/inventory", adminEtsyHandler.TriggerInventorySync).Methods("POST")
+		adminRouter.HandleFunc("/etsy/sync/status", adminEtsyHandler.GetSyncStatus).Methods("GET")
+		adminRouter.HandleFunc("/etsy/sync/logs", adminEtsyHandler.GetInventorySyncLogs).Methods("GET")
+		adminRouter.HandleFunc("/etsy/products", adminEtsyHandler.ListEtsyProducts).Methods("GET")
+		adminRouter.HandleFunc("/etsy/products/{listing_id}", adminEtsyHandler.GetEtsyProduct).Methods("GET")
+		adminRouter.HandleFunc("/etsy/products/{listing_id}/link", adminEtsyHandler.LinkProduct).Methods("POST")
+		adminRouter.HandleFunc("/etsy/products/{listing_id}/link", adminEtsyHandler.UnlinkProduct).Methods("DELETE")
+		adminRouter.HandleFunc("/etsy/config", adminEtsyHandler.GetEtsyConfig).Methods("GET")
+		adminRouter.HandleFunc("/etsy/validate", adminEtsyHandler.ValidateCredentials).Methods("POST")
+	}
 
 	// Note: Legacy product and order endpoints removed - use /admin/shop/* endpoints instead
 
