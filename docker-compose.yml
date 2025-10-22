@@ -36,6 +36,16 @@ services:
       - DB_PASSWORD=artpassword
       - DB_NAME=artmanagement
       - DB_SSLMODE=disable
+      - ETSY_API_KEY=${ETSY_API_KEY:-}
+      - ETSY_API_SECRET=${ETSY_API_SECRET:-}
+      - ETSY_SHOP_ID=${ETSY_SHOP_ID:-}
+      - ETSY_ACCESS_TOKEN=${ETSY_ACCESS_TOKEN:-}
+      - ETSY_API_BASE_URL=${ETSY_API_BASE_URL:-https://openapi.etsy.com/v3}
+      - ETSY_SYNC_ENABLED=${ETSY_SYNC_ENABLED:-false}
+      - ETSY_SYNC_INTERVAL_PRODUCTS=${ETSY_SYNC_INTERVAL_PRODUCTS:-3600}
+      - ETSY_SYNC_INTERVAL_INVENTORY=${ETSY_SYNC_INTERVAL_INVENTORY:-1800}
+      - SCHEDULER_ENABLED=${SCHEDULER_ENABLED:-true}
+      - RATE_LIMIT_ENABLED=${RATE_LIMIT_ENABLED:-true}
     restart: unless-stopped
     depends_on:
       postgres:
