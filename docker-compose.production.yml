@@ -1,0 +1,116 @@
+services:
+  # PostgreSQL Database (Production)
+  postgres:
+    image: postgres:16-alpine
+    container_name: art-postgres-prod
+    environment:
+      POSTGRES_DB: ${DB_NAME:-artmanagement}
+      POSTGRES_USER: ${DB_USER:-artuser}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_INITDB_ARGS: "-E UTF8"
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    volumes:
+      - postgres_prod_data:/var/lib/postgresql/data
+      - ./backend/init.sql:/docker-entrypoint-initdb.d/01-init.sql
+      # Backups directory
+      - ./backups:/backups
+    restart: always
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-artuser} -d ${DB_NAME:-artmanagement}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - art-network-prod
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      target: production
+    container_name: art-backend-prod
+    ports:
+      - "${PORT:-8080}:8080"
+    env_file:
+      - .env.production
+    environment:
+      - PORT=8080
+      - ENVIRONMENT=production
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      # Auto-run migrations on startup
+      - AUTO_MIGRATE=true
+      - AUTO_SEED=false
+    restart: always
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    networks:
+      - art-network-prod
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 2G
+        reservations:
+          cpus: '1'
+          memory: 1G
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      target: production
+    container_name: art-frontend-prod
+    ports:
+      - "3000:3000"
+    environment:
+      - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-http://backend:8080}
+      - NODE_ENV=production
+    depends_on:
+      backend:
+        condition: service_healthy
+    restart: always
+    networks:
+      - art-network-prod
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+networks:
+  art-network-prod:
+    driver: bridge
+
+volumes:
+  postgres_prod_data:
+    driver: local

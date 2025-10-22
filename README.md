@@ -23,29 +23,66 @@ A modern, full-stack e-commerce platform for art galleries and artists. Built wi
 
 ```
 art-management-tool/
-├── backend/              # Go backend API (Port 8080)
-│   ├── cmd/             # Command-line tools (seeders, utilities)
-│   ├── handlers/        # HTTP request handlers
-│   ├── middleware/      # Authentication & CORS middleware
-│   ├── migrations/      # Database migrations
-│   ├── models/          # Data models & schemas
-│   ├── services/        # Business logic layer
-│   └── main.go          # Application entry point
+├── backend/                        # Go backend API (Port 8080)
+│   ├── cmd/                       # Command-line tools (seeders, utilities)
+│   ├── config/                    # Configuration management
+│   ├── handlers/                  # HTTP request handlers
+│   ├── middleware/                # Authentication & CORS middleware
+│   ├── migrations/                # Database migrations
+│   ├── models/                    # Data models & schemas
+│   ├── services/                  # Business logic layer
+│   │   ├── cart/                 # Shopping cart service
+│   │   ├── etsy/                 # Etsy API integration
+│   │   ├── order/                # Order management
+│   │   ├── payment/              # Payment processing
+│   │   └── product/              # Product catalog
+│   ├── init.sql                   # Database initialization
+│   └── main.go                    # Application entry point
 │
-├── frontend/            # Next.js 15 application (Port 3000)
-│   ├── app/            # App router pages & layouts
-│   ├── components/     # Reusable React components
-│   ├── services/       # API client services
-│   ├── messages/       # i18n translations
-│   └── public/         # Static assets
+├── frontend/                       # Next.js 15 application (Port 3000)
+│   ├── app/                       # App router pages & layouts
+│   │   ├── [locale]/             # Internationalized routes
+│   │   │   ├── admin/            # Admin dashboard
+│   │   │   ├── shop/             # Shop pages
+│   │   │   ├── cart/             # Shopping cart
+│   │   │   └── checkout/         # Checkout flow
+│   │   └── api/                  # API routes (if any)
+│   ├── components/                # Reusable React components
+│   ├── services/                  # API client services
+│   ├── messages/                  # i18n translations (en, it, etc.)
+│   └── public/                    # Static assets
 │
-├── infrastructure/      # Terraform IaC (optional)
-├── docker-compose.yml   # Docker orchestration
-└── docs/               # Documentation
-    ├── guides/         # Deployment and usage guides
-    ├── api/            # API documentation
-    └── troubleshooting/ # Debugging and troubleshooting
+├── docs/                          # 📚 Centralized documentation
+│   ├── README.md                  # Documentation hub
+│   ├── CHANGELOG.md               # Version history
+│   ├── ARCHITECTURE.md            # System architecture
+│   ├── CONTRIBUTING.md            # Contribution guidelines
+│   ├── guides/                    # Setup and deployment guides
+│   │   ├── ENVIRONMENT_SETUP.md  # ⭐ Environment configuration
+│   │   ├── DOCKER.md             # Docker deployment
+│   │   ├── DEPLOYMENT.md         # Production deployment
+│   │   └── TESTING_GUIDE.md      # Testing strategies
+│   ├── api/                       # API documentation
+│   ├── troubleshooting/           # Problem-solving guides
+│   └── summaries/                 # Implementation summaries
+│
+├── infrastructure/                 # Terraform IaC (AWS)
+├── scripts/                        # Utility scripts
+│
+├── .env.example                    # Environment template
+├── .env.development                # Development defaults
+├── .env.test                       # Testing configuration
+├── .env.staging                    # Staging environment
+├── .env.production                 # Production configuration
+├── .env.local.example              # Local override template
+│
+├── docker-compose.yml              # Default Docker setup
+├── docker-compose.development.yml  # Development with hot-reload
+├── docker-compose.staging.yml      # Staging environment
+└── docker-compose.production.yml   # Production deployment
 ```
+
+> 📖 **Documentation Hub**: All documentation is now centralized in [`/docs`](./docs) - start with the [Documentation Index](./docs/README.md)!
 
 ## ✨ Features
 
@@ -148,6 +185,9 @@ cd art-management-tool
 # Start all services (backend, frontend, database)
 docker compose up -d
 
+# Optional: Seed the database with sample data
+AUTO_SEED=true docker compose up -d
+
 # View logs
 docker compose logs -f
 
@@ -159,6 +199,8 @@ docker compose down
 - 🌐 **Frontend**: http://localhost:3000
 - 🔌 **Backend API**: http://localhost:8080
 - 📊 **API Health**: http://localhost:8080/health
+
+> 💡 **Tip**: The database migrations run automatically on startup! No manual setup needed.
 
 ### Option 2: Local Development 💻
 
@@ -447,38 +489,44 @@ npm run lint:fix
 
 ### Environment Variables
 
-**Backend (.env):**
-```env
-PORT=8080
-DATABASE_URL=postgresql://user:password@localhost:5432/artdb
-JWT_SECRET=your-secret-key
-STRIPE_API_KEY=sk_test_...
-STRIPE_WEBHOOK_SECRET=whsec_...
-CORS_ALLOWED_ORIGINS=http://localhost:3000
+The project uses environment-specific configuration files for different stages:
+
+- `.env.development` - Development defaults (auto-migration, seeding)
+- `.env.test` - Testing with mock providers
+- `.env.staging` - Staging environment
+- `.env.production` - Production configuration
+- `.env.local` - Local overrides (gitignored)
+
+**Quick setup:**
+```bash
+# For local development
+cp .env.development .env.local
+
+# For testing (pre-configured, no setup needed)
+ENV=test go test ./...
+
+# For production
+cp .env.production .env.local
+# Edit with secure values
 ```
 
-**Frontend (.env.local):**
-```env
-NEXT_PUBLIC_API_URL=http://localhost:8080
-NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_...
-```
+📖 **Complete guide**: See [docs/guides/ENVIRONMENT_SETUP.md](./docs/guides/ENVIRONMENT_SETUP.md) for detailed configuration instructions.
 
 ### Docker Development
 
-**Build Images:**
-```bash
-# Build all services
-docker compose build
-
-# Build specific service
-docker compose build backend
-docker compose build frontend
-```
+**Available Compose Files:**
+- `docker-compose.yml` - Default/demo setup
+- `docker-compose.development.yml` - Development with hot-reload
+- `docker-compose.staging.yml` - Staging environment
+- `docker-compose.production.yml` - Production deployment
 
 **Development with Hot Reload:**
 ```bash
-# Mount source code for live reloading
-docker compose -f docker-compose.dev.yml up
+# Start development environment with hot-reload
+docker compose -f docker-compose.development.yml up -d
+
+# Automatically runs migrations and optionally seeds data
+AUTO_SEED=true docker compose -f docker-compose.development.yml up -d
 ```
 
 **View Logs:**
@@ -494,8 +542,10 @@ docker compose logs -f frontend
 **Database Access:**
 ```bash
 # Connect to PostgreSQL container
-docker compose exec db psql -U artuser -d artdb
+docker compose exec postgres psql -U artuser -d artmanagement
 ```
+
+📖 **Complete guide**: See [docs/guides/ENVIRONMENT_SETUP.md](./docs/guides/ENVIRONMENT_SETUP.md) for all Docker environments.
 
 ### Code Quality
 
@@ -618,17 +668,43 @@ For detailed deployment instructions, see:
 
 ## 📖 Documentation
 
-- 📋 [API Documentation](./docs/api/SHOP_API.md) - Complete API reference
-- 🏗️ [Architecture](./docs/ARCHITECTURE.md) - System design and architecture
-- 🐳 [Docker Guide](./docs/guides/DOCKER.md) - Container deployment
-- 🚀 [Deployment Guide](./docs/guides/DEPLOYMENT.md) - Production deployment
-- 🧪 [Testing Guide](./docs/guides/TESTING_GUIDE.md) - Testing strategies
-- 🔧 [Integration Summary](./docs/guides/INTEGRATION_SUMMARY.md) - Integration details
+All documentation is centralized in the [`/docs`](./docs) folder for easy access and maintainability.
+
+### 📚 Core Documentation
+
+- 🏗️ [Architecture](./docs/ARCHITECTURE.md) - System design and architecture overview
+- 🤝 [Contributing](./docs/CONTRIBUTING.md) - How to contribute to the project
+- 📝 [Changelog](./docs/CHANGELOG.md) - Version history and changes
+
+### 🔧 Setup & Configuration Guides
+
+- 🔐 [Environment Setup](./docs/guides/ENVIRONMENT_SETUP.md) - **Start here!** Complete environment configuration guide
+- 🐳 [Docker Guide](./docs/guides/DOCKER.md) - Container deployment and management
+- 🚀 [Deployment Guide](./docs/guides/DEPLOYMENT.md) - Production deployment strategies
+- 🧪 [Testing Guide](./docs/guides/TESTING_GUIDE.md) - Testing strategies and best practices
+
+### 🔌 API & Integration
+
+- 📋 [API Documentation](./docs/api/SHOP_API.md) - Complete REST API reference
+- 🔧 [Integration Summary](./docs/guides/INTEGRATION_SUMMARY.md) - Overview of all integrations
 - 🛍️ [Etsy Integration](./docs/ETSY_INTEGRATION.md) - Etsy API integration guide
-- 💳 [Etsy Payment Integration](./docs/ETSY_PAYMENT_INTEGRATION.md) - Etsy payment processing guide
-- 🤝 [Contributing](./docs/CONTRIBUTING.md) - How to contribute
+- 💳 [Etsy Payment Integration](./docs/ETSY_PAYMENT_INTEGRATION.md) - Etsy payment processing
+- 🖼️ [Etsy Frontend Integration](./docs/ETSY_FRONTEND_INTEGRATION.md) - Etsy UI components
+- 🔒 [Security Infrastructure](./docs/SECURITY_INFRASTRUCTURE.md) - Security best practices
+
+### 🐛 Troubleshooting
+
 - 🛒 [Cart Troubleshooting](./docs/troubleshooting/CART_TROUBLESHOOTING.md) - Shopping cart debugging
 - 🔌 [Proxy Solution](./docs/troubleshooting/PROXY_SOLUTION.md) - API proxy configuration
+
+### 📊 Implementation Summaries
+
+- [Etsy Infrastructure Summary](./docs/summaries/ETSY_INFRASTRUCTURE_SUMMARY.md)
+- [Etsy Payment Summary](./docs/summaries/ETSY_PAYMENT_SUMMARY.md)
+- [Frontend Etsy Integration Summary](./docs/summaries/FRONTEND_ETSY_INTEGRATION_SUMMARY.md)
+- [Refactoring Summary](./docs/summaries/REFACTORING_SUMMARY.md)
+
+> 💡 **New here?** Start with the [Environment Setup Guide](./docs/guides/ENVIRONMENT_SETUP.md) to get your development environment running!
 
 ## 🤝 Contributing
 
