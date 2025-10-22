@@ -12,7 +12,7 @@ import { Toast } from 'primereact/toast';
 import { Card } from 'primereact/card';
 import { useRef } from 'react';
 
-type PaymentMethod = 'stripe' | 'mock';
+type PaymentMethod = 'stripe' | 'mock' | 'etsy';
 
 export default function CheckoutPage() {
   const locale = useLocale();
@@ -45,6 +45,23 @@ export default function CheckoutPage() {
       };
 
       const response = await shopAPI.checkout(checkoutData);
+      
+      // Handle Etsy payment redirect
+      if (paymentMethod === 'etsy' && response.client_secret) {
+        // The client_secret for Etsy contains the checkout URL
+        toast.current?.show({
+          severity: 'info',
+          summary: 'Redirecting to Etsy',
+          detail: 'You will be redirected to complete payment on Etsy...',
+          life: 3000,
+        });
+        
+        // Redirect to Etsy checkout
+        setTimeout(() => {
+          window.location.href = response.client_secret;
+        }, 2000);
+        return;
+      }
       
       toast.current?.show({
         severity: 'success',
@@ -216,6 +233,22 @@ export default function CheckoutPage() {
                   <label htmlFor="stripe" className="ml-3 cursor-pointer flex items-center">
                     <i className="pi pi-credit-card text-xl mr-2 text-blue-600"></i>
                     <span className="text-lg">Stripe Payment</span>
+                  </label>
+                </div>
+                <div className="flex items-center p-4 border rounded-lg cursor-pointer hover:bg-gray-50">
+                  <RadioButton
+                    inputId="etsy"
+                    name="payment"
+                    value="etsy"
+                    onChange={(e) => setPaymentMethod(e.value)}
+                    checked={paymentMethod === 'etsy'}
+                  />
+                  <label htmlFor="etsy" className="ml-3 cursor-pointer flex items-center">
+                    <i className="pi pi-shopping-bag text-xl mr-2 text-orange-600"></i>
+                    <div>
+                      <div className="text-lg">Etsy Payment</div>
+                      <div className="text-sm text-gray-500">Complete payment on Etsy platform</div>
+                    </div>
                   </label>
                 </div>
                 <div className="flex items-center p-4 border rounded-lg cursor-pointer hover:bg-gray-50">

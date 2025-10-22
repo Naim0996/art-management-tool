@@ -29,7 +29,12 @@ func NewEtsyProvider(shopName, shopURL, callbackURL string) *EtsyProvider {
 // This generates a checkout URL that redirects to Etsy's platform
 func (e *EtsyProvider) CreatePaymentIntent(request *CreatePaymentIntentRequest) (*models.PaymentIntent, error) {
 	if err := ValidateAmount(e, request.Amount); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("etsy payment validation failed: %w", err)
+	}
+
+	// Validate Etsy configuration
+	if e.shopURL == "" {
+		return nil, fmt.Errorf("etsy shop URL not configured")
 	}
 
 	// Generate a unique intent ID for tracking
@@ -39,6 +44,11 @@ func (e *EtsyProvider) CreatePaymentIntent(request *CreatePaymentIntentRequest) 
 	// In a real implementation, this would use Etsy's listing URLs
 	// and the customer would complete purchase on Etsy
 	checkoutURL := fmt.Sprintf("%s?ref=%s", e.shopURL, intentID)
+	
+	// Add callback URL if configured
+	if e.callbackURL != "" {
+		checkoutURL = fmt.Sprintf("%s&return_url=%s", checkoutURL, e.callbackURL)
+	}
 	
 	return &models.PaymentIntent{
 		ID:           intentID,
