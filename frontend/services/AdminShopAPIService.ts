@@ -425,6 +425,68 @@ class AdminShopAPIService {
       method: 'DELETE',
     });
   }
+
+  // ==================== Image Upload Methods ====================
+
+  /**
+   * Upload product image
+   */
+  async uploadProductImage(
+    productId: number,
+    file: File,
+    altText?: string,
+    position?: number
+  ): Promise<{ message: string; image: ProductImage }> {
+    const formData = new FormData();
+    formData.append('file', file);
+    if (altText) formData.append('alt_text', altText);
+    if (position !== undefined) formData.append('position', position.toString());
+
+    const response = await fetch(`${API_BASE_URL}/api/admin/shop/products/${productId}/images`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${this.getToken()}`,
+      },
+      body: formData,
+    });
+
+    if (!response.ok) {
+      const error = await response.text();
+      throw new Error(error || 'Failed to upload image');
+    }
+
+    return response.json();
+  }
+
+  /**
+   * List product images
+   */
+  async listProductImages(productId: number): Promise<{ images: ProductImage[] }> {
+    return this.request(`/shop/products/${productId}/images`);
+  }
+
+  /**
+   * Update product image (position, alt text)
+   */
+  async updateProductImage(
+    productId: number,
+    imageId: number,
+    data: { position?: number; alt_text?: string }
+  ): Promise<{ message: string }> {
+    return this.request(`/shop/products/${productId}/images/${imageId}`, {
+      method: 'PATCH',
+      body: JSON.stringify(data),
+    });
+  }
+
+  /**
+   * Delete product image
+   */
+  async deleteProductImage(productId: number, imageId: number): Promise<{ message: string }> {
+    return this.request(`/shop/products/${productId}/images/${imageId}`, {
+      method: 'DELETE',
+    });
+  }
 }
 
 // Export singleton instance

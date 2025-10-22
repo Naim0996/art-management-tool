@@ -49,6 +49,8 @@ services:
       - ETSY_SYNC_INTERVAL_INVENTORY=${ETSY_SYNC_INTERVAL_INVENTORY:-1800}
       - SCHEDULER_ENABLED=${SCHEDULER_ENABLED:-true}
       - RATE_LIMIT_ENABLED=${RATE_LIMIT_ENABLED:-true}
+    volumes:
+      - uploads_data:/app/uploads
     restart: unless-stopped
     depends_on:
       postgres:
@@ -84,4 +86,6 @@ networks:
 
 volumes:
   postgres_data:
+    driver: local
+  uploads_data:
     driver: local

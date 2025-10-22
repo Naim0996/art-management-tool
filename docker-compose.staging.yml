@@ -35,6 +35,8 @@ services:
       - ENVIRONMENT=staging
       - DB_HOST=postgres
       - DB_PORT=5432
+    volumes:
+      - uploads_staging_data:/app/uploads
     restart: unless-stopped
     depends_on:
       postgres:
@@ -71,4 +73,6 @@ networks:
 
 volumes:
   postgres_staging_data:
+    driver: local
+  uploads_staging_data:
     driver: local

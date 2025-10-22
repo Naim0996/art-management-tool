@@ -50,6 +50,8 @@ services:
       # Auto-run migrations on startup
       - AUTO_MIGRATE=true
       - AUTO_SEED=false
+    volumes:
+      - uploads_prod_data:/app/uploads
     restart: always
     depends_on:
       postgres:
@@ -113,4 +115,6 @@ networks:
 
 volumes:
   postgres_prod_data:
+    driver: local
+  uploads_prod_data:
     driver: local
