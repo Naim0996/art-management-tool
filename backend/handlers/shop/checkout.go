@@ -14,19 +14,21 @@ import (
 
 // CheckoutHandler handles checkout operations
 type CheckoutHandler struct {
-	db              *gorm.DB
-	cartService     *cart.Service
-	orderService    *order.Service
-	paymentProvider payment.Provider
+	db                 *gorm.DB
+	cartService        *cart.Service
+	orderService       *order.Service
+	paymentProvider    payment.Provider
+	etsyPaymentProvider payment.Provider
 }
 
 // NewCheckoutHandler creates a new checkout handler
-func NewCheckoutHandler(db *gorm.DB, cartService *cart.Service, orderService *order.Service, paymentProvider payment.Provider) *CheckoutHandler {
+func NewCheckoutHandler(db *gorm.DB, cartService *cart.Service, orderService *order.Service, paymentProvider payment.Provider, etsyPaymentProvider payment.Provider) *CheckoutHandler {
 	return &CheckoutHandler{
-		db:              db,
-		cartService:     cartService,
-		orderService:    orderService,
-		paymentProvider: paymentProvider,
+		db:                 db,
+		cartService:        cartService,
+		orderService:       orderService,
+		paymentProvider:    paymentProvider,
+		etsyPaymentProvider: etsyPaymentProvider,
 	}
 }
 
@@ -94,6 +96,17 @@ func (h *CheckoutHandler) ProcessCheckout(w http.ResponseWriter, r *http.Request
 			return
 		}
 	}
+	
+	// Select payment provider based on payment method
+	selectedProvider := h.paymentProvider
+	if req.PaymentMethod == models.PaymentMethodEtsy && h.etsyPaymentProvider != nil {
+		selectedProvider = h.etsyPaymentProvider
+	}
+	
+	// Temporarily switch provider in order service for this request
+	originalProvider := h.orderService.GetPaymentProvider()
+	h.orderService.SetPaymentProvider(selectedProvider)
+	defer h.orderService.SetPaymentProvider(originalProvider)
 	
 	// Create order with payment
 	order, paymentIntent, err := h.orderService.CreateOrder(cart, &req, discountCode)
