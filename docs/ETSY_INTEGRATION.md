@@ -305,11 +305,24 @@ GET /api/admin/scheduler/status
 
 Trigger sync manually via admin API:
 ```bash
-POST /api/admin/etsy/sync
+# Trigger product sync
+POST /api/admin/etsy/sync/products
 {
-  "type": "products",  # or "inventory"
   "shop_id": "your_shop_id"
 }
+
+# Trigger inventory sync
+POST /api/admin/etsy/sync/inventory
+{
+  "shop_id": "your_shop_id",
+  "direction": "push"  # or "pull", "bidirectional"
+}
+
+# Get sync status
+GET /api/admin/etsy/sync/status?shop_id=your_shop_id
+
+# Get sync logs
+GET /api/admin/etsy/sync/logs?listing_id=123&limit=50&offset=0
 ```
 
 ## 🔌 API Integration
@@ -318,20 +331,53 @@ POST /api/admin/etsy/sync
 
 ```
 backend/services/etsy/
-├── client.go      # Etsy API client
-├── service.go     # Business logic
-└── dto.go         # Data transfer objects (to be added)
+├── client.go      # Complete HTTP client with retry logic
+├── service.go     # Business logic and sync implementation
+├── dto.go         # Complete Etsy API v3 DTOs
+└── mapper.go      # Bidirectional DTO mapping functions
 ```
+
+### Admin API Endpoints
+
+All endpoints require authentication via `Authorization: Bearer <token>` header.
+
+#### Sync Management
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `POST` | `/api/admin/etsy/sync/products` | Trigger product synchronization |
+| `POST` | `/api/admin/etsy/sync/inventory` | Trigger inventory synchronization |
+| `GET` | `/api/admin/etsy/sync/status` | Get sync configuration and status |
+| `GET` | `/api/admin/etsy/sync/logs` | Retrieve inventory sync logs |
+
+#### Product Management
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/api/admin/etsy/products` | List all Etsy products |
+| `GET` | `/api/admin/etsy/products/{listing_id}` | Get specific Etsy product |
+| `POST` | `/api/admin/etsy/products/{listing_id}/link` | Link Etsy listing to local product |
+| `DELETE` | `/api/admin/etsy/products/{listing_id}/link` | Unlink Etsy listing from local product |
+
+#### Configuration
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/api/admin/etsy/config` | Get integration configuration status |
+| `POST` | `/api/admin/etsy/validate` | Validate Etsy API credentials |
 
 ### Client Usage
 
 ```go
-// Initialize client
+// Initialize client with configuration
 client, err := etsy.NewClient(etsy.ClientConfig{
     APIKey:      os.Getenv("ETSY_API_KEY"),
     APISecret:   os.Getenv("ETSY_API_SECRET"),
     ShopID:      os.Getenv("ETSY_SHOP_ID"),
     AccessToken: os.Getenv("ETSY_ACCESS_TOKEN"),
+    BaseURL:     "https://openapi.etsy.com/v3",
+    Timeout:     30 * time.Second,
+    MaxRetries:  3,
 })
 
 // Create service
@@ -341,23 +387,81 @@ etsyService := etsy.NewService(db, client)
 if etsyService.IsEnabled() {
     // Sync products
     err := etsyService.SyncProducts(shopID)
+    
+    // Sync inventory (bidirectional)
+    err := etsyService.SyncInventory(shopID, "bidirectional")
 }
 ```
 
 ### Synchronization Flow
 
 **Product Sync (Etsy → Local):**
-1. Fetch listings from Etsy API
-2. Create/update `etsy_products` records
-3. Map to local products (if exists)
-4. Update sync status and timestamp
+1. Fetch listings from Etsy API with pagination
+2. Map Etsy listing DTOs to EtsyProduct models
+3. Create or update `etsy_products` records in database
+4. Track sync status and timestamps
+5. Update rate limit information
+6. Log sync operations
 
-**Inventory Sync:**
-1. Get local products with Etsy mappings
-2. Compare quantities (Etsy vs Local)
-3. Determine sync direction (push/pull)
-4. Update quantities accordingly
-5. Log sync operation
+**Inventory Sync (Bidirectional):**
+1. Retrieve all synced Etsy products from database
+2. For each product:
+   - Fetch current inventory from Etsy API
+   - Compare with local inventory levels
+   - Calculate inventory delta
+   - Determine sync direction based on configuration:
+     - **Push**: Update Etsy with local quantities
+     - **Pull**: Update local with Etsy quantities
+     - **Bidirectional**: Intelligent conflict resolution
+3. For products with variants:
+   - Match variants by SKU
+   - Sync each variant individually
+4. Log all sync operations to `etsy_inventory_sync_log`
+5. Update rate limit and sync status
+
+### Error Handling
+
+The implementation includes comprehensive error handling:
+
+```go
+// Typed API errors
+type EtsyAPIError struct {
+    StatusCode  int
+    ErrorCode   string
+    Description string
+}
+
+// Retry logic with exponential backoff
+// - Retries on 5xx errors and 429 (rate limit)
+// - Configurable retry attempts (default: 3)
+// - Exponential backoff delay (1s, 2s, 4s, ...)
+// - Logs all retry attempts
+
+// Rate limit handling
+// - Tracks remaining requests from response headers
+// - Prevents API calls when limit exceeded
+// - Stores reset time in sync configuration
+```
+
+### Data Mapping
+
+The mapper provides bidirectional conversion between Etsy and local models:
+
+**Etsy → Local:**
+- `ListingDTO` → `EtsyProduct` (tracking record)
+- `ListingDTO` → `EnhancedProduct` (local product)
+- `ListingInventoryProductDTO` → `ProductVariant`
+
+**Local → Etsy:**
+- `EnhancedProduct` + `EtsyProduct` → `UpdateListingInventoryRequest`
+- `ProductVariant` → `UpdateInventoryOfferingDTO`
+
+**Features:**
+- Automatic slug generation from titles
+- Status mapping (draft/published/archived ↔ active/inactive)
+- Price conversion and currency handling
+- Weight and dimension unit conversion
+- Property value parsing for variants
 
 ## 🧪 Testing
 
