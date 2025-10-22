@@ -99,9 +99,9 @@ func (h *ProductHandler) CreateProduct(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	
-	// Validate required fields
-	if product.Title == "" || product.Slug == "" {
-		http.Error(w, "Title and slug are required", http.StatusBadRequest)
+	// Validate using model validation
+	if err := models.ValidateProductCreate(&product); err != nil {
+		http.Error(w, "Validation failed: "+err.Error(), http.StatusBadRequest)
 		return
 	}
 	
@@ -127,6 +127,12 @@ func (h *ProductHandler) UpdateProduct(w http.ResponseWriter, r *http.Request) {
 	var updates models.EnhancedProduct
 	if err := json.NewDecoder(r.Body).Decode(&updates); err != nil {
 		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		return
+	}
+	
+	// Validate using model validation
+	if err := models.ValidateProductUpdate(&updates); err != nil {
+		http.Error(w, "Validation failed: "+err.Error(), http.StatusBadRequest)
 		return
 	}
 	
@@ -170,8 +176,9 @@ func (h *ProductHandler) AddVariant(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	
-	if variant.SKU == "" || variant.Name == "" {
-		http.Error(w, "SKU and name are required", http.StatusBadRequest)
+	// Validate using model validation
+	if err := models.ValidateVariant(&variant); err != nil {
+		http.Error(w, "Validation failed: "+err.Error(), http.StatusBadRequest)
 		return
 	}
 	

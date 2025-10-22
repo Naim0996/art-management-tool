@@ -442,10 +442,11 @@ class AdminShopAPIService {
     if (altText) formData.append('alt_text', altText);
     if (position !== undefined) formData.append('position', position.toString());
 
+    const token = this.getAuthToken();
     const response = await fetch(`${API_BASE_URL}/api/admin/shop/products/${productId}/images`, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${this.getToken()}`,
+        ...(token && { 'Authorization': `Bearer ${token}` }),
       },
       body: formData,
     });

@@ -41,8 +41,22 @@ export default function ProductImageUpload({
       return;
     }
 
-    setUploading(true);
     const file = event.files[0];
+    
+    // Validate file before uploading
+    const { validateImageFile } = await import('@/services/validation');
+    const validation = validateImageFile(file, 10);
+    if (validation.hasErrors()) {
+      toast.current?.show({
+        severity: 'error',
+        summary: 'Validation Error',
+        detail: validation.getErrorMessage(),
+        life: 3000,
+      });
+      return;
+    }
+
+    setUploading(true);
 
     try {
       const position = images.length;

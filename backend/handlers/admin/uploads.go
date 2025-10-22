@@ -80,6 +80,13 @@ func (h *UploadHandler) UploadProductImage(w http.ResponseWriter, r *http.Reques
 		Position:  position,
 	}
 
+	// Validate image record
+	if err := models.ValidateProductImage(&productImage); err != nil {
+		h.uploadService.DeleteFile(publicURL)
+		http.Error(w, "Validation failed: "+err.Error(), http.StatusBadRequest)
+		return
+	}
+
 	if err := h.db.Create(&productImage).Error; err != nil {
 		// Cleanup uploaded file on database error
 		h.uploadService.DeleteFile(publicURL)
