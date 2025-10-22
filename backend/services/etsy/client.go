@@ -1,8 +1,14 @@
 package etsy
 
 import (
+	"bytes"
+	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
+	"log"
+	"net/http"
+	"strconv"
 	"time"
 )
 
@@ -14,10 +20,16 @@ type Client struct {
 	accessToken string
 	baseURL     string
 	httpTimeout time.Duration
+	httpClient  *http.Client
 	
 	// Rate limiting
 	rateLimitRemaining int
 	rateLimitResetAt   time.Time
+	
+	// Retry configuration
+	maxRetries     int
+	retryDelay     time.Duration
+	retryBackoff   float64
 }
 
 // ClientConfig holds configuration for the Etsy API client
@@ -28,6 +40,7 @@ type ClientConfig struct {
 	AccessToken string
 	BaseURL     string
 	Timeout     time.Duration
+	MaxRetries  int
 }
 
 // NewClient creates a new Etsy API client
@@ -44,6 +57,10 @@ func NewClient(config ClientConfig) (*Client, error) {
 		config.Timeout = 30 * time.Second
 	}
 	
+	if config.MaxRetries == 0 {
+		config.MaxRetries = 3
+	}
+	
 	return &Client{
 		apiKey:             config.APIKey,
 		apiSecret:          config.APISecret,
@@ -51,7 +68,11 @@ func NewClient(config ClientConfig) (*Client, error) {
 		accessToken:        config.AccessToken,
 		baseURL:            config.BaseURL,
 		httpTimeout:        config.Timeout,
+		httpClient:         &http.Client{Timeout: config.Timeout},
 		rateLimitRemaining: 10000, // Default Etsy rate limit
+		maxRetries:         config.MaxRetries,
+		retryDelay:         1 * time.Second,
+		retryBackoff:       2.0,
 	}, nil
 }
 
@@ -79,21 +100,151 @@ func (c *Client) UpdateRateLimit(remaining int, resetAt time.Time) {
 	c.rateLimitResetAt = resetAt
 }
 
-// EtsyListing represents a simplified Etsy listing structure
-type EtsyListing struct {
-	ListingID   int64   `json:"listing_id"`
-	Title       string  `json:"title"`
-	Description string  `json:"description"`
-	Price       float64 `json:"price"`
-	Quantity    int     `json:"quantity"`
-	SKU         string  `json:"sku"`
-	State       string  `json:"state"`
-	URL         string  `json:"url"`
+// ========================================
+// Core HTTP Methods with Retry Logic
+// ========================================
+
+// doRequest performs an HTTP request with retry logic and error handling
+func (c *Client) doRequest(method, path string, body interface{}, result interface{}) error {
+	var lastErr error
+	
+	for attempt := 0; attempt <= c.maxRetries; attempt++ {
+		if attempt > 0 {
+			// Calculate exponential backoff delay
+			delay := time.Duration(float64(c.retryDelay) * float64(attempt) * c.retryBackoff)
+			log.Printf("Retrying Etsy API request (attempt %d/%d) after %v", attempt, c.maxRetries, delay)
+			time.Sleep(delay)
+		}
+		
+		err := c.executeRequest(method, path, body, result)
+		if err == nil {
+			return nil
+		}
+		
+		lastErr = err
+		
+		// Check if error is retryable
+		if !c.isRetryableError(err) {
+			return err
+		}
+	}
+	
+	return fmt.Errorf("max retries exceeded: %w", lastErr)
 }
+
+// executeRequest performs a single HTTP request
+func (c *Client) executeRequest(method, path string, body interface{}, result interface{}) error {
+	url := c.baseURL + path
+	
+	var bodyReader io.Reader
+	if body != nil {
+		jsonBody, err := json.Marshal(body)
+		if err != nil {
+			return fmt.Errorf("failed to marshal request body: %w", err)
+		}
+		bodyReader = bytes.NewReader(jsonBody)
+	}
+	
+	req, err := http.NewRequest(method, url, bodyReader)
+	if err != nil {
+		return fmt.Errorf("failed to create request: %w", err)
+	}
+	
+	// Set headers
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("x-api-key", c.apiKey)
+	if c.accessToken != "" {
+		req.Header.Set("Authorization", "Bearer "+c.accessToken)
+	}
+	
+	// Execute request
+	resp, err := c.httpClient.Do(req)
+	if err != nil {
+		return fmt.Errorf("request failed: %w", err)
+	}
+	defer resp.Body.Close()
+	
+	// Update rate limit info from headers
+	c.updateRateLimitFromHeaders(resp.Header)
+	
+	// Read response body
+	respBody, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return fmt.Errorf("failed to read response body: %w", err)
+	}
+	
+	// Check for errors
+	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
+		return c.handleErrorResponse(resp.StatusCode, respBody)
+	}
+	
+	// Parse success response
+	if result != nil {
+		if err := json.Unmarshal(respBody, result); err != nil {
+			return fmt.Errorf("failed to parse response: %w", err)
+		}
+	}
+	
+	log.Printf("Etsy API request successful: %s %s (status: %d)", method, path, resp.StatusCode)
+	return nil
+}
+
+// handleErrorResponse parses and returns an appropriate error from API response
+func (c *Client) handleErrorResponse(statusCode int, body []byte) error {
+	var etsyErr EtsyErrorResponse
+	if err := json.Unmarshal(body, &etsyErr); err == nil && etsyErr.Error != "" {
+		return &EtsyAPIError{
+			StatusCode:  statusCode,
+			ErrorCode:   etsyErr.Error,
+			Description: etsyErr.ErrorMsg,
+		}
+	}
+	
+	return &EtsyAPIError{
+		StatusCode:  statusCode,
+		ErrorCode:   "unknown_error",
+		Description: string(body),
+	}
+}
+
+// updateRateLimitFromHeaders updates rate limit info from response headers
+func (c *Client) updateRateLimitFromHeaders(headers http.Header) {
+	if remaining := headers.Get("X-RateLimit-Remaining"); remaining != "" {
+		if val, err := strconv.Atoi(remaining); err == nil {
+			c.rateLimitRemaining = val
+		}
+	}
+	
+	if reset := headers.Get("X-RateLimit-Reset"); reset != "" {
+		if val, err := strconv.ParseInt(reset, 10, 64); err == nil {
+			c.rateLimitResetAt = time.Unix(val, 0)
+		}
+	}
+}
+
+// isRetryableError determines if an error should trigger a retry
+func (c *Client) isRetryableError(err error) bool {
+	if err == nil {
+		return false
+	}
+	
+	// Check for EtsyAPIError
+	var apiErr *EtsyAPIError
+	if errors.As(err, &apiErr) {
+		// Retry on server errors (5xx) and rate limit errors (429)
+		return apiErr.StatusCode >= 500 || apiErr.StatusCode == 429
+	}
+	
+	// Retry on network errors
+	return true
+}
+
+// ========================================
+// API Methods - Listings
+// ========================================
 
 // GetShopListings retrieves all listings for the configured shop
-// NOTE: This is a stub implementation - actual Etsy API integration required
-func (c *Client) GetShopListings(limit, offset int) ([]EtsyListing, error) {
+func (c *Client) GetShopListings(limit, offset int) ([]ListingDTO, error) {
 	if !c.IsConfigured() {
 		return nil, errors.New("etsy client not properly configured")
 	}
@@ -102,14 +253,21 @@ func (c *Client) GetShopListings(limit, offset int) ([]EtsyListing, error) {
 		return nil, fmt.Errorf("rate limit exceeded, resets at %s", c.rateLimitResetAt.Format(time.RFC3339))
 	}
 	
-	// TODO: Implement actual Etsy API call
-	// This is a stub that returns empty results
-	return []EtsyListing{}, nil
+	path := fmt.Sprintf("/application/shops/%s/listings/active", c.shopID)
+	if limit > 0 {
+		path += fmt.Sprintf("?limit=%d&offset=%d", limit, offset)
+	}
+	
+	var response ListingsResponse
+	if err := c.doRequest("GET", path, nil, &response); err != nil {
+		return nil, fmt.Errorf("failed to get shop listings: %w", err)
+	}
+	
+	return response.Results, nil
 }
 
-// GetListing retrieves a specific listing by ID
-// NOTE: This is a stub implementation - actual Etsy API integration required
-func (c *Client) GetListing(listingID int64) (*EtsyListing, error) {
+// GetListing retrieves a specific listing by ID with inventory details
+func (c *Client) GetListing(listingID int64) (*ListingDTO, error) {
 	if !c.IsConfigured() {
 		return nil, errors.New("etsy client not properly configured")
 	}
@@ -118,13 +276,42 @@ func (c *Client) GetListing(listingID int64) (*EtsyListing, error) {
 		return nil, fmt.Errorf("rate limit exceeded, resets at %s", c.rateLimitResetAt.Format(time.RFC3339))
 	}
 	
-	// TODO: Implement actual Etsy API call
-	return nil, errors.New("not implemented - requires Etsy API integration")
+	path := fmt.Sprintf("/application/listings/%d?includes=Images,Inventory", listingID)
+	
+	var listing ListingDTO
+	if err := c.doRequest("GET", path, nil, &listing); err != nil {
+		return nil, fmt.Errorf("failed to get listing %d: %w", listingID, err)
+	}
+	
+	return &listing, nil
 }
 
-// UpdateInventory updates the inventory quantity for a listing
-// NOTE: This is a stub implementation - actual Etsy API integration required
-func (c *Client) UpdateInventory(listingID int64, quantity int) error {
+// ========================================
+// API Methods - Inventory
+// ========================================
+
+// GetListingInventory retrieves the inventory for a specific listing
+func (c *Client) GetListingInventory(listingID int64) (*ListingInventoryDTO, error) {
+	if !c.IsConfigured() {
+		return nil, errors.New("etsy client not properly configured")
+	}
+	
+	if c.IsRateLimited() {
+		return nil, fmt.Errorf("rate limit exceeded, resets at %s", c.rateLimitResetAt.Format(time.RFC3339))
+	}
+	
+	path := fmt.Sprintf("/application/listings/%d/inventory", listingID)
+	
+	var inventory ListingInventoryDTO
+	if err := c.doRequest("GET", path, nil, &inventory); err != nil {
+		return nil, fmt.Errorf("failed to get inventory for listing %d: %w", listingID, err)
+	}
+	
+	return &inventory, nil
+}
+
+// UpdateListingInventory updates the inventory for a specific listing
+func (c *Client) UpdateListingInventory(listingID int64, request *UpdateListingInventoryRequest) error {
 	if !c.IsConfigured() {
 		return errors.New("etsy client not properly configured")
 	}
@@ -133,17 +320,86 @@ func (c *Client) UpdateInventory(listingID int64, quantity int) error {
 		return fmt.Errorf("rate limit exceeded, resets at %s", c.rateLimitResetAt.Format(time.RFC3339))
 	}
 	
-	// TODO: Implement actual Etsy API call
-	return errors.New("not implemented - requires Etsy API integration")
+	path := fmt.Sprintf("/application/listings/%d/inventory", listingID)
+	
+	if err := c.doRequest("PUT", path, request, nil); err != nil {
+		return fmt.Errorf("failed to update inventory for listing %d: %w", listingID, err)
+	}
+	
+	return nil
 }
 
-// ValidateCredentials tests the API credentials
-// NOTE: This is a stub implementation - actual Etsy API integration required
+// UpdateInventory updates the inventory quantity for a listing (simplified method)
+func (c *Client) UpdateInventory(listingID int64, quantity int) error {
+	// First, get current inventory structure
+	inventory, err := c.GetListingInventory(listingID)
+	if err != nil {
+		return err
+	}
+	
+	if len(inventory.Products) == 0 {
+		return errors.New("no products found in listing inventory")
+	}
+	
+	// Update quantity in first product's first offering
+	product := inventory.Products[0]
+	if len(product.Offerings) == 0 {
+		return errors.New("no offerings found in product")
+	}
+	
+	request := &UpdateListingInventoryRequest{
+		Products: []UpdateInventoryProductDTO{
+			{
+				ProductID: product.ProductID,
+				Offerings: []UpdateInventoryOfferingDTO{
+					{
+						OfferingID: product.Offerings[0].OfferingID,
+						Quantity:   quantity,
+						IsEnabled:  true,
+					},
+				},
+			},
+		},
+	}
+	
+	return c.UpdateListingInventory(listingID, request)
+}
+
+// ========================================
+// API Methods - Validation
+// ========================================
+
+// ValidateCredentials tests the API credentials by fetching shop info
 func (c *Client) ValidateCredentials() error {
 	if !c.IsConfigured() {
 		return errors.New("etsy client not properly configured")
 	}
 	
-	// TODO: Implement actual validation call to Etsy API
+	path := fmt.Sprintf("/application/shops/%s", c.shopID)
+	
+	var shop ShopDTO
+	if err := c.doRequest("GET", path, nil, &shop); err != nil {
+		return fmt.Errorf("failed to validate credentials: %w", err)
+	}
+	
+	log.Printf("Etsy credentials validated successfully for shop: %s", shop.ShopName)
 	return nil
+}
+
+// ========================================
+// Error Types
+// ========================================
+
+// EtsyAPIError represents an error from the Etsy API
+type EtsyAPIError struct {
+	StatusCode  int
+	ErrorCode   string
+	Description string
+}
+
+func (e *EtsyAPIError) Error() string {
+	if e.Description != "" {
+		return fmt.Sprintf("etsy api error (status %d): %s - %s", e.StatusCode, e.ErrorCode, e.Description)
+	}
+	return fmt.Sprintf("etsy api error (status %d): %s", e.StatusCode, e.ErrorCode)
 }
