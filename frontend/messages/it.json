@@ -48,5 +48,76 @@
     "switch": "Cambia lingua",
     "italian": "Italiano",
     "english": "Inglese"
+  },
+  "etsy": {
+    "title": "Integrazione Etsy",
+    "subtitle": "Gestisci la sincronizzazione di prodotti e giacenze con Etsy",
+    "loading": "Caricamento...",
+    "status": {
+      "totalProducts": "Prodotti Totali",
+      "syncedProducts": "Prodotti Sincronizzati",
+      "pendingProducts": "Prodotti In Attesa",
+      "failedProducts": "Prodotti Falliti",
+      "rateLimit": "Limite API",
+      "requestsRemaining": "richieste rimanenti"
+    },
+    "sync": {
+      "manualSync": "Sincronizzazione Manuale",
+      "syncProducts": "Sincronizza Prodotti",
+      "syncInventory": "Sincronizza Giacenze",
+      "lastSync": "Ultima sincronizzazione",
+      "productSyncStarted": "Sincronizzazione prodotti avviata",
+      "inventorySyncStarted": "Sincronizzazione giacenze avviata",
+      "bidirectional": "Bidirezionale (Entrambe le direzioni)",
+      "pushToEtsy": "Invia a Etsy (Locale → Etsy)",
+      "pullFromEtsy": "Preleva da Etsy (Etsy → Locale)"
+    },
+    "products": {
+      "title": "Prodotti Etsy",
+      "noProducts": "Nessun prodotto trovato",
+      "listingId": "ID Inserzione",
+      "title": "Titolo",
+      "sku": "SKU",
+      "price": "Prezzo",
+      "quantity": "Quantità",
+      "status": "Stato",
+      "lastSynced": "Ultima Sincronizzazione"
+    },
+    "logs": {
+      "title": "Log di Sincronizzazione",
+      "noLogs": "Nessun log trovato",
+      "listingId": "ID Inserzione",
+      "syncType": "Tipo",
+      "direction": "Direzione",
+      "quantityChange": "Variazione Quantità",
+      "status": "Stato",
+      "error": "Errore",
+      "syncedAt": "Sincronizzato Il"
+    },
+    "filters": {
+      "all": "Tutti",
+      "synced": "Sincronizzati",
+      "pending": "In Attesa",
+      "failed": "Falliti",
+      "unlinked": "Non Collegati",
+      "success": "Successo",
+      "filterByStatus": "Filtra per stato"
+    },
+    "config": {
+      "title": "Configurazione Etsy",
+      "viewConfig": "Visualizza Configurazione",
+      "enabled": "Integrazione Abilitata",
+      "apiKeyConfigured": "Chiave API Configurata",
+      "shopId": "ID Negozio",
+      "rateLimit": "Limite Richieste",
+      "requestsPerDay": "richieste/giorno",
+      "yes": "Sì",
+      "no": "No"
+    },
+    "errors": {
+      "loadFailed": "Caricamento dati fallito",
+      "syncFailed": "Sincronizzazione fallita",
+      "configLoadFailed": "Caricamento configurazione fallito"
+    }
   }
 }

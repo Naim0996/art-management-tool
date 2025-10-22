@@ -320,6 +320,17 @@ export default function AdminDashboard() {
               </div>
               <i className="pi pi-arrow-right"></i>
             </button>
+
+            <button
+              onClick={() => (window.location.href = `/${locale}/admin/etsy-sync`)}
+              className="w-full flex items-center justify-between p-4 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-lg hover:shadow-lg transition-all"
+            >
+              <div className="flex items-center gap-3">
+                <i className="pi pi-sync text-2xl"></i>
+                <span className="font-medium">Etsy Sync</span>
+              </div>
+              <i className="pi pi-arrow-right"></i>
+            </button>
           </div>
         </Card>
       </div>

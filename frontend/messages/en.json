@@ -48,5 +48,76 @@
     "switch": "Switch language",
     "italian": "Italian",
     "english": "English"
+  },
+  "etsy": {
+    "title": "Etsy Integration",
+    "subtitle": "Manage product and inventory synchronization with Etsy",
+    "loading": "Loading...",
+    "status": {
+      "totalProducts": "Total Products",
+      "syncedProducts": "Synced Products",
+      "pendingProducts": "Pending Products",
+      "failedProducts": "Failed Products",
+      "rateLimit": "API Rate Limit",
+      "requestsRemaining": "requests remaining"
+    },
+    "sync": {
+      "manualSync": "Manual Synchronization",
+      "syncProducts": "Sync Products",
+      "syncInventory": "Sync Inventory",
+      "lastSync": "Last sync",
+      "productSyncStarted": "Product sync initiated",
+      "inventorySyncStarted": "Inventory sync initiated",
+      "bidirectional": "Bidirectional (Both ways)",
+      "pushToEtsy": "Push to Etsy (Local → Etsy)",
+      "pullFromEtsy": "Pull from Etsy (Etsy → Local)"
+    },
+    "products": {
+      "title": "Etsy Products",
+      "noProducts": "No products found",
+      "listingId": "Listing ID",
+      "title": "Title",
+      "sku": "SKU",
+      "price": "Price",
+      "quantity": "Quantity",
+      "status": "Status",
+      "lastSynced": "Last Synced"
+    },
+    "logs": {
+      "title": "Synchronization Logs",
+      "noLogs": "No logs found",
+      "listingId": "Listing ID",
+      "syncType": "Type",
+      "direction": "Direction",
+      "quantityChange": "Quantity Change",
+      "status": "Status",
+      "error": "Error",
+      "syncedAt": "Synced At"
+    },
+    "filters": {
+      "all": "All",
+      "synced": "Synced",
+      "pending": "Pending",
+      "failed": "Failed",
+      "unlinked": "Unlinked",
+      "success": "Success",
+      "filterByStatus": "Filter by status"
+    },
+    "config": {
+      "title": "Etsy Configuration",
+      "viewConfig": "View Configuration",
+      "enabled": "Integration Enabled",
+      "apiKeyConfigured": "API Key Configured",
+      "shopId": "Shop ID",
+      "rateLimit": "Rate Limit",
+      "requestsPerDay": "requests/day",
+      "yes": "Yes",
+      "no": "No"
+    },
+    "errors": {
+      "loadFailed": "Failed to load data",
+      "syncFailed": "Synchronization failed",
+      "configLoadFailed": "Failed to load configuration"
+    }
   }
 }
