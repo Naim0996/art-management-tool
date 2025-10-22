@@ -423,6 +423,7 @@ After provisioning infrastructure:
 8. ✅ Set up staging environment
 9. ✅ Implement disaster recovery plan
 10. ✅ Document runbooks
+11. ✅ Configure Etsy API integration (see [ETSY_INTEGRATION.md](../docs/ETSY_INTEGRATION.md))
 
 ## 📚 Additional Resources
 
