@@ -123,6 +123,10 @@ art-management-tool/
 - **Code Quality**: ESLint, TypeScript strict mode
 - **Version Control**: Git
 
+### External Integrations
+- **Etsy API**: Product and inventory synchronization
+- **Shopify**: Integration ready (stub implementation)
+
 ## 🚀 Quick Start
 
 ### Prerequisites
@@ -606,6 +610,9 @@ For detailed deployment instructions, see:
 - [ ] Review security headers
 - [ ] Configure Stripe production keys
 - [ ] Set up error tracking (Sentry, etc.)
+- [ ] Configure Etsy API credentials (if using integration)
+- [ ] Test Etsy sync in staging environment
+- [ ] Set up scheduled jobs for Etsy synchronization
 
 ## 📖 Documentation
 
@@ -615,6 +622,7 @@ For detailed deployment instructions, see:
 - 🚀 [Deployment Guide](./docs/guides/DEPLOYMENT.md) - Production deployment
 - 🧪 [Testing Guide](./docs/guides/TESTING_GUIDE.md) - Testing strategies
 - 🔧 [Integration Summary](./docs/guides/INTEGRATION_SUMMARY.md) - Integration details
+- 🛍️ [Etsy Integration](./docs/ETSY_INTEGRATION.md) - Etsy API integration guide
 - 🤝 [Contributing](./docs/CONTRIBUTING.md) - How to contribute
 - 🛒 [Cart Troubleshooting](./docs/troubleshooting/CART_TROUBLESHOOTING.md) - Shopping cart debugging
 - 🔌 [Proxy Solution](./docs/troubleshooting/PROXY_SOLUTION.md) - API proxy configuration
