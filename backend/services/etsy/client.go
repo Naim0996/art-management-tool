@@ -387,6 +387,109 @@ func (c *Client) ValidateCredentials() error {
 }
 
 // ========================================
+// API Methods - Shop Receipts (Transactions)
+// ========================================
+
+// GetShopReceipts retrieves receipts (orders/transactions) for the shop
+// Parameters:
+//   - minCreated: Optional minimum creation timestamp (Unix timestamp)
+//   - maxCreated: Optional maximum creation timestamp (Unix timestamp)
+//   - wasPaid: Optional filter for paid receipts
+//   - wasShipped: Optional filter for shipped receipts
+//   - limit: Number of results to return (max 100)
+//   - offset: Offset for pagination
+func (c *Client) GetShopReceipts(minCreated, maxCreated int64, wasPaid, wasShipped *bool, limit, offset int) ([]ReceiptDTO, error) {
+	if !c.IsConfigured() {
+		return nil, errors.New("etsy client not properly configured")
+	}
+	
+	if c.IsRateLimited() {
+		return nil, fmt.Errorf("rate limit exceeded, resets at %s", c.rateLimitResetAt.Format(time.RFC3339))
+	}
+	
+	// Build query parameters
+	path := fmt.Sprintf("/application/shops/%s/receipts", c.shopID)
+	params := []string{}
+	
+	if minCreated > 0 {
+		params = append(params, fmt.Sprintf("min_created=%d", minCreated))
+	}
+	if maxCreated > 0 {
+		params = append(params, fmt.Sprintf("max_created=%d", maxCreated))
+	}
+	if wasPaid != nil {
+		params = append(params, fmt.Sprintf("was_paid=%t", *wasPaid))
+	}
+	if wasShipped != nil {
+		params = append(params, fmt.Sprintf("was_shipped=%t", *wasShipped))
+	}
+	if limit > 0 {
+		params = append(params, fmt.Sprintf("limit=%d", limit))
+	}
+	if offset > 0 {
+		params = append(params, fmt.Sprintf("offset=%d", offset))
+	}
+	
+	if len(params) > 0 {
+		path += "?" + params[0]
+		for i := 1; i < len(params); i++ {
+			path += "&" + params[i]
+		}
+	}
+	
+	var response ShopReceiptsResponse
+	if err := c.doRequest("GET", path, nil, &response); err != nil {
+		return nil, fmt.Errorf("failed to get shop receipts: %w", err)
+	}
+	
+	return response.Results, nil
+}
+
+// GetReceipt retrieves a specific receipt by ID with transaction details
+func (c *Client) GetReceipt(receiptID int64) (*ReceiptDTO, error) {
+	if !c.IsConfigured() {
+		return nil, errors.New("etsy client not properly configured")
+	}
+	
+	if c.IsRateLimited() {
+		return nil, fmt.Errorf("rate limit exceeded, resets at %s", c.rateLimitResetAt.Format(time.RFC3339))
+	}
+	
+	path := fmt.Sprintf("/application/shops/%s/receipts/%d", c.shopID, receiptID)
+	
+	var receipt ReceiptDTO
+	if err := c.doRequest("GET", path, nil, &receipt); err != nil {
+		return nil, fmt.Errorf("failed to get receipt %d: %w", receiptID, err)
+	}
+	
+	return &receipt, nil
+}
+
+// GetReceiptTransactions retrieves all transactions (line items) for a specific receipt
+func (c *Client) GetReceiptTransactions(receiptID int64) ([]TransactionDTO, error) {
+	if !c.IsConfigured() {
+		return nil, errors.New("etsy client not properly configured")
+	}
+	
+	if c.IsRateLimited() {
+		return nil, fmt.Errorf("rate limit exceeded, resets at %s", c.rateLimitResetAt.Format(time.RFC3339))
+	}
+	
+	path := fmt.Sprintf("/application/shops/%s/receipts/%d/transactions", c.shopID, receiptID)
+	
+	var response struct {
+		Count   int              `json:"count"`
+		Results []TransactionDTO `json:"results"`
+	}
+	
+	if err := c.doRequest("GET", path, nil, &response); err != nil {
+		return nil, fmt.Errorf("failed to get receipt transactions: %w", err)
+	}
+	
+	return response.Results, nil
+}
+
+// ========================================
 // Error Types
 // ========================================
 

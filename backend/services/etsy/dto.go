@@ -338,3 +338,164 @@ func (l *ListingDTO) GetSKU() string {
 	
 	return ""
 }
+
+// ========================================
+// Shop Receipt DTOs (Transactions/Orders)
+// ========================================
+
+// ShopReceiptsResponse represents the API response for shop receipts
+type ShopReceiptsResponse struct {
+	Count   int           `json:"count"`
+	Results []ReceiptDTO  `json:"results"`
+}
+
+// ReceiptDTO represents an Etsy shop receipt (order/transaction)
+type ReceiptDTO struct {
+	ReceiptID              int64                  `json:"receipt_id"`
+	ReceiptType            int                    `json:"receipt_type"` // 0=purchase, 1=refund
+	SellerUserID           int64                  `json:"seller_user_id"`
+	SellerEmail            string                 `json:"seller_email,omitempty"`
+	BuyerUserID            int64                  `json:"buyer_user_id"`
+	BuyerEmail             string                 `json:"buyer_email"`
+	Name                   string                 `json:"name"` // Buyer name
+	FirstLine              string                 `json:"first_line"` // Address line 1
+	SecondLine             string                 `json:"second_line,omitempty"` // Address line 2
+	City                   string                 `json:"city"`
+	State                  string                 `json:"state,omitempty"`
+	Zip                    string                 `json:"zip"`
+	Status                 string                 `json:"status"` // open, completed, canceled
+	FormattedAddress       string                 `json:"formatted_address"`
+	CountryISO             string                 `json:"country_iso"`
+	PaymentMethod          string                 `json:"payment_method"`
+	PaymentEmail           string                 `json:"payment_email,omitempty"`
+	MessageFromSeller      string                 `json:"message_from_seller,omitempty"`
+	MessageFromBuyer       string                 `json:"message_from_buyer,omitempty"`
+	MessageFromPayment     string                 `json:"message_from_payment,omitempty"`
+	IsPaid                 bool                   `json:"is_paid"`
+	IsShipped              bool                   `json:"is_shipped"`
+	CreateTimestamp        int64                  `json:"create_timestamp"`
+	CreatedTimestamp       int64                  `json:"created_timestamp"`
+	UpdateTimestamp        int64                  `json:"update_timestamp"`
+	UpdatedTimestamp       int64                  `json:"updated_timestamp"`
+	ShipTimestamp          int64                  `json:"ship_timestamp,omitempty"`
+	GrandTotal             ReceiptAmountDTO       `json:"grandtotal"`
+	Subtotal               ReceiptAmountDTO       `json:"subtotal"`
+	TotalPrice             ReceiptAmountDTO       `json:"total_price"`
+	TotalShippingCost      ReceiptAmountDTO       `json:"total_shipping_cost"`
+	TotalTaxCost           ReceiptAmountDTO       `json:"total_tax_cost"`
+	TotalVatCost           ReceiptAmountDTO       `json:"total_vat_cost"`
+	DiscountAmt            ReceiptAmountDTO       `json:"discount_amt"`
+	GiftMessageAvailable   bool                   `json:"gift_message_available"`
+	GiftMessage            string                 `json:"gift_message,omitempty"`
+	GiftWrapPrice          ReceiptAmountDTO       `json:"gift_wrap_price,omitempty"`
+	Shipments              []ReceiptShipmentDTO   `json:"shipments,omitempty"`
+	Transactions           []TransactionDTO       `json:"transactions,omitempty"`
+	Refunds                []RefundDTO            `json:"refunds,omitempty"`
+}
+
+// ReceiptAmountDTO represents a monetary amount on a receipt
+type ReceiptAmountDTO struct {
+	Amount          int    `json:"amount"` // Amount in cents
+	Divisor         int    `json:"divisor"`
+	CurrencyCode    string `json:"currency_code"`
+}
+
+// ReceiptShipmentDTO represents shipment information for a receipt
+type ReceiptShipmentDTO struct {
+	ReceiptShippingID      int64  `json:"receipt_shipping_id"`
+	ShipmentNotificationTimestamp int64 `json:"shipment_notification_timestamp,omitempty"`
+	CarrierName            string `json:"carrier_name,omitempty"`
+	TrackingCode           string `json:"tracking_code,omitempty"`
+}
+
+// TransactionDTO represents a transaction (line item) in a receipt
+type TransactionDTO struct {
+	TransactionID          int64            `json:"transaction_id"`
+	Title                  string           `json:"title"`
+	Description            string           `json:"description,omitempty"`
+	SellerUserID           int64            `json:"seller_user_id"`
+	BuyerUserID            int64            `json:"buyer_user_id"`
+	CreateTimestamp        int64            `json:"create_timestamp"`
+	CreatedTimestamp       int64            `json:"created_timestamp"`
+	PaidTimestamp          int64            `json:"paid_timestamp,omitempty"`
+	ShippedTimestamp       int64            `json:"shipped_timestamp,omitempty"`
+	Quantity               int              `json:"quantity"`
+	ListingID              int64            `json:"listing_id"`
+	ReceiptID              int64            `json:"receipt_id"`
+	IsDigital              bool             `json:"is_digital"`
+	FileData               string           `json:"file_data,omitempty"`
+	ListingImageID         int64            `json:"listing_image_id,omitempty"`
+	ProductID              int64            `json:"product_id,omitempty"`
+	SKU                    string           `json:"sku,omitempty"`
+	Price                  ReceiptAmountDTO `json:"price"`
+	ShippingCost           ReceiptAmountDTO `json:"shipping_cost"`
+	Variations             []TransactionVariationDTO `json:"variations,omitempty"`
+	ProductData            []TransactionProductDataDTO `json:"product_data,omitempty"`
+	ShippingProfileID      int64            `json:"shipping_profile_id,omitempty"`
+	MinProcessingDays      int              `json:"min_processing_days,omitempty"`
+	MaxProcessingDays      int              `json:"max_processing_days,omitempty"`
+	ShippingMethod         string           `json:"shipping_method,omitempty"`
+	ShippingUpgrade        string           `json:"shipping_upgrade,omitempty"`
+	ExpectedShipDate       int64            `json:"expected_ship_date,omitempty"`
+	BuyerCoupon            float64          `json:"buyer_coupon,omitempty"`
+	ShopCoupon             float64          `json:"shop_coupon,omitempty"`
+}
+
+// TransactionVariationDTO represents a variation selected for a transaction
+type TransactionVariationDTO struct {
+	PropertyID             int64  `json:"property_id"`
+	ValueID                int64  `json:"value_id"`
+	FormattedName          string `json:"formatted_name"`
+	FormattedValue         string `json:"formatted_value"`
+}
+
+// TransactionProductDataDTO represents product data for a transaction
+type TransactionProductDataDTO struct {
+	ProductID              int64                      `json:"product_id"`
+	PropertyName           string                     `json:"property_name"`
+	Values                 []string                   `json:"values"`
+	PropertyID             int64                      `json:"property_id"`
+}
+
+// RefundDTO represents a refund on a receipt
+type RefundDTO struct {
+	Amount                 ReceiptAmountDTO `json:"amount"`
+	CreatedTimestamp       int64            `json:"created_timestamp"`
+	Reason                 string           `json:"reason,omitempty"`
+	NoteFromIssuer         string           `json:"note_from_issuer,omitempty"`
+	Status                 string           `json:"status"` // open, success, failure
+}
+
+// GetAmount returns the actual amount as a float
+func (a *ReceiptAmountDTO) GetAmount() float64 {
+	if a.Divisor == 0 {
+		return float64(a.Amount)
+	}
+	return float64(a.Amount) / float64(a.Divisor)
+}
+
+// GetCreatedAt converts receipt timestamp to time.Time
+func (r *ReceiptDTO) GetCreatedAt() time.Time {
+	if r.CreatedTimestamp > 0 {
+		return time.Unix(r.CreatedTimestamp, 0)
+	}
+	return time.Unix(r.CreateTimestamp, 0)
+}
+
+// GetUpdatedAt converts receipt timestamp to time.Time
+func (r *ReceiptDTO) GetUpdatedAt() time.Time {
+	if r.UpdatedTimestamp > 0 {
+		return time.Unix(r.UpdatedTimestamp, 0)
+	}
+	return time.Unix(r.UpdateTimestamp, 0)
+}
+
+// IsCompleted checks if the receipt is completed
+func (r *ReceiptDTO) IsCompleted() bool {
+	return r.Status == "completed"
+}
+
+// IsPurchase checks if this is a purchase (not a refund)
+func (r *ReceiptDTO) IsPurchase() bool {
+	return r.ReceiptType == 0
+}

@@ -109,3 +109,37 @@ func (c *EtsySyncConfig) MarkSyncError(err error) {
 		c.SyncError = err.Error()
 	}
 }
+
+// EtsyReceipt represents an Etsy receipt (order/transaction) synced to the local system
+type EtsyReceipt struct {
+	ID                uint           `gorm:"primaryKey" json:"id"`
+	EtsyReceiptID     int64          `gorm:"uniqueIndex;not null" json:"etsy_receipt_id"`
+	LocalOrderID      *uint          `json:"local_order_id,omitempty"`
+	LocalOrder        *Order         `gorm:"foreignKey:LocalOrderID" json:"local_order,omitempty"`
+	ShopID            string         `gorm:"not null;index" json:"shop_id"`
+	BuyerEmail        string         `gorm:"size:255" json:"buyer_email"`
+	BuyerName         string         `gorm:"size:255" json:"buyer_name"`
+	Status            string         `gorm:"size:50" json:"status"` // open, completed, canceled
+	IsPaid            bool           `gorm:"default:false" json:"is_paid"`
+	IsShipped         bool           `gorm:"default:false" json:"is_shipped"`
+	GrandTotal        float64        `gorm:"type:decimal(10,2)" json:"grand_total"`
+	Subtotal          float64        `gorm:"type:decimal(10,2)" json:"subtotal"`
+	TotalShippingCost float64        `gorm:"type:decimal(10,2)" json:"total_shipping_cost"`
+	TotalTaxCost      float64        `gorm:"type:decimal(10,2)" json:"total_tax_cost"`
+	Currency          string         `gorm:"size:10" json:"currency"`
+	PaymentMethod     string         `gorm:"size:100" json:"payment_method,omitempty"`
+	ShippingAddress   string         `gorm:"type:text" json:"shipping_address,omitempty"`
+	MessageFromBuyer  string         `gorm:"type:text" json:"message_from_buyer,omitempty"`
+	EtsyCreatedAt     time.Time      `json:"etsy_created_at"`
+	EtsyUpdatedAt     time.Time      `json:"etsy_updated_at"`
+	LastSyncedAt      *time.Time     `json:"last_synced_at,omitempty"`
+	SyncStatus        string         `gorm:"default:'pending'" json:"sync_status"` // pending, synced, error
+	CreatedAt         time.Time      `json:"created_at"`
+	UpdatedAt         time.Time      `json:"updated_at"`
+	DeletedAt         gorm.DeletedAt `gorm:"index" json:"-"`
+}
+
+// TableName specifies the table name for EtsyReceipt
+func (EtsyReceipt) TableName() string {
+	return "etsy_receipts"
+}

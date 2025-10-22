@@ -455,3 +455,179 @@ func (s *Service) GetInventorySyncLogs(listingID int64, limit, offset int) ([]mo
 	
 	return logs, total, nil
 }
+
+// ========================================
+// Receipt/Payment Synchronization Methods
+// ========================================
+
+// SyncReceipts synchronizes receipts (orders/transactions) from Etsy to local database
+func (s *Service) SyncReceipts(shopID string, minCreated int64) error {
+	if !s.IsEnabled() {
+		return errors.New("etsy integration not configured")
+	}
+	
+	// Get sync config
+	config, err := s.GetSyncConfig(shopID)
+	if err != nil {
+		return err
+	}
+	
+	// Check rate limit
+	if config.IsRateLimited() {
+		return fmt.Errorf("rate limit exceeded, resets at %s", config.RateLimitResetAt.Format(time.RFC3339))
+	}
+	
+	// Fetch receipts from Etsy with pagination
+	const batchSize = 100
+	offset := 0
+	totalSynced := 0
+	wasPaid := true // Only fetch paid receipts by default
+	
+	for {
+		receipts, err := s.client.GetShopReceipts(minCreated, 0, &wasPaid, nil, batchSize, offset)
+		if err != nil {
+			return fmt.Errorf("failed to fetch receipts: %w", err)
+		}
+		
+		if len(receipts) == 0 {
+			break
+		}
+		
+		// Process each receipt
+		for _, receipt := range receipts {
+			if err := s.processReceipt(&receipt); err != nil {
+				fmt.Printf("Error processing receipt %d: %v\n", receipt.ReceiptID, err)
+				continue
+			}
+			totalSynced++
+		}
+		
+		// Update rate limit info from client
+		remaining, resetAt := s.client.GetRateLimitInfo()
+		config.UpdateRateLimit(remaining, resetAt)
+		
+		offset += batchSize
+	}
+	
+	// Mark sync as completed
+	config.MarkSyncCompleted()
+	if err := s.UpdateSyncConfig(config); err != nil {
+		return err
+	}
+	
+	fmt.Printf("Successfully synced %d receipts from Etsy\n", totalSynced)
+	return nil
+}
+
+// processReceipt creates or updates a local EtsyReceipt from an Etsy ReceiptDTO
+func (s *Service) processReceipt(receipt *ReceiptDTO) error {
+	// Check if receipt already exists
+	var existingReceipt models.EtsyReceipt
+	err := s.db.Where("etsy_receipt_id = ?", receipt.ReceiptID).First(&existingReceipt).Error
+	
+	now := time.Now()
+	
+	// Build shipping address
+	shippingAddress := fmt.Sprintf("%s, %s, %s %s, %s",
+		receipt.FirstLine,
+		receipt.City,
+		receipt.State,
+		receipt.Zip,
+		receipt.CountryISO,
+	)
+	
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		// Create new receipt
+		newReceipt := models.EtsyReceipt{
+			EtsyReceiptID:     receipt.ReceiptID,
+			ShopID:            s.client.shopID,
+			BuyerEmail:        receipt.BuyerEmail,
+			BuyerName:         receipt.Name,
+			Status:            receipt.Status,
+			IsPaid:            receipt.IsPaid,
+			IsShipped:         receipt.IsShipped,
+			GrandTotal:        receipt.GrandTotal.GetAmount(),
+			Subtotal:          receipt.Subtotal.GetAmount(),
+			TotalShippingCost: receipt.TotalShippingCost.GetAmount(),
+			TotalTaxCost:      receipt.TotalTaxCost.GetAmount(),
+			Currency:          receipt.GrandTotal.CurrencyCode,
+			PaymentMethod:     receipt.PaymentMethod,
+			ShippingAddress:   shippingAddress,
+			MessageFromBuyer:  receipt.MessageFromBuyer,
+			EtsyCreatedAt:     receipt.GetCreatedAt(),
+			EtsyUpdatedAt:     receipt.GetUpdatedAt(),
+			LastSyncedAt:      &now,
+			SyncStatus:        "synced",
+		}
+		
+		return s.db.Create(&newReceipt).Error
+	} else if err != nil {
+		return fmt.Errorf("failed to check existing receipt: %w", err)
+	}
+	
+	// Update existing receipt
+	existingReceipt.Status = receipt.Status
+	existingReceipt.IsPaid = receipt.IsPaid
+	existingReceipt.IsShipped = receipt.IsShipped
+	existingReceipt.GrandTotal = receipt.GrandTotal.GetAmount()
+	existingReceipt.Subtotal = receipt.Subtotal.GetAmount()
+	existingReceipt.TotalShippingCost = receipt.TotalShippingCost.GetAmount()
+	existingReceipt.TotalTaxCost = receipt.TotalTaxCost.GetAmount()
+	existingReceipt.ShippingAddress = shippingAddress
+	existingReceipt.EtsyUpdatedAt = receipt.GetUpdatedAt()
+	existingReceipt.LastSyncedAt = &now
+	existingReceipt.SyncStatus = "synced"
+	
+	return s.db.Save(&existingReceipt).Error
+}
+
+// GetReceipt retrieves a specific Etsy receipt by Etsy receipt ID
+func (s *Service) GetReceipt(etsyReceiptID int64) (*models.EtsyReceipt, error) {
+	var receipt models.EtsyReceipt
+	if err := s.db.Preload("LocalOrder").Where("etsy_receipt_id = ?", etsyReceiptID).First(&receipt).Error; err != nil {
+		return nil, err
+	}
+	return &receipt, nil
+}
+
+// ListReceipts retrieves Etsy receipts with optional filters
+func (s *Service) ListReceipts(shopID string, status string, limit, offset int) ([]models.EtsyReceipt, int64, error) {
+	var receipts []models.EtsyReceipt
+	var total int64
+	
+	query := s.db.Model(&models.EtsyReceipt{}).Preload("LocalOrder")
+	
+	if shopID != "" {
+		query = query.Where("shop_id = ?", shopID)
+	}
+	
+	if status != "" {
+		query = query.Where("status = ?", status)
+	}
+	
+	// Count total
+	if err := query.Count(&total).Error; err != nil {
+		return nil, 0, err
+	}
+	
+	// Get paginated results, ordered by most recent first
+	if err := query.Order("etsy_created_at DESC").Limit(limit).Offset(offset).Find(&receipts).Error; err != nil {
+		return nil, 0, err
+	}
+	
+	return receipts, total, nil
+}
+
+// LinkReceiptToOrder links an Etsy receipt to a local order
+func (s *Service) LinkReceiptToOrder(etsyReceiptID int64, localOrderID uint) error {
+	return s.db.Model(&models.EtsyReceipt{}).
+		Where("etsy_receipt_id = ?", etsyReceiptID).
+		Update("local_order_id", localOrderID).Error
+}
+
+// UnlinkReceiptFromOrder unlinks an Etsy receipt from a local order
+func (s *Service) UnlinkReceiptFromOrder(etsyReceiptID int64) error {
+	return s.db.Model(&models.EtsyReceipt{}).
+		Where("etsy_receipt_id = ?", etsyReceiptID).
+		Update("local_order_id", nil).Error
+}

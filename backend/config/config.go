@@ -37,6 +37,8 @@ type EtsyConfig struct {
 	APIKey                  string
 	APISecret               string
 	ShopID                  string
+	ShopName                string
+	ShopURL                 string
 	AccessToken             string
 	BaseURL                 string
 	SyncEnabled             bool
@@ -44,6 +46,7 @@ type EtsyConfig struct {
 	SyncIntervalInventory   time.Duration
 	RateLimitRequests       int
 	RateLimitWindow         time.Duration
+	PaymentCallbackURL      string
 }
 
 // SchedulerConfig holds scheduler configuration
@@ -82,6 +85,8 @@ func Load() *Config {
 			APIKey:                  getEnv("ETSY_API_KEY", ""),
 			APISecret:               getEnv("ETSY_API_SECRET", ""),
 			ShopID:                  getEnv("ETSY_SHOP_ID", ""),
+			ShopName:                getEnv("ETSY_SHOP_NAME", ""),
+			ShopURL:                 getEnv("ETSY_SHOP_URL", ""),
 			AccessToken:             getEnv("ETSY_ACCESS_TOKEN", ""),
 			BaseURL:                 getEnv("ETSY_API_BASE_URL", "https://openapi.etsy.com/v3"),
 			SyncEnabled:             getEnvBool("ETSY_SYNC_ENABLED", false),
@@ -89,6 +94,7 @@ func Load() *Config {
 			SyncIntervalInventory:   time.Duration(getEnvInt("ETSY_SYNC_INTERVAL_INVENTORY", 1800)) * time.Second,
 			RateLimitRequests:       getEnvInt("ETSY_RATE_LIMIT_REQUESTS", 10000),
 			RateLimitWindow:         time.Duration(getEnvInt("ETSY_RATE_LIMIT_WINDOW", 86400)) * time.Second,
+			PaymentCallbackURL:      getEnv("ETSY_PAYMENT_CALLBACK_URL", ""),
 		},
 		Scheduler: SchedulerConfig{
 			Enabled: getEnvBool("SCHEDULER_ENABLED", true),

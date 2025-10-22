@@ -9,6 +9,7 @@ const (
 	PaymentMethodCreditCard PaymentMethod = "credit_card"
 	PaymentMethodPayPal     PaymentMethod = "paypal"
 	PaymentMethodStripe     PaymentMethod = "stripe"
+	PaymentMethodEtsy       PaymentMethod = "etsy"
 )
 
 // CheckoutRequest represents a checkout request
