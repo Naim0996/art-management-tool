@@ -60,7 +60,8 @@ art-management-tool/
 - **Responsive Design**: Optimized for desktop, tablet, and mobile devices
 
 #### Payment & Pricing
-- **Multiple Payment Gateways**: Stripe integration (production-ready)
+- **Multiple Payment Gateways**: Stripe integration (production-ready), Etsy payment integration
+- **Etsy Payment**: Complete purchases through Etsy platform with automatic receipt synchronization
 - **Discount System**: Promotional codes with validation and expiration
 - **Dynamic Pricing**: Support for product variants with different prices
 - **Currency Support**: Multi-currency ready (EUR by default)
@@ -124,7 +125,7 @@ art-management-tool/
 - **Version Control**: Git
 
 ### External Integrations
-- **Etsy API**: Product and inventory synchronization
+- **Etsy API**: Product and inventory synchronization, payment processing integration
 - **Shopify**: Integration ready (stub implementation)
 
 ## 🚀 Quick Start
@@ -284,6 +285,7 @@ The platform supports multiple payment providers through an abstracted payment i
 ### Supported Payment Methods
 
 - **Stripe** - Production-ready integration (recommended)
+- **Etsy** - Redirect to Etsy platform for payment (requires Etsy shop)
 - **Mock Provider** - Development and testing
 - **PayPal** - Integration ready (requires implementation)
 - **Credit Card** - Direct processing (requires PCI compliance)
@@ -623,6 +625,7 @@ For detailed deployment instructions, see:
 - 🧪 [Testing Guide](./docs/guides/TESTING_GUIDE.md) - Testing strategies
 - 🔧 [Integration Summary](./docs/guides/INTEGRATION_SUMMARY.md) - Integration details
 - 🛍️ [Etsy Integration](./docs/ETSY_INTEGRATION.md) - Etsy API integration guide
+- 💳 [Etsy Payment Integration](./docs/ETSY_PAYMENT_INTEGRATION.md) - Etsy payment processing guide
 - 🤝 [Contributing](./docs/CONTRIBUTING.md) - How to contribute
 - 🛒 [Cart Troubleshooting](./docs/troubleshooting/CART_TROUBLESHOOTING.md) - Shopping cart debugging
 - 🔌 [Proxy Solution](./docs/troubleshooting/PROXY_SOLUTION.md) - API proxy configuration
