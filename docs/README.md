@@ -25,6 +25,7 @@ docs/
 │   ├── ENVIRONMENT_SETUP.md    # ⭐ Environment configuration
 │   ├── DOCKER.md               # Docker deployment
 │   ├── DEPLOYMENT.md           # Production deployment
+│   ├── DEPLOYMENT_UPLOAD_SYSTEM.md # Upload system deployment
 │   ├── TESTING_GUIDE.md        # Testing strategies
 │   └── INTEGRATION_SUMMARY.md  # Integration overview
 │
@@ -40,6 +41,8 @@ docs/
 │   ├── ETSY_PAYMENT_SUMMARY.md
 │   ├── FRONTEND_ETSY_INTEGRATION_SUMMARY.md
 │   └── REFACTORING_SUMMARY.md
+│
+├── FILE_UPLOAD_SYSTEM.md       # File upload system documentation
 │
 └── Integration Docs            # Third-party integrations
     ├── ETSY_INTEGRATION.md
@@ -73,6 +76,20 @@ docs/
   - Production deployment strategies
   - Cloud platform guides (AWS, GCP, Azure)
   - CI/CD pipelines
+
+- **[Upload System Deployment](./guides/DEPLOYMENT_UPLOAD_SYSTEM.md)**
+  - File upload system deployment
+  - Volume management and backups
+  - CDN integration
+  - Security and monitoring
+
+### 📁 File Management
+
+- **[File Upload System](./FILE_UPLOAD_SYSTEM.md)**
+  - Image upload for products and personaggi
+  - Docker-based persistent storage
+  - Security and validation
+  - API endpoints and frontend integration
 
 ### 🧪 Testing
 

@@ -113,6 +113,7 @@ art-management-tool/
 
 - **Secure Authentication**: JWT-based admin login system
 - **Product Management**: Full CRUD operations for products and variants
+- **Image Upload System**: Secure file upload for products and personaggi with Docker-based storage
 - **Order Management**: View, update, and fulfill customer orders
 - **Inventory Control**: Bulk operations and stock adjustments
 - **Notification Center**: Real-time alerts for low stock, payments, and orders
