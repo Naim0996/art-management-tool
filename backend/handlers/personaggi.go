@@ -137,8 +137,9 @@ func (h *PersonaggiHandler) CreatePersonaggio(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	if input.Name == "" {
-		http.Error(w, "Name is required", http.StatusBadRequest)
+	// Validate input using model validation
+	if err := input.Validate(); err != nil {
+		http.Error(w, "Validation failed: "+err.Error(), http.StatusBadRequest)
 		return
 	}
 
@@ -185,6 +186,12 @@ func (h *PersonaggiHandler) UpdatePersonaggio(w http.ResponseWriter, r *http.Req
 
 	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
 		http.Error(w, "Invalid input: "+err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	// Validate input using model validation
+	if err := input.Validate(); err != nil {
+		http.Error(w, "Validation failed: "+err.Error(), http.StatusBadRequest)
 		return
 	}
 

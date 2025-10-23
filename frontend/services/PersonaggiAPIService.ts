@@ -85,6 +85,13 @@ export class PersonaggiAPIService {
 
   // POST /api/admin/personaggi - Crea un nuovo personaggio
   static async createPersonaggio(data: Omit<PersonaggioDTO, 'id' | 'createdAt' | 'updatedAt' | 'deletedAt'>): Promise<PersonaggioDTO> {
+    // Validate before sending to backend
+    const { validatePersonaggio } = await import('./validation');
+    const validation = validatePersonaggio(data);
+    if (validation.hasErrors()) {
+      throw new Error(`Validation failed: ${validation.getErrorMessage()}`);
+    }
+    
     return this.fetchJSON<PersonaggioDTO>('/api/admin/personaggi', {
       method: 'POST',
       body: JSON.stringify(data),
@@ -93,6 +100,26 @@ export class PersonaggiAPIService {
 
   // PUT /api/admin/personaggi/{id} - Aggiorna un personaggio esistente
   static async updatePersonaggio(id: number, data: Partial<PersonaggioDTO>): Promise<PersonaggioDTO> {
+    // Validate before sending to backend (only if we have required fields)
+    if (data.name || data.images !== undefined) {
+      const { validatePersonaggio } = await import('./validation');
+      const fullData = {
+        name: data.name || '',
+        images: data.images || [],
+        description: data.description,
+        icon: data.icon,
+        backgroundColor: data.backgroundColor,
+        backgroundType: data.backgroundType,
+        gradientFrom: data.gradientFrom,
+        gradientTo: data.gradientTo,
+        order: data.order,
+      };
+      const validation = validatePersonaggio(fullData);
+      if (validation.hasErrors()) {
+        throw new Error(`Validation failed: ${validation.getErrorMessage()}`);
+      }
+    }
+    
     return this.fetchJSON<PersonaggioDTO>(`/api/admin/personaggi/${id}`, {
       method: 'PUT',
       body: JSON.stringify(data),

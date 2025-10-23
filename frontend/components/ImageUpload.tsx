@@ -44,8 +44,22 @@ export default function ImageUpload({
       return;
     }
 
-    setUploading(true);
     const file = event.files[0];
+    
+    // Validate file before uploading
+    const { validateImageFile } = await import('@/services/validation');
+    const validation = validateImageFile(file, 10);
+    if (validation.hasErrors()) {
+      toast.current?.show({
+        severity: 'error',
+        summary: 'Validation Error',
+        detail: validation.getErrorMessage(),
+        life: 3000,
+      });
+      return;
+    }
+
+    setUploading(true);
 
     try {
       const formData = new FormData();
@@ -102,8 +116,24 @@ export default function ImageUpload({
   };
 
   // Aggiungi URL
-  const handleAddUrl = () => {
+  const handleAddUrl = async () => {
     if (!urlInput.trim()) {
+      return;
+    }
+
+    // Validate URL format
+    const { Validator } = await import('@/services/validation');
+    const validator = new Validator();
+    validator.url('url', urlInput.trim());
+    const validation = validator.getResult();
+    
+    if (validation.hasErrors()) {
+      toast.current?.show({
+        severity: 'error',
+        summary: 'Validation Error',
+        detail: validation.getErrorMessage(),
+        life: 3000,
+      });
       return;
     }
 

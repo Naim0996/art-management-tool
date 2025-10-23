@@ -711,6 +711,7 @@ All documentation is centralized in the [`/docs`](./docs) folder for easy access
 - 💳 [Etsy Payment Integration](./docs/ETSY_PAYMENT_INTEGRATION.md) - Etsy payment processing
 - 🖼️ [Etsy Frontend Integration](./docs/ETSY_FRONTEND_INTEGRATION.md) - Etsy UI components
 - 🔒 [Security Infrastructure](./docs/SECURITY_INFRASTRUCTURE.md) - Security best practices
+- ✅ [Model Synchronization](./docs/MODEL_SYNCHRONIZATION.md) - Backend/frontend validation and model mapping
 
 ### 🐛 Troubleshooting
 
@@ -723,6 +724,7 @@ All documentation is centralized in the [`/docs`](./docs) folder for easy access
 - [Etsy Payment Summary](./docs/summaries/ETSY_PAYMENT_SUMMARY.md)
 - [Frontend Etsy Integration Summary](./docs/summaries/FRONTEND_ETSY_INTEGRATION_SUMMARY.md)
 - [Refactoring Summary](./docs/summaries/REFACTORING_SUMMARY.md)
+- [Model Validation Summary](./docs/summaries/MODEL_VALIDATION_SUMMARY.md) - Implementation of validation and model synchronization
 
 > 💡 **New here?** Start with the [Environment Setup Guide](./docs/guides/ENVIRONMENT_SETUP.md) to get your development environment running!
 
