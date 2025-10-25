@@ -31,7 +31,7 @@ func (s *Service) IsEnabled() bool {
 // GetSyncConfig retrieves or creates the sync configuration for a shop
 func (s *Service) GetSyncConfig(shopID string) (*models.EtsySyncConfig, error) {
 	var config models.EtsySyncConfig
-	
+
 	err := s.db.Where("shop_id = ?", shopID).First(&config).Error
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -48,7 +48,7 @@ func (s *Service) GetSyncConfig(shopID string) (*models.EtsySyncConfig, error) {
 		}
 		return nil, fmt.Errorf("failed to get sync config: %w", err)
 	}
-	
+
 	return &config, nil
 }
 
@@ -62,29 +62,29 @@ func (s *Service) SyncProducts(shopID string) error {
 	if !s.IsEnabled() {
 		return errors.New("etsy integration not configured")
 	}
-	
+
 	// Get sync config
 	config, err := s.GetSyncConfig(shopID)
 	if err != nil {
 		return err
 	}
-	
+
 	// Check rate limit
 	if config.IsRateLimited() {
 		return fmt.Errorf("rate limit exceeded, resets at %s", config.RateLimitResetAt.Format(time.RFC3339))
 	}
-	
+
 	// Mark sync as started
 	config.MarkSyncStarted("product")
 	if err := s.UpdateSyncConfig(config); err != nil {
 		return err
 	}
-	
+
 	// Fetch listings from Etsy with pagination
 	const batchSize = 100
 	offset := 0
 	totalSynced := 0
-	
+
 	for {
 		listings, err := s.client.GetShopListings(batchSize, offset)
 		if err != nil {
@@ -92,11 +92,11 @@ func (s *Service) SyncProducts(shopID string) error {
 			s.UpdateSyncConfig(config)
 			return fmt.Errorf("failed to fetch listings: %w", err)
 		}
-		
+
 		if len(listings) == 0 {
 			break
 		}
-		
+
 		// Process each listing
 		for _, listing := range listings {
 			if err := s.syncSingleListing(&listing); err != nil {
@@ -106,24 +106,24 @@ func (s *Service) SyncProducts(shopID string) error {
 			}
 			totalSynced++
 		}
-		
+
 		// Check if we need to fetch more
 		if len(listings) < batchSize {
 			break
 		}
 		offset += batchSize
 	}
-	
+
 	// Update rate limit info from client
 	remaining, resetAt := s.client.GetRateLimitInfo()
 	config.UpdateRateLimit(remaining, resetAt)
-	
+
 	// Mark as completed
 	config.MarkSyncCompleted()
 	if err := s.UpdateSyncConfig(config); err != nil {
 		return err
 	}
-	
+
 	fmt.Printf("Product sync completed: %d listings synced\n", totalSynced)
 	return nil
 }
@@ -135,19 +135,33 @@ func (s *Service) syncSingleListing(listing *ListingDTO) error {
 	if err != nil {
 		return err
 	}
-	
+
 	// Map listing to EtsyProduct
 	etsyProduct := MapListingToEtsyProduct(listing)
-	
+
 	if existingProduct == nil {
 		// Create new EtsyProduct
-		return s.CreateEtsyProduct(etsyProduct)
+		if err := s.CreateEtsyProduct(etsyProduct); err != nil {
+			return err
+		}
 	} else {
 		// Update existing EtsyProduct
 		etsyProduct.ID = existingProduct.ID
 		etsyProduct.LocalProductID = existingProduct.LocalProductID
-		return s.UpdateEtsyProduct(etsyProduct)
+		if err := s.UpdateEtsyProduct(etsyProduct); err != nil {
+			return err
+		}
 	}
+
+	// If linked to a local product, sync images
+	if etsyProduct.LocalProductID != nil {
+		if err := s.syncProductImages(listing, *etsyProduct.LocalProductID); err != nil {
+			// Log error but don't fail the sync
+			fmt.Printf("Warning: Failed to sync images for listing %d: %v\n", listing.ListingID, err)
+		}
+	}
+
+	return nil
 }
 
 // SyncInventory synchronizes inventory between Etsy and local database
@@ -155,24 +169,24 @@ func (s *Service) SyncInventory(shopID string, direction string) error {
 	if !s.IsEnabled() {
 		return errors.New("etsy integration not configured")
 	}
-	
+
 	// Get sync config
 	config, err := s.GetSyncConfig(shopID)
 	if err != nil {
 		return err
 	}
-	
+
 	// Check rate limit
 	if config.IsRateLimited() {
 		return fmt.Errorf("rate limit exceeded, resets at %s", config.RateLimitResetAt.Format(time.RFC3339))
 	}
-	
+
 	// Mark sync as started
 	config.MarkSyncStarted("inventory")
 	if err := s.UpdateSyncConfig(config); err != nil {
 		return err
 	}
-	
+
 	// Get all EtsyProducts that are synced
 	etsyProducts, _, err := s.ListEtsyProducts("synced", 1000, 0)
 	if err != nil {
@@ -180,10 +194,10 @@ func (s *Service) SyncInventory(shopID string, direction string) error {
 		s.UpdateSyncConfig(config)
 		return fmt.Errorf("failed to list etsy products: %w", err)
 	}
-	
+
 	totalSynced := 0
 	totalErrors := 0
-	
+
 	// Process each product
 	for _, etsyProduct := range etsyProducts {
 		if err := s.syncSingleInventory(&etsyProduct, direction); err != nil {
@@ -193,17 +207,17 @@ func (s *Service) SyncInventory(shopID string, direction string) error {
 		}
 		totalSynced++
 	}
-	
+
 	// Update rate limit info from client
 	remaining, resetAt := s.client.GetRateLimitInfo()
 	config.UpdateRateLimit(remaining, resetAt)
-	
+
 	// Mark as completed (even with some errors)
 	config.MarkSyncCompleted()
 	if err := s.UpdateSyncConfig(config); err != nil {
 		return err
 	}
-	
+
 	fmt.Printf("Inventory sync completed: %d synced, %d errors\n", totalSynced, totalErrors)
 	return nil
 }
@@ -215,7 +229,7 @@ func (s *Service) syncSingleInventory(etsyProduct *models.EtsyProduct, direction
 	if err != nil {
 		return fmt.Errorf("failed to get etsy inventory: %w", err)
 	}
-	
+
 	// If no local product linked, skip inventory sync
 	if etsyProduct.LocalProductID == nil {
 		return s.LogInventorySync(&models.EtsyInventorySyncLog{
@@ -227,18 +241,18 @@ func (s *Service) syncSingleInventory(etsyProduct *models.EtsyProduct, direction
 			SyncResult:    "skipped",
 		})
 	}
-	
+
 	// Get local product with variants
 	var localProduct models.EnhancedProduct
 	if err := s.db.Preload("Variants").First(&localProduct, etsyProduct.LocalProductID).Error; err != nil {
 		return fmt.Errorf("failed to get local product: %w", err)
 	}
-	
+
 	// If product has no variants, sync simple inventory
 	if len(localProduct.Variants) == 0 {
 		return s.syncSimpleInventory(etsyProduct, inventory, direction)
 	}
-	
+
 	// Otherwise, sync variant inventory
 	return s.syncVariantInventory(etsyProduct, &localProduct, inventory, direction)
 }
@@ -248,41 +262,41 @@ func (s *Service) syncSimpleInventory(etsyProduct *models.EtsyProduct, inventory
 	if len(inventory.Products) == 0 || len(inventory.Products[0].Offerings) == 0 {
 		return errors.New("no inventory offerings found")
 	}
-	
+
 	offering := inventory.Products[0].Offerings[0]
-	
+
 	// Determine sync action based on direction
 	var syncAction string
 	var newQuantity int
-	
+
 	switch direction {
 	case "push", "local_to_etsy":
 		// Push local quantity to Etsy
 		newQuantity = etsyProduct.Quantity
 		syncAction = "push_to_etsy"
-		
+
 		if offering.Quantity != newQuantity {
 			if err := s.client.UpdateInventory(etsyProduct.EtsyListingID, newQuantity); err != nil {
 				return s.logInventorySyncError(etsyProduct.EtsyListingID, offering.Quantity, etsyProduct.Quantity, syncAction, err)
 			}
 		}
-		
+
 	case "pull", "etsy_to_local":
 		// Pull Etsy quantity to local
 		newQuantity = offering.Quantity
 		syncAction = "pull_from_etsy"
-		
+
 		if etsyProduct.Quantity != newQuantity {
 			etsyProduct.Quantity = newQuantity
 			if err := s.UpdateEtsyProduct(etsyProduct); err != nil {
 				return err
 			}
 		}
-		
+
 	default:
 		syncAction = "no_change"
 	}
-	
+
 	// Log the sync operation
 	return s.LogInventorySync(&models.EtsyInventorySyncLog{
 		EtsyListingID: etsyProduct.EtsyListingID,
@@ -298,15 +312,15 @@ func (s *Service) syncSimpleInventory(etsyProduct *models.EtsyProduct, inventory
 func (s *Service) syncVariantInventory(etsyProduct *models.EtsyProduct, localProduct *models.EnhancedProduct, inventory *ListingInventoryDTO, direction string) error {
 	// For variant-based products, we need to match variants by SKU
 	// This is a simplified implementation
-	
+
 	successCount := 0
 	errorCount := 0
-	
+
 	for _, variant := range localProduct.Variants {
 		// Find matching Etsy product by SKU
 		var matchedOffering *ListingInventoryOfferingDTO
 		var matchedProduct *ListingInventoryProductDTO
-		
+
 		for i := range inventory.Products {
 			if inventory.Products[i].SKU == variant.SKU {
 				matchedProduct = &inventory.Products[i]
@@ -316,18 +330,18 @@ func (s *Service) syncVariantInventory(etsyProduct *models.EtsyProduct, localPro
 				break
 			}
 		}
-		
+
 		if matchedOffering == nil {
 			errorCount++
 			continue
 		}
-		
+
 		// Calculate delta and sync
 		delta := CalculateInventoryDelta(&variant, matchedOffering, direction)
 		if delta == nil || !delta.ShouldSync {
 			continue
 		}
-		
+
 		// Perform sync based on direction
 		if delta.SyncDirection == "push" {
 			// Update Etsy inventory
@@ -345,7 +359,7 @@ func (s *Service) syncVariantInventory(etsyProduct *models.EtsyProduct, localPro
 				continue
 			}
 		}
-		
+
 		// Log successful sync
 		s.LogInventorySync(&models.EtsyInventorySyncLog{
 			EtsyListingID:  etsyProduct.EtsyListingID,
@@ -358,7 +372,7 @@ func (s *Service) syncVariantInventory(etsyProduct *models.EtsyProduct, localPro
 		})
 		successCount++
 	}
-	
+
 	fmt.Printf("Variant sync for listing %d: %d success, %d errors\n", etsyProduct.EtsyListingID, successCount, errorCount)
 	return nil
 }
@@ -382,14 +396,14 @@ func (s *Service) GetEtsyProduct(listingID int64) (*models.EtsyProduct, error) {
 	err := s.db.Where("etsy_listing_id = ?", listingID).
 		Preload("LocalProduct").
 		First(&product).Error
-	
+
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, nil
 		}
 		return nil, err
 	}
-	
+
 	return &product, nil
 }
 
@@ -407,23 +421,23 @@ func (s *Service) UpdateEtsyProduct(product *models.EtsyProduct) error {
 func (s *Service) ListEtsyProducts(syncStatus string, limit, offset int) ([]models.EtsyProduct, int64, error) {
 	var products []models.EtsyProduct
 	var total int64
-	
+
 	query := s.db.Model(&models.EtsyProduct{}).Preload("LocalProduct")
-	
+
 	if syncStatus != "" {
 		query = query.Where("sync_status = ?", syncStatus)
 	}
-	
+
 	// Count total
 	if err := query.Count(&total).Error; err != nil {
 		return nil, 0, err
 	}
-	
+
 	// Get paginated results
 	if err := query.Limit(limit).Offset(offset).Find(&products).Error; err != nil {
 		return nil, 0, err
 	}
-	
+
 	return products, total, nil
 }
 
@@ -436,23 +450,23 @@ func (s *Service) LogInventorySync(log *models.EtsyInventorySyncLog) error {
 func (s *Service) GetInventorySyncLogs(listingID int64, limit, offset int) ([]models.EtsyInventorySyncLog, int64, error) {
 	var logs []models.EtsyInventorySyncLog
 	var total int64
-	
+
 	query := s.db.Model(&models.EtsyInventorySyncLog{}).Preload("LocalVariant")
-	
+
 	if listingID > 0 {
 		query = query.Where("etsy_listing_id = ?", listingID)
 	}
-	
+
 	// Count total
 	if err := query.Count(&total).Error; err != nil {
 		return nil, 0, err
 	}
-	
+
 	// Get paginated results, ordered by most recent first
 	if err := query.Order("synced_at DESC").Limit(limit).Offset(offset).Find(&logs).Error; err != nil {
 		return nil, 0, err
 	}
-	
+
 	return logs, total, nil
 }
 
@@ -465,34 +479,34 @@ func (s *Service) SyncReceipts(shopID string, minCreated int64) error {
 	if !s.IsEnabled() {
 		return errors.New("etsy integration not configured")
 	}
-	
+
 	// Get sync config
 	config, err := s.GetSyncConfig(shopID)
 	if err != nil {
 		return err
 	}
-	
+
 	// Check rate limit
 	if config.IsRateLimited() {
 		return fmt.Errorf("rate limit exceeded, resets at %s", config.RateLimitResetAt.Format(time.RFC3339))
 	}
-	
+
 	// Fetch receipts from Etsy with pagination
 	const batchSize = 100
 	offset := 0
 	totalSynced := 0
 	wasPaid := true // Only fetch paid receipts by default
-	
+
 	for {
 		receipts, err := s.client.GetShopReceipts(minCreated, 0, &wasPaid, nil, batchSize, offset)
 		if err != nil {
 			return fmt.Errorf("failed to fetch receipts: %w", err)
 		}
-		
+
 		if len(receipts) == 0 {
 			break
 		}
-		
+
 		// Process each receipt
 		for _, receipt := range receipts {
 			if err := s.processReceipt(&receipt); err != nil {
@@ -501,20 +515,20 @@ func (s *Service) SyncReceipts(shopID string, minCreated int64) error {
 			}
 			totalSynced++
 		}
-		
+
 		// Update rate limit info from client
 		remaining, resetAt := s.client.GetRateLimitInfo()
 		config.UpdateRateLimit(remaining, resetAt)
-		
+
 		offset += batchSize
 	}
-	
+
 	// Mark sync as completed
 	config.MarkSyncCompleted()
 	if err := s.UpdateSyncConfig(config); err != nil {
 		return err
 	}
-	
+
 	fmt.Printf("Successfully synced %d receipts from Etsy\n", totalSynced)
 	return nil
 }
@@ -524,9 +538,9 @@ func (s *Service) processReceipt(receipt *ReceiptDTO) error {
 	// Check if receipt already exists
 	var existingReceipt models.EtsyReceipt
 	err := s.db.Where("etsy_receipt_id = ?", receipt.ReceiptID).First(&existingReceipt).Error
-	
+
 	now := time.Now()
-	
+
 	// Build shipping address
 	shippingAddress := fmt.Sprintf("%s, %s, %s %s, %s",
 		receipt.FirstLine,
@@ -535,7 +549,7 @@ func (s *Service) processReceipt(receipt *ReceiptDTO) error {
 		receipt.Zip,
 		receipt.CountryISO,
 	)
-	
+
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		// Create new receipt
 		newReceipt := models.EtsyReceipt{
@@ -559,12 +573,12 @@ func (s *Service) processReceipt(receipt *ReceiptDTO) error {
 			LastSyncedAt:      &now,
 			SyncStatus:        "synced",
 		}
-		
+
 		return s.db.Create(&newReceipt).Error
 	} else if err != nil {
 		return fmt.Errorf("failed to check existing receipt: %w", err)
 	}
-	
+
 	// Update existing receipt
 	existingReceipt.Status = receipt.Status
 	existingReceipt.IsPaid = receipt.IsPaid
@@ -577,7 +591,7 @@ func (s *Service) processReceipt(receipt *ReceiptDTO) error {
 	existingReceipt.EtsyUpdatedAt = receipt.GetUpdatedAt()
 	existingReceipt.LastSyncedAt = &now
 	existingReceipt.SyncStatus = "synced"
-	
+
 	return s.db.Save(&existingReceipt).Error
 }
 
@@ -594,27 +608,27 @@ func (s *Service) GetReceipt(etsyReceiptID int64) (*models.EtsyReceipt, error) {
 func (s *Service) ListReceipts(shopID string, status string, limit, offset int) ([]models.EtsyReceipt, int64, error) {
 	var receipts []models.EtsyReceipt
 	var total int64
-	
+
 	query := s.db.Model(&models.EtsyReceipt{}).Preload("LocalOrder")
-	
+
 	if shopID != "" {
 		query = query.Where("shop_id = ?", shopID)
 	}
-	
+
 	if status != "" {
 		query = query.Where("status = ?", status)
 	}
-	
+
 	// Count total
 	if err := query.Count(&total).Error; err != nil {
 		return nil, 0, err
 	}
-	
+
 	// Get paginated results, ordered by most recent first
 	if err := query.Order("etsy_created_at DESC").Limit(limit).Offset(offset).Find(&receipts).Error; err != nil {
 		return nil, 0, err
 	}
-	
+
 	return receipts, total, nil
 }
 
@@ -630,4 +644,72 @@ func (s *Service) UnlinkReceiptFromOrder(etsyReceiptID int64) error {
 	return s.db.Model(&models.EtsyReceipt{}).
 		Where("etsy_receipt_id = ?", etsyReceiptID).
 		Update("local_order_id", nil).Error
+}
+
+// ========================================
+// Image Synchronization Methods
+// ========================================
+
+// syncProductImages synchronizes images from Etsy listing to local product
+func (s *Service) syncProductImages(listing *ListingDTO, localProductID uint) error {
+	if len(listing.Images) == 0 {
+		return nil // No images to sync
+	}
+
+	// Get existing product images
+	var existingImages []models.ProductImage
+	if err := s.db.Where("product_id = ?", localProductID).Find(&existingImages).Error; err != nil {
+		return fmt.Errorf("failed to get existing images: %w", err)
+	}
+
+	// Create a map of existing image URLs for quick lookup
+	existingURLs := make(map[string]bool)
+	for _, img := range existingImages {
+		existingURLs[img.URL] = true
+	}
+
+	// Sync each Etsy image
+	for i, etsyImage := range listing.Images {
+		// Use the full-size image URL
+		imageURL := etsyImage.URLFullxfull
+
+		// Skip if image already exists
+		if existingURLs[imageURL] {
+			continue
+		}
+
+		// Create new product image record
+		productImage := models.ProductImage{
+			ProductID: localProductID,
+			URL:       imageURL,
+			AltText:   etsyImage.AltText,
+			Position:  i + 1, // Use rank from Etsy, adjusted to 1-based index
+		}
+
+		// Create the image record
+		if err := s.db.Create(&productImage).Error; err != nil {
+			fmt.Printf("Warning: Failed to create image for URL %s: %v\n", imageURL, err)
+			continue
+		}
+
+		fmt.Printf("Synced image %d for product %d from Etsy\n", productImage.ID, localProductID)
+	}
+
+	return nil
+}
+
+// SyncProductImagesForListing fetches a listing from Etsy and syncs its images to local product
+func (s *Service) SyncProductImagesForListing(listingID int64, localProductID uint) error {
+	if !s.IsEnabled() {
+		return errors.New("etsy integration not configured")
+	}
+
+	// Fetch the listing from Etsy to get fresh image data
+	listing, err := s.client.GetListing(listingID)
+	if err != nil {
+		return fmt.Errorf("failed to fetch listing from Etsy: %w", err)
+	}
+
+	// Sync images
+	return s.syncProductImages(listing, localProductID)
 }

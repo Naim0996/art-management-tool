@@ -16,6 +16,7 @@ import { TabView, TabPanel } from 'primereact/tabview';
 import { useRef } from 'react';
 import { PersonaggioDTO, PersonaggiAPIService } from '@/services/PersonaggiAPIService';
 import PersonaggioPreview from '@/components/PersonaggioPreview';
+import ImageUpload from '@/components/ImageUpload';
 
 export default function AdminPersonaggiPage() {
   const toast = useRef<Toast>(null);
@@ -521,6 +522,26 @@ export default function AdminPersonaggiPage() {
               </div>
             </>
           )}
+
+          {/* Icon Upload */}
+          <ImageUpload
+            label="Icon Image"
+            images={formData.icon ? [formData.icon] : []}
+            onImagesChange={(images) => setFormData({ ...formData, icon: images[0] || '' })}
+            maxImages={1}
+            type="icon"
+            personaggioId={editingPersonaggio?.id}
+          />
+
+          {/* Gallery Images Upload */}
+          <ImageUpload
+            label="Gallery Images"
+            images={formData.images || []}
+            onImagesChange={(images) => setFormData({ ...formData, images })}
+            maxImages={10}
+            type="gallery"
+            personaggioId={editingPersonaggio?.id}
+          />
 
           {/* Background Preview */}
           <div className="flex flex-col gap-2">

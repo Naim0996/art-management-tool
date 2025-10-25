@@ -46,7 +46,7 @@ func corsMiddleware(next http.Handler) http.Handler {
 func main() {
 	// Load configuration
 	cfg := config.Load()
-	
+
 	// Inizializza il database
 	if err := database.Connect(); err != nil {
 		log.Fatal("Failed to connect to database:", err)
@@ -71,7 +71,7 @@ func main() {
 
 	orderService := order.NewService(database.DB, paymentProvider, notifService)
 	shopifyService := shopify.NewSyncService(database.DB, "", "", "")
-	
+
 	// Initialize Etsy integration if configured
 	var etsyService *etsy.Service
 	var etsyPaymentProvider payment.Provider
@@ -112,7 +112,7 @@ func main() {
 	adminNotifHandler := admin.NewNotificationHandler(notifService)
 	adminCategoryHandler := admin.NewCategoryHandler(database.DB)
 	adminDiscountHandler := admin.NewDiscountHandler(database.DB)
-	
+
 	// Create Etsy handler if service is available
 	var adminEtsyHandler *admin.EtsyHandler
 	if etsyService != nil {
@@ -158,7 +158,7 @@ func main() {
 	adminRouter.HandleFunc("/shop/products/{id}/variants", adminProductHandler.AddVariant).Methods("POST")
 	adminRouter.HandleFunc("/shop/variants/{id}", adminProductHandler.UpdateVariant).Methods("PATCH")
 	adminRouter.HandleFunc("/shop/inventory/adjust", adminProductHandler.UpdateInventory).Methods("POST")
-	
+
 	// Product image upload management
 	adminRouter.HandleFunc("/shop/products/{id}/images", adminUploadHandler.ListProductImages).Methods("GET")
 	adminRouter.HandleFunc("/shop/products/{id}/images", adminUploadHandler.UploadProductImage).Methods("POST")
@@ -203,7 +203,7 @@ func main() {
 		w.WriteHeader(http.StatusAccepted)
 		w.Write([]byte(`{"message":"Sync initiated"}`))
 	}).Methods("POST")
-	
+
 	// Etsy integration endpoints
 	if adminEtsyHandler != nil {
 		// Product sync
@@ -211,20 +211,21 @@ func main() {
 		adminRouter.HandleFunc("/etsy/sync/inventory", adminEtsyHandler.TriggerInventorySync).Methods("POST")
 		adminRouter.HandleFunc("/etsy/sync/status", adminEtsyHandler.GetSyncStatus).Methods("GET")
 		adminRouter.HandleFunc("/etsy/sync/logs", adminEtsyHandler.GetInventorySyncLogs).Methods("GET")
-		
+
 		// Product management
 		adminRouter.HandleFunc("/etsy/products", adminEtsyHandler.ListEtsyProducts).Methods("GET")
 		adminRouter.HandleFunc("/etsy/products/{listing_id}", adminEtsyHandler.GetEtsyProduct).Methods("GET")
 		adminRouter.HandleFunc("/etsy/products/{listing_id}/link", adminEtsyHandler.LinkProduct).Methods("POST")
 		adminRouter.HandleFunc("/etsy/products/{listing_id}/link", adminEtsyHandler.UnlinkProduct).Methods("DELETE")
-		
+		adminRouter.HandleFunc("/etsy/products/{listing_id}/sync-images", adminEtsyHandler.SyncProductImages).Methods("POST")
+
 		// Receipt/payment sync
 		adminRouter.HandleFunc("/etsy/sync/receipts", adminEtsyHandler.TriggerReceiptSync).Methods("POST")
 		adminRouter.HandleFunc("/etsy/receipts", adminEtsyHandler.ListEtsyReceipts).Methods("GET")
 		adminRouter.HandleFunc("/etsy/receipts/{receipt_id}", adminEtsyHandler.GetEtsyReceipt).Methods("GET")
 		adminRouter.HandleFunc("/etsy/receipts/{receipt_id}/link", adminEtsyHandler.LinkReceiptToOrder).Methods("POST")
 		adminRouter.HandleFunc("/etsy/receipts/{receipt_id}/link", adminEtsyHandler.UnlinkReceiptFromOrder).Methods("DELETE")
-		
+
 		// Configuration
 		adminRouter.HandleFunc("/etsy/config", adminEtsyHandler.GetEtsyConfig).Methods("GET")
 		adminRouter.HandleFunc("/etsy/validate", adminEtsyHandler.ValidateCredentials).Methods("POST")
