@@ -10,9 +10,8 @@ Thumbs.db
 *~
 
 # Environment files
-.env
-.env.local
-.env.*.local
+.env.*
+docker-compose.*.yml
 
 # Logs
 *.log

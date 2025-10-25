@@ -45,13 +45,64 @@ services:
     env_file:
       - .env.production
     environment:
+      # Application Configuration
       - PORT=${PORT:-8080}
-      - ENVIRONMENT=production
+      - ENVIRONMENT=${ENVIRONMENT:-production}
+      
+      # Database Configuration (override host to use Docker service name)
       - DB_HOST=postgres
-      - DB_PORT=5432
-      # Auto-run migrations on startup
-      - AUTO_MIGRATE=true
-      - AUTO_SEED=false
+      - DB_PORT=${DB_PORT:-5432}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_NAME=${DB_NAME}
+      - DB_SSLMODE=${DB_SSLMODE:-require}
+      
+      # Auto-Migration & Seeding
+      - AUTO_MIGRATE=${AUTO_MIGRATE:-true}
+      - AUTO_SEED=${AUTO_SEED:-false}
+      
+      # JWT Configuration
+      - JWT_SECRET=${JWT_SECRET}
+      
+      # CORS Configuration
+      - CORS_ALLOWED_ORIGINS=${CORS_ALLOWED_ORIGINS}
+      
+      # Payment Configuration
+      - PAYMENT_PROVIDER=${PAYMENT_PROVIDER:-stripe}
+      - STRIPE_API_KEY=${STRIPE_API_KEY}
+      - STRIPE_WEBHOOK_SECRET=${STRIPE_WEBHOOK_SECRET}
+      
+      # Shopify Integration
+      - SHOPIFY_API_KEY=${SHOPIFY_API_KEY:-}
+      - SHOPIFY_API_SECRET=${SHOPIFY_API_SECRET:-}
+      - SHOPIFY_SHOP_DOMAIN=${SHOPIFY_SHOP_DOMAIN:-}
+      - SHOPIFY_ACCESS_TOKEN=${SHOPIFY_ACCESS_TOKEN:-}
+      
+      # Etsy Integration
+      - ETSY_API_KEY=${ETSY_API_KEY:-}
+      - ETSY_API_SECRET=${ETSY_API_SECRET:-}
+      - ETSY_SHOP_ID=${ETSY_SHOP_ID:-}
+      - ETSY_SHOP_NAME=${ETSY_SHOP_NAME:-}
+      - ETSY_SHOP_URL=${ETSY_SHOP_URL:-}
+      - ETSY_ACCESS_TOKEN=${ETSY_ACCESS_TOKEN:-}
+      - ETSY_API_BASE_URL=${ETSY_API_BASE_URL:-https://openapi.etsy.com/v3}
+      - ETSY_PAYMENT_CALLBACK_URL=${ETSY_PAYMENT_CALLBACK_URL:-}
+      - ETSY_SYNC_ENABLED=${ETSY_SYNC_ENABLED:-true}
+      - ETSY_SYNC_INTERVAL_PRODUCTS=${ETSY_SYNC_INTERVAL_PRODUCTS:-7200}
+      - ETSY_SYNC_INTERVAL_INVENTORY=${ETSY_SYNC_INTERVAL_INVENTORY:-3600}
+      - ETSY_RATE_LIMIT_REQUESTS=${ETSY_RATE_LIMIT_REQUESTS:-10000}
+      - ETSY_RATE_LIMIT_WINDOW=${ETSY_RATE_LIMIT_WINDOW:-86400}
+      
+      # Scheduler Configuration
+      - SCHEDULER_ENABLED=${SCHEDULER_ENABLED:-true}
+      
+      # Rate Limiting
+      - RATE_LIMIT_ENABLED=${RATE_LIMIT_ENABLED:-true}
+      - RATE_LIMIT_REQUESTS_PER_MINUTE=${RATE_LIMIT_REQUESTS_PER_MINUTE:-120}
+      
+      # Logging
+      - LOG_LEVEL=${LOG_LEVEL:-warn}
+      - LOG_FORMAT=${LOG_FORMAT:-json}
     volumes:
       - uploads_prod_data:/app/uploads
     restart: always
@@ -88,9 +139,14 @@ services:
     container_name: art-frontend-prod
     ports:
       - "3000:3000"
+    env_file:
+      - .env.production
     environment:
-      - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-http://backend:8080}
-      - NODE_ENV=production
+      # NEXT_PUBLIC_API_URL should be the public-facing API URL
+      - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
+      # BACKEND_URL is for server-side rewrites in Next.js (internal Docker network)
+      - BACKEND_URL=${BACKEND_URL:-http://backend:8080}
+      - NODE_ENV=${NODE_ENV:-production}
     depends_on:
       backend:
         condition: service_healthy
