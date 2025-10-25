@@ -21,15 +21,18 @@ type Client struct {
 	baseURL     string
 	httpTimeout time.Duration
 	httpClient  *http.Client
-	
+
+	// OAuth manager for token refresh
+	oauthManager *OAuthManager
+
 	// Rate limiting
 	rateLimitRemaining int
 	rateLimitResetAt   time.Time
-	
+
 	// Retry configuration
-	maxRetries     int
-	retryDelay     time.Duration
-	retryBackoff   float64
+	maxRetries   int
+	retryDelay   time.Duration
+	retryBackoff float64
 }
 
 // ClientConfig holds configuration for the Etsy API client
@@ -48,19 +51,19 @@ func NewClient(config ClientConfig) (*Client, error) {
 	if config.APIKey == "" {
 		return nil, errors.New("etsy API key is required")
 	}
-	
+
 	if config.BaseURL == "" {
 		config.BaseURL = "https://openapi.etsy.com/v3"
 	}
-	
+
 	if config.Timeout == 0 {
 		config.Timeout = 30 * time.Second
 	}
-	
+
 	if config.MaxRetries == 0 {
 		config.MaxRetries = 3
 	}
-	
+
 	return &Client{
 		apiKey:             config.APIKey,
 		apiSecret:          config.APISecret,
@@ -77,8 +80,53 @@ func NewClient(config ClientConfig) (*Client, error) {
 }
 
 // IsConfigured checks if the client has the minimum required configuration
+// Note: AccessToken is no longer required at initialization when using OAuth
 func (c *Client) IsConfigured() bool {
+	// With OAuth, we can work with just API key and shop ID
+	// The token will be fetched from database when needed
+	if c.oauthManager != nil {
+		return c.apiKey != "" && c.shopID != ""
+	}
+	// Legacy mode: require static access token
 	return c.apiKey != "" && c.shopID != "" && c.accessToken != ""
+}
+
+// SetOAuthManager sets the OAuth manager for automatic token refresh
+func (c *Client) SetOAuthManager(manager *OAuthManager) {
+	c.oauthManager = manager
+}
+
+// RefreshAccessToken updates the client's access token from OAuth manager
+// Returns error if token is not available or expired
+func (c *Client) RefreshAccessToken() error {
+	if c.oauthManager == nil {
+		return errors.New("oauth manager not configured")
+	}
+
+	token, err := c.oauthManager.GetValidToken(c.shopID)
+	if err != nil {
+		return fmt.Errorf("failed to get valid token: %w", err)
+	}
+
+	c.accessToken = token.AccessToken
+	log.Printf("Access token refreshed for shop %s (expires at: %s)", c.shopID, token.ExpiresAt.Format(time.RFC3339))
+	return nil
+}
+
+// ensureValidToken ensures the client has a valid access token
+// Automatically refreshes from OAuth manager if needed
+func (c *Client) ensureValidToken() error {
+	// If we have an OAuth manager, always get fresh token
+	if c.oauthManager != nil {
+		return c.RefreshAccessToken()
+	}
+
+	// Legacy mode: check if we have a static token
+	if c.accessToken == "" {
+		return errors.New("no access token available")
+	}
+
+	return nil
 }
 
 // IsRateLimited checks if the client has exceeded the rate limit
@@ -107,7 +155,7 @@ func (c *Client) UpdateRateLimit(remaining int, resetAt time.Time) {
 // doRequest performs an HTTP request with retry logic and error handling
 func (c *Client) doRequest(method, path string, body interface{}, result interface{}) error {
 	var lastErr error
-	
+
 	for attempt := 0; attempt <= c.maxRetries; attempt++ {
 		if attempt > 0 {
 			// Calculate exponential backoff delay
@@ -115,27 +163,33 @@ func (c *Client) doRequest(method, path string, body interface{}, result interfa
 			log.Printf("Retrying Etsy API request (attempt %d/%d) after %v", attempt, c.maxRetries, delay)
 			time.Sleep(delay)
 		}
-		
+
 		err := c.executeRequest(method, path, body, result)
 		if err == nil {
 			return nil
 		}
-		
+
 		lastErr = err
-		
+
 		// Check if error is retryable
 		if !c.isRetryableError(err) {
 			return err
 		}
 	}
-	
+
 	return fmt.Errorf("max retries exceeded: %w", lastErr)
 }
 
 // executeRequest performs a single HTTP request
 func (c *Client) executeRequest(method, path string, body interface{}, result interface{}) error {
+	// Ensure we have a valid access token before making the request
+	// This automatically refreshes the token if needed (when using OAuth)
+	if err := c.ensureValidToken(); err != nil {
+		return fmt.Errorf("failed to ensure valid token: %w", err)
+	}
+
 	url := c.baseURL + path
-	
+
 	var bodyReader io.Reader
 	if body != nil {
 		jsonBody, err := json.Marshal(body)
@@ -144,47 +198,47 @@ func (c *Client) executeRequest(method, path string, body interface{}, result in
 		}
 		bodyReader = bytes.NewReader(jsonBody)
 	}
-	
+
 	req, err := http.NewRequest(method, url, bodyReader)
 	if err != nil {
 		return fmt.Errorf("failed to create request: %w", err)
 	}
-	
+
 	// Set headers
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("x-api-key", c.apiKey)
 	if c.accessToken != "" {
 		req.Header.Set("Authorization", "Bearer "+c.accessToken)
 	}
-	
+
 	// Execute request
 	resp, err := c.httpClient.Do(req)
 	if err != nil {
 		return fmt.Errorf("request failed: %w", err)
 	}
 	defer resp.Body.Close()
-	
+
 	// Update rate limit info from headers
 	c.updateRateLimitFromHeaders(resp.Header)
-	
+
 	// Read response body
 	respBody, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return fmt.Errorf("failed to read response body: %w", err)
 	}
-	
+
 	// Check for errors
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
 		return c.handleErrorResponse(resp.StatusCode, respBody)
 	}
-	
+
 	// Parse success response
 	if result != nil {
 		if err := json.Unmarshal(respBody, result); err != nil {
 			return fmt.Errorf("failed to parse response: %w", err)
 		}
 	}
-	
+
 	log.Printf("Etsy API request successful: %s %s (status: %d)", method, path, resp.StatusCode)
 	return nil
 }
@@ -199,7 +253,7 @@ func (c *Client) handleErrorResponse(statusCode int, body []byte) error {
 			Description: etsyErr.ErrorMsg,
 		}
 	}
-	
+
 	return &EtsyAPIError{
 		StatusCode:  statusCode,
 		ErrorCode:   "unknown_error",
@@ -214,7 +268,7 @@ func (c *Client) updateRateLimitFromHeaders(headers http.Header) {
 			c.rateLimitRemaining = val
 		}
 	}
-	
+
 	if reset := headers.Get("X-RateLimit-Reset"); reset != "" {
 		if val, err := strconv.ParseInt(reset, 10, 64); err == nil {
 			c.rateLimitResetAt = time.Unix(val, 0)
@@ -227,14 +281,14 @@ func (c *Client) isRetryableError(err error) bool {
 	if err == nil {
 		return false
 	}
-	
+
 	// Check for EtsyAPIError
 	var apiErr *EtsyAPIError
 	if errors.As(err, &apiErr) {
 		// Retry on server errors (5xx) and rate limit errors (429)
 		return apiErr.StatusCode >= 500 || apiErr.StatusCode == 429
 	}
-	
+
 	// Retry on network errors
 	return true
 }
@@ -248,21 +302,21 @@ func (c *Client) GetShopListings(limit, offset int) ([]ListingDTO, error) {
 	if !c.IsConfigured() {
 		return nil, errors.New("etsy client not properly configured")
 	}
-	
+
 	if c.IsRateLimited() {
 		return nil, fmt.Errorf("rate limit exceeded, resets at %s", c.rateLimitResetAt.Format(time.RFC3339))
 	}
-	
+
 	path := fmt.Sprintf("/application/shops/%s/listings/active", c.shopID)
 	if limit > 0 {
 		path += fmt.Sprintf("?limit=%d&offset=%d", limit, offset)
 	}
-	
+
 	var response ListingsResponse
 	if err := c.doRequest("GET", path, nil, &response); err != nil {
 		return nil, fmt.Errorf("failed to get shop listings: %w", err)
 	}
-	
+
 	return response.Results, nil
 }
 
@@ -271,18 +325,18 @@ func (c *Client) GetListing(listingID int64) (*ListingDTO, error) {
 	if !c.IsConfigured() {
 		return nil, errors.New("etsy client not properly configured")
 	}
-	
+
 	if c.IsRateLimited() {
 		return nil, fmt.Errorf("rate limit exceeded, resets at %s", c.rateLimitResetAt.Format(time.RFC3339))
 	}
-	
+
 	path := fmt.Sprintf("/application/listings/%d?includes=Images,Inventory", listingID)
-	
+
 	var listing ListingDTO
 	if err := c.doRequest("GET", path, nil, &listing); err != nil {
 		return nil, fmt.Errorf("failed to get listing %d: %w", listingID, err)
 	}
-	
+
 	return &listing, nil
 }
 
@@ -295,18 +349,18 @@ func (c *Client) GetListingInventory(listingID int64) (*ListingInventoryDTO, err
 	if !c.IsConfigured() {
 		return nil, errors.New("etsy client not properly configured")
 	}
-	
+
 	if c.IsRateLimited() {
 		return nil, fmt.Errorf("rate limit exceeded, resets at %s", c.rateLimitResetAt.Format(time.RFC3339))
 	}
-	
+
 	path := fmt.Sprintf("/application/listings/%d/inventory", listingID)
-	
+
 	var inventory ListingInventoryDTO
 	if err := c.doRequest("GET", path, nil, &inventory); err != nil {
 		return nil, fmt.Errorf("failed to get inventory for listing %d: %w", listingID, err)
 	}
-	
+
 	return &inventory, nil
 }
 
@@ -315,17 +369,17 @@ func (c *Client) UpdateListingInventory(listingID int64, request *UpdateListingI
 	if !c.IsConfigured() {
 		return errors.New("etsy client not properly configured")
 	}
-	
+
 	if c.IsRateLimited() {
 		return fmt.Errorf("rate limit exceeded, resets at %s", c.rateLimitResetAt.Format(time.RFC3339))
 	}
-	
+
 	path := fmt.Sprintf("/application/listings/%d/inventory", listingID)
-	
+
 	if err := c.doRequest("PUT", path, request, nil); err != nil {
 		return fmt.Errorf("failed to update inventory for listing %d: %w", listingID, err)
 	}
-	
+
 	return nil
 }
 
@@ -336,17 +390,17 @@ func (c *Client) UpdateInventory(listingID int64, quantity int) error {
 	if err != nil {
 		return err
 	}
-	
+
 	if len(inventory.Products) == 0 {
 		return errors.New("no products found in listing inventory")
 	}
-	
+
 	// Update quantity in first product's first offering
 	product := inventory.Products[0]
 	if len(product.Offerings) == 0 {
 		return errors.New("no offerings found in product")
 	}
-	
+
 	request := &UpdateListingInventoryRequest{
 		Products: []UpdateInventoryProductDTO{
 			{
@@ -361,7 +415,7 @@ func (c *Client) UpdateInventory(listingID int64, quantity int) error {
 			},
 		},
 	}
-	
+
 	return c.UpdateListingInventory(listingID, request)
 }
 
@@ -374,14 +428,14 @@ func (c *Client) ValidateCredentials() error {
 	if !c.IsConfigured() {
 		return errors.New("etsy client not properly configured")
 	}
-	
+
 	path := fmt.Sprintf("/application/shops/%s", c.shopID)
-	
+
 	var shop ShopDTO
 	if err := c.doRequest("GET", path, nil, &shop); err != nil {
 		return fmt.Errorf("failed to validate credentials: %w", err)
 	}
-	
+
 	log.Printf("Etsy credentials validated successfully for shop: %s", shop.ShopName)
 	return nil
 }
@@ -402,15 +456,15 @@ func (c *Client) GetShopReceipts(minCreated, maxCreated int64, wasPaid, wasShipp
 	if !c.IsConfigured() {
 		return nil, errors.New("etsy client not properly configured")
 	}
-	
+
 	if c.IsRateLimited() {
 		return nil, fmt.Errorf("rate limit exceeded, resets at %s", c.rateLimitResetAt.Format(time.RFC3339))
 	}
-	
+
 	// Build query parameters
 	path := fmt.Sprintf("/application/shops/%s/receipts", c.shopID)
 	params := []string{}
-	
+
 	if minCreated > 0 {
 		params = append(params, fmt.Sprintf("min_created=%d", minCreated))
 	}
@@ -429,19 +483,19 @@ func (c *Client) GetShopReceipts(minCreated, maxCreated int64, wasPaid, wasShipp
 	if offset > 0 {
 		params = append(params, fmt.Sprintf("offset=%d", offset))
 	}
-	
+
 	if len(params) > 0 {
 		path += "?" + params[0]
 		for i := 1; i < len(params); i++ {
 			path += "&" + params[i]
 		}
 	}
-	
+
 	var response ShopReceiptsResponse
 	if err := c.doRequest("GET", path, nil, &response); err != nil {
 		return nil, fmt.Errorf("failed to get shop receipts: %w", err)
 	}
-	
+
 	return response.Results, nil
 }
 
@@ -450,18 +504,18 @@ func (c *Client) GetReceipt(receiptID int64) (*ReceiptDTO, error) {
 	if !c.IsConfigured() {
 		return nil, errors.New("etsy client not properly configured")
 	}
-	
+
 	if c.IsRateLimited() {
 		return nil, fmt.Errorf("rate limit exceeded, resets at %s", c.rateLimitResetAt.Format(time.RFC3339))
 	}
-	
+
 	path := fmt.Sprintf("/application/shops/%s/receipts/%d", c.shopID, receiptID)
-	
+
 	var receipt ReceiptDTO
 	if err := c.doRequest("GET", path, nil, &receipt); err != nil {
 		return nil, fmt.Errorf("failed to get receipt %d: %w", receiptID, err)
 	}
-	
+
 	return &receipt, nil
 }
 
@@ -470,22 +524,22 @@ func (c *Client) GetReceiptTransactions(receiptID int64) ([]TransactionDTO, erro
 	if !c.IsConfigured() {
 		return nil, errors.New("etsy client not properly configured")
 	}
-	
+
 	if c.IsRateLimited() {
 		return nil, fmt.Errorf("rate limit exceeded, resets at %s", c.rateLimitResetAt.Format(time.RFC3339))
 	}
-	
+
 	path := fmt.Sprintf("/application/shops/%s/receipts/%d/transactions", c.shopID, receiptID)
-	
+
 	var response struct {
 		Count   int              `json:"count"`
 		Results []TransactionDTO `json:"results"`
 	}
-	
+
 	if err := c.doRequest("GET", path, nil, &response); err != nil {
 		return nil, fmt.Errorf("failed to get receipt transactions: %w", err)
 	}
-	
+
 	return response.Results, nil
 }
 

@@ -34,19 +34,20 @@ type DatabaseConfig struct {
 
 // EtsyConfig holds Etsy API integration configuration
 type EtsyConfig struct {
-	APIKey                  string
-	APISecret               string
-	ShopID                  string
-	ShopName                string
-	ShopURL                 string
-	AccessToken             string
-	BaseURL                 string
-	SyncEnabled             bool
-	SyncIntervalProducts    time.Duration
-	SyncIntervalInventory   time.Duration
-	RateLimitRequests       int
-	RateLimitWindow         time.Duration
-	PaymentCallbackURL      string
+	APIKey                string
+	APISecret             string
+	ShopID                string
+	ShopName              string
+	ShopURL               string
+	AccessToken           string
+	RedirectURI           string
+	BaseURL               string
+	SyncEnabled           bool
+	SyncIntervalProducts  time.Duration
+	SyncIntervalInventory time.Duration
+	RateLimitRequests     int
+	RateLimitWindow       time.Duration
+	PaymentCallbackURL    string
 }
 
 // SchedulerConfig holds scheduler configuration
@@ -56,8 +57,8 @@ type SchedulerConfig struct {
 
 // RateLimitConfig holds rate limiting configuration
 type RateLimitConfig struct {
-	Enabled            bool
-	RequestsPerMinute  int
+	Enabled           bool
+	RequestsPerMinute int
 }
 
 // LoggingConfig holds logging configuration
@@ -82,19 +83,20 @@ func Load() *Config {
 			SSLMode:  getEnv("DB_SSLMODE", "disable"),
 		},
 		Etsy: EtsyConfig{
-			APIKey:                  getEnv("ETSY_API_KEY", ""),
-			APISecret:               getEnv("ETSY_API_SECRET", ""),
-			ShopID:                  getEnv("ETSY_SHOP_ID", ""),
-			ShopName:                getEnv("ETSY_SHOP_NAME", ""),
-			ShopURL:                 getEnv("ETSY_SHOP_URL", ""),
-			AccessToken:             getEnv("ETSY_ACCESS_TOKEN", ""),
-			BaseURL:                 getEnv("ETSY_API_BASE_URL", "https://openapi.etsy.com/v3"),
-			SyncEnabled:             getEnvBool("ETSY_SYNC_ENABLED", false),
-			SyncIntervalProducts:    time.Duration(getEnvInt("ETSY_SYNC_INTERVAL_PRODUCTS", 3600)) * time.Second,
-			SyncIntervalInventory:   time.Duration(getEnvInt("ETSY_SYNC_INTERVAL_INVENTORY", 1800)) * time.Second,
-			RateLimitRequests:       getEnvInt("ETSY_RATE_LIMIT_REQUESTS", 10000),
-			RateLimitWindow:         time.Duration(getEnvInt("ETSY_RATE_LIMIT_WINDOW", 86400)) * time.Second,
-			PaymentCallbackURL:      getEnv("ETSY_PAYMENT_CALLBACK_URL", ""),
+			APIKey:                getEnv("ETSY_API_KEY", ""),
+			APISecret:             getEnv("ETSY_API_SECRET", ""),
+			ShopID:                getEnv("ETSY_SHOP_ID", ""),
+			ShopName:              getEnv("ETSY_SHOP_NAME", ""),
+			ShopURL:               getEnv("ETSY_SHOP_URL", ""),
+			AccessToken:           getEnv("ETSY_ACCESS_TOKEN", ""),
+			RedirectURI:           getEnv("ETSY_REDIRECT_URI", "http://localhost:3000/admin/etsy-sync/callback"),
+			BaseURL:               getEnv("ETSY_API_BASE_URL", "https://openapi.etsy.com/v3"),
+			SyncEnabled:           getEnvBool("ETSY_SYNC_ENABLED", false),
+			SyncIntervalProducts:  time.Duration(getEnvInt("ETSY_SYNC_INTERVAL_PRODUCTS", 3600)) * time.Second,
+			SyncIntervalInventory: time.Duration(getEnvInt("ETSY_SYNC_INTERVAL_INVENTORY", 1800)) * time.Second,
+			RateLimitRequests:     getEnvInt("ETSY_RATE_LIMIT_REQUESTS", 10000),
+			RateLimitWindow:       time.Duration(getEnvInt("ETSY_RATE_LIMIT_WINDOW", 86400)) * time.Second,
+			PaymentCallbackURL:    getEnv("ETSY_PAYMENT_CALLBACK_URL", ""),
 		},
 		Scheduler: SchedulerConfig{
 			Enabled: getEnvBool("SCHEDULER_ENABLED", true),
@@ -111,10 +113,11 @@ func Load() *Config {
 }
 
 // IsEtsyEnabled checks if Etsy integration is properly configured
+// Note: AccessToken is no longer required as OAuth tokens are managed dynamically
 func (c *Config) IsEtsyEnabled() bool {
 	return c.Etsy.APIKey != "" &&
+		c.Etsy.APISecret != "" &&
 		c.Etsy.ShopID != "" &&
-		c.Etsy.AccessToken != "" &&
 		c.Etsy.SyncEnabled
 }
 
@@ -148,12 +151,12 @@ func getEnvInt(key string, defaultValue int) int {
 	if valueStr == "" {
 		return defaultValue
 	}
-	
+
 	value, err := strconv.Atoi(valueStr)
 	if err != nil {
 		return defaultValue
 	}
-	
+
 	return value
 }
 
@@ -163,11 +166,11 @@ func getEnvBool(key string, defaultValue bool) bool {
 	if valueStr == "" {
 		return defaultValue
 	}
-	
+
 	value, err := strconv.ParseBool(valueStr)
 	if err != nil {
 		return defaultValue
 	}
-	
+
 	return value
 }

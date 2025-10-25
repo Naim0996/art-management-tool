@@ -76,7 +76,7 @@
       "title": "Prodotti Etsy",
       "noProducts": "Nessun prodotto trovato",
       "listingId": "ID Inserzione",
-      "title": "Titolo",
+      "productTitle": "Titolo",
       "sku": "SKU",
       "price": "Prezzo",
       "quantity": "Quantità",
@@ -118,6 +118,18 @@
       "loadFailed": "Caricamento dati fallito",
       "syncFailed": "Sincronizzazione fallita",
       "configLoadFailed": "Caricamento configurazione fallito"
+    },
+    "oauth": {
+      "processing": "Elaborazione Autorizzazione...",
+      "pleaseWait": "Attendere il completamento dell'autorizzazione Etsy.",
+      "success": "Autorizzazione completata con successo! Reindirizzamento...",
+      "successTitle": "Autorizzazione Riuscita!",
+      "errorTitle": "Autorizzazione Fallita",
+      "error": "Si è verificato un errore durante l'autorizzazione.",
+      "noCode": "Codice di autorizzazione mancante",
+      "exchangeFailed": "Scambio token fallito",
+      "redirecting": "Reindirizzamento alla dashboard...",
+      "returnToDashboard": "Torna alla Dashboard"
     }
   }
 }

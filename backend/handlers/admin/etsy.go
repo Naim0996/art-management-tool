@@ -29,6 +29,7 @@ func NewEtsyHandler(service *etsy.Service) *EtsyHandler {
 
 // TriggerProductSync triggers a product synchronization
 // POST /api/admin/etsy/sync/products
+// ⚠️ WARNING: This imports products FROM Etsy TO local database (READ operation on Etsy)
 func (h *EtsyHandler) TriggerProductSync(w http.ResponseWriter, r *http.Request) {
 	if !h.service.IsEnabled() {
 		http.Error(w, "Etsy integration not configured", http.StatusNotImplemented)
@@ -61,6 +62,7 @@ func (h *EtsyHandler) TriggerProductSync(w http.ResponseWriter, r *http.Request)
 
 // TriggerInventorySync triggers an inventory synchronization
 // POST /api/admin/etsy/sync/inventory
+// ⚠️ WARNING: This imports inventory FROM Etsy TO local database (READ operation on Etsy)
 func (h *EtsyHandler) TriggerInventorySync(w http.ResponseWriter, r *http.Request) {
 	if !h.service.IsEnabled() {
 		http.Error(w, "Etsy integration not configured", http.StatusNotImplemented)
@@ -198,6 +200,7 @@ func (h *EtsyHandler) GetEtsyProduct(w http.ResponseWriter, r *http.Request) {
 
 // LinkProduct links an Etsy listing to a local product
 // POST /api/admin/etsy/products/{listing_id}/link
+// ℹ️ SAFE: Only creates link in LOCAL database, NO changes to Etsy
 func (h *EtsyHandler) LinkProduct(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	listingIDStr := vars["listing_id"]
@@ -542,6 +545,7 @@ func (h *EtsyHandler) UnlinkReceiptFromOrder(w http.ResponseWriter, r *http.Requ
 
 // SyncProductImages manually triggers image sync for a linked product
 // POST /api/admin/etsy/products/{listing_id}/sync-images
+// ⚠️ WARNING: Downloads images FROM Etsy TO local storage (READ operation on Etsy)
 func (h *EtsyHandler) SyncProductImages(w http.ResponseWriter, r *http.Request) {
 	if !h.service.IsEnabled() {
 		http.Error(w, "Etsy integration not configured", http.StatusNotImplemented)

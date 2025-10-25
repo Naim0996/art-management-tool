@@ -75,17 +75,38 @@ func main() {
 	// Initialize Etsy integration if configured
 	var etsyService *etsy.Service
 	var etsyPaymentProvider payment.Provider
+	var etsyOAuthManager *etsy.OAuthManager
 	if cfg.IsEtsyEnabled() {
+		// Initialize OAuth manager first
+		etsyOAuthManager = etsy.NewOAuthManager(
+			database.DB,
+			cfg.Etsy.APIKey,
+			cfg.Etsy.APISecret,
+			cfg.Etsy.RedirectURI,
+		)
+
+		// Create Etsy client (AccessToken is optional now, will be fetched from OAuth)
 		etsyClient, err := etsy.NewClient(etsy.ClientConfig{
 			APIKey:      cfg.Etsy.APIKey,
 			APISecret:   cfg.Etsy.APISecret,
 			ShopID:      cfg.Etsy.ShopID,
-			AccessToken: cfg.Etsy.AccessToken,
+			AccessToken: cfg.Etsy.AccessToken, // Optional: fallback for initial setup
 			BaseURL:     cfg.Etsy.BaseURL,
 		})
 		if err != nil {
 			log.Printf("Warning: Failed to initialize Etsy client: %v", err)
 		} else {
+			// Connect OAuth manager to client for automatic token refresh
+			etsyClient.SetOAuthManager(etsyOAuthManager)
+
+			// Try to refresh token from OAuth on startup
+			if err := etsyClient.RefreshAccessToken(); err != nil {
+				log.Printf("Warning: Could not refresh OAuth token on startup: %v", err)
+				log.Printf("Please complete OAuth flow at /api/admin/etsy/oauth/auth-url")
+			} else {
+				log.Printf("OAuth token loaded successfully from database")
+			}
+
 			etsyService = etsy.NewService(database.DB, etsyClient)
 			// Initialize Etsy payment provider
 			etsyPaymentProvider = payment.NewEtsyProvider(
@@ -93,7 +114,7 @@ func main() {
 				cfg.Etsy.ShopURL,
 				cfg.Etsy.PaymentCallbackURL,
 			)
-			log.Println("Etsy integration enabled (including payment)")
+			log.Println("Etsy integration enabled (including payment and OAuth)")
 		}
 	} else {
 		log.Println("Etsy integration disabled (not configured)")
@@ -115,8 +136,12 @@ func main() {
 
 	// Create Etsy handler if service is available
 	var adminEtsyHandler *admin.EtsyHandler
+	var adminEtsyOAuthHandler *admin.EtsyOAuthHandler
 	if etsyService != nil {
 		adminEtsyHandler = admin.NewEtsyHandler(etsyService)
+	}
+	if etsyOAuthManager != nil {
+		adminEtsyOAuthHandler = admin.NewEtsyOAuthHandler(database.DB, etsyOAuthManager)
 	}
 
 	// Legacy handlers
@@ -229,6 +254,15 @@ func main() {
 		// Configuration
 		adminRouter.HandleFunc("/etsy/config", adminEtsyHandler.GetEtsyConfig).Methods("GET")
 		adminRouter.HandleFunc("/etsy/validate", adminEtsyHandler.ValidateCredentials).Methods("POST")
+	}
+
+	// Etsy OAuth endpoints (separate from main Etsy handler)
+	if adminEtsyOAuthHandler != nil {
+		adminRouter.HandleFunc("/etsy/oauth/auth-url", adminEtsyOAuthHandler.GetAuthURL).Methods("GET")
+		adminRouter.HandleFunc("/etsy/oauth/callback", adminEtsyOAuthHandler.HandleCallback).Methods("GET")
+		adminRouter.HandleFunc("/etsy/oauth/status", adminEtsyOAuthHandler.GetTokenStatus).Methods("GET")
+		adminRouter.HandleFunc("/etsy/oauth/refresh", adminEtsyOAuthHandler.RefreshToken).Methods("POST")
+		adminRouter.HandleFunc("/etsy/oauth/revoke", adminEtsyOAuthHandler.RevokeToken).Methods("DELETE")
 	}
 
 	// Note: Legacy product and order endpoints removed - use /admin/shop/* endpoints instead

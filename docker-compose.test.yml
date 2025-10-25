@@ -47,6 +47,14 @@ services:
       - AUTO_SEED=false
       - SCHEDULER_ENABLED=false
       - RATE_LIMIT_ENABLED=false
+      # Etsy Integration (for testing)
+      - ETSY_API_KEY=${ETSY_API_KEY:-}
+      - ETSY_API_SECRET=${ETSY_API_SECRET:-}
+      - ETSY_SHOP_ID=${ETSY_SHOP_ID:-}
+      - ETSY_SHOP_NAME=${ETSY_SHOP_NAME:-}
+      - ETSY_SHOP_URL=${ETSY_SHOP_URL:-}
+      - ETSY_REDIRECT_URI=${ETSY_REDIRECT_URI:-http://localhost:3001/admin/etsy-sync/callback}
+      - ETSY_SYNC_ENABLED=false
     volumes:
       - ./backend:/app
       - uploads_test_data:/app/uploads

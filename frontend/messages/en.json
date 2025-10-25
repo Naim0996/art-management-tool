@@ -76,7 +76,7 @@
       "title": "Etsy Products",
       "noProducts": "No products found",
       "listingId": "Listing ID",
-      "title": "Title",
+      "productTitle": "Title",
       "sku": "SKU",
       "price": "Price",
       "quantity": "Quantity",
@@ -116,8 +116,20 @@
     },
     "errors": {
       "loadFailed": "Failed to load data",
-      "syncFailed": "Synchronization failed",
+      "syncFailed": "Sync failed",
       "configLoadFailed": "Failed to load configuration"
+    },
+    "oauth": {
+      "processing": "Processing Authorization...",
+      "pleaseWait": "Please wait while we complete your Etsy authorization.",
+      "success": "Authorization completed successfully! Redirecting...",
+      "successTitle": "Authorization Successful!",
+      "errorTitle": "Authorization Failed",
+      "error": "An error occurred during authorization.",
+      "noCode": "Missing authorization code",
+      "exchangeFailed": "Token exchange failed",
+      "redirecting": "Redirecting to dashboard...",
+      "returnToDashboard": "Return to Dashboard"
     }
   }
 }

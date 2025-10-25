@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/Naim0996/art-management-tool/backend/models"
+	"github.com/Naim0996/art-management-tool/backend/services/etsy"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
@@ -99,6 +100,12 @@ func AutoMigrate() error {
 		&models.AuditLog{},
 		&models.DiscountCode{},
 		&models.ShopifyLink{},
+		// Etsy Integration models
+		&etsy.OAuthToken{},
+		&models.EtsySyncConfig{},
+		&models.EtsyProduct{},
+		&models.EtsyInventorySyncLog{},
+		&models.EtsyReceipt{},
 	)
 
 	if err != nil {
