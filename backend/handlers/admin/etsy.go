@@ -2,6 +2,7 @@ package admin
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 	"strconv"
@@ -38,7 +39,7 @@ func (h *EtsyHandler) TriggerProductSync(w http.ResponseWriter, r *http.Request)
 	var req struct {
 		ShopID string `json:"shop_id"`
 	}
-	
+
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		// If no body, use default shop ID from client
 		req.ShopID = "" // Will be populated by service
@@ -71,20 +72,20 @@ func (h *EtsyHandler) TriggerInventorySync(w http.ResponseWriter, r *http.Reques
 		ShopID    string `json:"shop_id"`
 		Direction string `json:"direction"` // push, pull, bidirectional
 	}
-	
+
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		req.Direction = "bidirectional" // Default
 	}
 
 	// Validate direction
 	validDirections := map[string]bool{
-		"push":           true,
-		"pull":           true,
-		"bidirectional":  true,
-		"local_to_etsy":  true,
-		"etsy_to_local":  true,
+		"push":          true,
+		"pull":          true,
+		"bidirectional": true,
+		"local_to_etsy": true,
+		"etsy_to_local": true,
 	}
-	
+
 	if !validDirections[req.Direction] {
 		http.Error(w, "Invalid sync direction", http.StatusBadRequest)
 		return
@@ -114,7 +115,7 @@ func (h *EtsyHandler) GetSyncStatus(w http.ResponseWriter, r *http.Request) {
 	}
 
 	shopID := r.URL.Query().Get("shop_id")
-	
+
 	config, err := h.service.GetSyncConfig(shopID)
 	if err != nil {
 		http.Error(w, "Failed to get sync status", http.StatusInternalServerError)
@@ -233,6 +234,12 @@ func (h *EtsyHandler) LinkProduct(w http.ResponseWriter, r *http.Request) {
 	if err := h.service.UpdateEtsyProduct(product); err != nil {
 		http.Error(w, "Failed to link product", http.StatusInternalServerError)
 		return
+	}
+
+	// Sync images from Etsy to local product
+	if err := h.service.SyncProductImagesForListing(product.EtsyListingID, req.LocalProductID); err != nil {
+		// Log warning but don't fail the link operation
+		log.Printf("Warning: Failed to sync images for listing %d: %v", product.EtsyListingID, err)
 	}
 
 	w.Header().Set("Content-Type", "application/json")
@@ -533,6 +540,54 @@ func (h *EtsyHandler) UnlinkReceiptFromOrder(w http.ResponseWriter, r *http.Requ
 	})
 }
 
+// SyncProductImages manually triggers image sync for a linked product
+// POST /api/admin/etsy/products/{listing_id}/sync-images
+func (h *EtsyHandler) SyncProductImages(w http.ResponseWriter, r *http.Request) {
+	if !h.service.IsEnabled() {
+		http.Error(w, "Etsy integration not configured", http.StatusNotImplemented)
+		return
+	}
+
+	vars := mux.Vars(r)
+	listingIDStr := vars["listing_id"]
+
+	listingID, err := strconv.ParseInt(listingIDStr, 10, 64)
+	if err != nil {
+		http.Error(w, "Invalid listing ID", http.StatusBadRequest)
+		return
+	}
+
+	// Get Etsy product to check if it's linked
+	product, err := h.service.GetEtsyProduct(listingID)
+	if err != nil {
+		http.Error(w, "Failed to get Etsy product", http.StatusInternalServerError)
+		return
+	}
+
+	if product == nil {
+		http.Error(w, "Etsy product not found", http.StatusNotFound)
+		return
+	}
+
+	if product.LocalProductID == nil {
+		http.Error(w, "Product is not linked to a local product", http.StatusBadRequest)
+		return
+	}
+
+	// Sync images
+	if err := h.service.SyncProductImagesForListing(listingID, *product.LocalProductID); err != nil {
+		http.Error(w, fmt.Sprintf("Failed to sync images: %v", err), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(map[string]interface{}{
+		"message":          "Images synced successfully",
+		"listing_id":       listingID,
+		"local_product_id": product.LocalProductID,
+	})
+}
+
 // ========================================
 // Helper Functions
 // ========================================
@@ -542,11 +597,11 @@ func parseInt(s string, defaultValue int) int {
 	if s == "" {
 		return defaultValue
 	}
-	
+
 	val, err := strconv.Atoi(s)
 	if err != nil {
 		return defaultValue
 	}
-	
+
 	return val
 }

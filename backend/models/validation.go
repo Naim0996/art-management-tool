@@ -184,36 +184,36 @@ func (v *Validator) Errors() error {
 // Validate PersonaggioInput
 func (p *PersonaggioInput) Validate() error {
 	v := NewValidator()
-	
+
 	v.Required("name", p.Name).
 		MinLength("name", p.Name, 1).
 		MaxLength("name", p.Name, 100)
-	
+
 	v.MaxLength("description", p.Description, 2000)
-	
+
 	if p.Icon != "" {
 		v.URL("icon", p.Icon)
 	}
-	
+
 	if len(p.Images) > 20 {
 		v.errors = append(v.errors, ValidationError{
 			Field:   "images",
 			Message: "cannot exceed 20 images",
 		})
 	}
-	
+
 	for i, img := range p.Images {
 		v.URL(fmt.Sprintf("images[%d]", i), img)
 	}
-	
+
 	if p.BackgroundColor != "" {
 		v.ColorHex("backgroundColor", p.BackgroundColor)
 	}
-	
+
 	if p.BackgroundType != "" {
-		v.OneOf("backgroundType", p.BackgroundType, []string{"solid", "gradient"})
+		v.OneOf("backgroundType", p.BackgroundType, []string{"solid", "gradient", "image"})
 	}
-	
+
 	if p.BackgroundType == "gradient" {
 		if p.GradientFrom != "" {
 			v.ColorHex("gradientFrom", p.GradientFrom)
@@ -222,43 +222,47 @@ func (p *PersonaggioInput) Validate() error {
 			v.ColorHex("gradientTo", p.GradientTo)
 		}
 	}
-	
+
+	if p.BackgroundType == "image" && p.BackgroundImage != "" {
+		v.URL("backgroundImage", p.BackgroundImage)
+	}
+
 	if p.Order < 0 {
 		v.errors = append(v.errors, ValidationError{
 			Field:   "order",
 			Message: "must be a non-negative integer",
 		})
 	}
-	
+
 	return v.Errors()
 }
 
 // Validate EnhancedProduct for creation
 func ValidateProductCreate(p *EnhancedProduct) error {
 	v := NewValidator()
-	
+
 	v.Required("title", p.Title).
 		MinLength("title", p.Title, 1).
 		MaxLength("title", p.Title, 500)
-	
+
 	v.Required("slug", p.Slug).
 		MinLength("slug", p.Slug, 1).
 		MaxLength("slug", p.Slug, 255).
 		Pattern("slug", p.Slug, `^[a-z0-9-]+$`)
-	
+
 	v.MaxLength("shortDescription", p.ShortDescription, 1000)
 	v.MaxLength("longDescription", p.LongDescription, 50000)
-	
+
 	v.MinValue("basePrice", p.BasePrice, 0)
-	
+
 	if p.Currency == "" {
 		p.Currency = "EUR"
 	}
 	v.MaxLength("currency", p.Currency, 3)
-	
+
 	v.MaxLength("sku", p.SKU, 100)
 	v.MaxLength("gtin", p.GTIN, 50)
-	
+
 	if p.Status == "" {
 		p.Status = ProductStatusDraft
 	}
@@ -267,49 +271,49 @@ func ValidateProductCreate(p *EnhancedProduct) error {
 		string(ProductStatusPublished),
 		string(ProductStatusArchived),
 	})
-	
+
 	return v.Errors()
 }
 
 // Validate EnhancedProduct for updates
 func ValidateProductUpdate(p *EnhancedProduct) error {
 	v := NewValidator()
-	
+
 	if p.Title != "" {
 		v.MinLength("title", p.Title, 1).
 			MaxLength("title", p.Title, 500)
 	}
-	
+
 	if p.Slug != "" {
 		v.MinLength("slug", p.Slug, 1).
 			MaxLength("slug", p.Slug, 255).
 			Pattern("slug", p.Slug, `^[a-z0-9-]+$`)
 	}
-	
+
 	if p.ShortDescription != "" {
 		v.MaxLength("shortDescription", p.ShortDescription, 1000)
 	}
-	
+
 	if p.LongDescription != "" {
 		v.MaxLength("longDescription", p.LongDescription, 50000)
 	}
-	
+
 	if p.BasePrice < 0 {
 		v.MinValue("basePrice", p.BasePrice, 0)
 	}
-	
+
 	if p.Currency != "" {
 		v.MaxLength("currency", p.Currency, 3)
 	}
-	
+
 	if p.SKU != "" {
 		v.MaxLength("sku", p.SKU, 100)
 	}
-	
+
 	if p.GTIN != "" {
 		v.MaxLength("gtin", p.GTIN, 50)
 	}
-	
+
 	if p.Status != "" {
 		v.OneOf("status", string(p.Status), []string{
 			string(ProductStatusDraft),
@@ -317,40 +321,40 @@ func ValidateProductUpdate(p *EnhancedProduct) error {
 			string(ProductStatusArchived),
 		})
 	}
-	
+
 	return v.Errors()
 }
 
 // Validate ProductVariant
 func ValidateVariant(variant *ProductVariant) error {
 	v := NewValidator()
-	
+
 	v.Required("sku", variant.SKU).
 		MaxLength("sku", variant.SKU, 100)
-	
+
 	v.Required("name", variant.Name).
 		MaxLength("name", variant.Name, 255)
-	
+
 	if variant.Stock < 0 {
 		return errors.New("stock must be non-negative")
 	}
-	
+
 	return v.Errors()
 }
 
 // Validate ProductImage
 func ValidateProductImage(img *ProductImage) error {
 	v := NewValidator()
-	
+
 	v.Required("url", img.URL).
 		MaxLength("url", img.URL, 1000).
 		URL("url", img.URL)
-	
+
 	v.MaxLength("altText", img.AltText, 500)
-	
+
 	if img.Position < 0 {
 		return errors.New("position must be non-negative")
 	}
-	
+
 	return v.Errors()
 }

@@ -47,10 +47,10 @@ func (h *PersonaggiHandler) UploadImage(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	// Ottieni il tipo di upload (icon o image)
-	uploadType := r.FormValue("type") // "icon" o "image"
-	if uploadType != "icon" && uploadType != "image" {
-		uploadType = "image"
+	// Ottieni il tipo di upload (icon, gallery o background)
+	uploadType := r.FormValue("type") // "icon", "gallery" o "background"
+	if uploadType != "icon" && uploadType != "gallery" && uploadType != "background" {
+		uploadType = "gallery"
 	}
 
 	// Genera nome file univoco
@@ -85,6 +85,8 @@ func (h *PersonaggiHandler) UploadImage(w http.ResponseWriter, r *http.Request) 
 	// Aggiorna il personaggio
 	if uploadType == "icon" {
 		personaggio.Icon = publicURL
+	} else if uploadType == "background" {
+		personaggio.BackgroundImage = publicURL
 	} else {
 		var images []string
 		if len(personaggio.Images) > 0 {

@@ -14,6 +14,7 @@ import { ConfirmDialog, confirmDialog } from 'primereact/confirmdialog';
 import { Tag } from 'primereact/tag';
 import { TabView, TabPanel } from 'primereact/tabview';
 import { adminShopAPI, Product } from '@/services/AdminShopAPIService';
+import ProductImageUpload from '@/components/ProductImageUpload';
 
 export default function ShopProductsManagement() {
   const toast = useRef<Toast>(null);
@@ -303,6 +304,19 @@ export default function ShopProductsManagement() {
     return <Tag value={`${totalStock} units`} severity={severity} />;
   };
 
+  const imagesBodyTemplate = (rowData: Product) => {
+    const imageCount = rowData.images?.length || 0;
+    const severity = imageCount > 0 ? 'success' : 'warning';
+    return (
+      <div className="flex items-center gap-2">
+        <Tag value={`${imageCount} ${imageCount === 1 ? 'image' : 'images'}`} severity={severity} />
+        {imageCount === 0 && (
+          <i className="pi pi-exclamation-triangle text-orange-500" title="No images uploaded"></i>
+        )}
+      </div>
+    );
+  };
+
   const actionBodyTemplate = (rowData: Product) => {
     return (
       <div className="flex gap-2">
@@ -315,12 +329,12 @@ export default function ShopProductsManagement() {
           tooltip="Edit"
         />
         <Button
-          icon="pi pi-box"
+          icon="pi pi-images"
           rounded
           outlined
-          severity="warning"
+          severity="success"
           onClick={() => handleManageVariants(rowData)}
-          tooltip="Manage Variants"
+          tooltip="Manage Images & Variants"
         />
         <Button
           icon="pi pi-trash"
@@ -342,14 +356,16 @@ export default function ShopProductsManagement() {
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold text-gray-800">Shop Products Management</h1>
-          <p className="text-gray-600 mt-1">Manage products, variants, and inventory</p>
+          <p className="text-gray-600 mt-1">Manage products, variants, inventory and images</p>
         </div>
-        <Button
-          label="Create New Product"
-          icon="pi pi-plus"
-          onClick={handleCreate}
-          severity="success"
-        />
+        <div className="flex gap-2">
+          <Button
+            label="Create New Product"
+            icon="pi pi-plus"
+            onClick={handleCreate}
+            severity="success"
+          />
+        </div>
       </div>
 
       <div className="flex gap-4">
@@ -362,6 +378,20 @@ export default function ShopProductsManagement() {
             className="w-full"
           />
         </span>
+      </div>
+
+      {/* Info Banner */}
+      <div className="bg-purple-50 border-l-4 border-purple-500 p-4 rounded">
+        <div className="flex items-start">
+          <i className="pi pi-info-circle text-purple-600 text-xl mr-3 mt-1"></i>
+          <div>
+            <h3 className="text-purple-900 font-semibold mb-1">Managing Product Images</h3>
+            <p className="text-purple-800 text-sm">
+              Click the <i className="pi pi-images text-green-600 mx-1"></i> button to upload custom images from your computer.
+              You can upload multiple images, reorder them, and add SEO-friendly alt text.
+            </p>
+          </div>
+        </div>
       </div>
 
       <DataTable
@@ -404,8 +434,13 @@ export default function ShopProductsManagement() {
         />
         <Column
           header="Stock"
-          style={{ width: '10%' }}
+          style={{ width: '8%' }}
           body={stockBodyTemplate}
+        />
+        <Column
+          header="Images"
+          style={{ width: '10%' }}
+          body={imagesBodyTemplate}
         />
         <Column
           header="Actions"
@@ -526,15 +561,62 @@ export default function ShopProductsManagement() {
       </Dialog>
 
       <Dialog
-        header={`Manage Variants - ${selectedProduct?.title}`}
+        header={`Manage Product: ${selectedProduct?.title}`}
         visible={showVariantDialog}
-        style={{ width: '70vw' }}
-        onHide={
-          () => setShowVariantDialog(false)
-        }
+        style={{ width: '75vw', maxHeight: '90vh' }}
+        onHide={() => setShowVariantDialog(false)}
+        className="overflow-auto"
       >
         <TabView>
-          <TabPanel header="Variants">
+          <TabPanel header={
+            <span className="flex items-center gap-2">
+              <i className="pi pi-images"></i>
+              Product Images
+              {selectedProduct?.images && selectedProduct.images.length > 0 && (
+                <Tag value={selectedProduct.images.length} severity="success" />
+              )}
+            </span>
+          }>
+            {selectedProduct && (
+              <div className="py-4">
+                <div className="mb-4 p-4 bg-blue-50 border-l-4 border-blue-500 rounded">
+                  <div className="flex items-start">
+                    <i className="pi pi-info-circle text-blue-500 text-xl mr-3 mt-1"></i>
+                    <div>
+                      <h4 className="font-semibold text-blue-900 mb-1">Upload Product Images</h4>
+                      <p className="text-blue-800 text-sm">
+                        Upload images from your computer or add image URLs. 
+                        You can reorder images, add alt text for SEO, and set the display order.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                <ProductImageUpload
+                  productId={selectedProduct.id}
+                  images={selectedProduct.images || []}
+                  onImagesChange={(updatedImages) => {
+                    setSelectedProduct({ ...selectedProduct, images: updatedImages });
+                    // Aggiorna anche la lista principale
+                    setProducts(prevProducts =>
+                      prevProducts.map(p =>
+                        p.id === selectedProduct.id ? { ...p, images: updatedImages } : p
+                      )
+                    );
+                  }}
+                />
+              </div>
+            )}
+          </TabPanel>
+
+          <TabPanel header={
+            <span className="flex items-center gap-2">
+              <i className="pi pi-box"></i>
+              Variants & Inventory
+              {selectedProduct?.variants && selectedProduct.variants.length > 0 && (
+                <Tag value={selectedProduct.variants.length} severity="info" />
+              )}
+            </span>
+          }>
             <div className="mb-4">
               <h3 className="text-lg font-semibold mb-2">Existing Variants</h3>
               {selectedProduct?.variants && selectedProduct.variants.length > 0 ? (

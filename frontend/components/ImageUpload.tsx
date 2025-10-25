@@ -13,8 +13,10 @@ interface ImageUploadProps {
   images: string[];
   onImagesChange: (images: string[]) => void;
   maxImages?: number;
-  type?: 'icon' | 'gallery';
+  type?: 'icon' | 'gallery' | 'background';
   personaggioId?: number;
+  onSaveRequired?: () => Promise<number | undefined>; // Callback per salvare il personaggio e ottenere l'ID
+  onUploadComplete?: () => Promise<void>; // Callback dopo l'upload riuscito
 }
 
 export default function ImageUpload({
@@ -24,6 +26,8 @@ export default function ImageUpload({
   maxImages = 10,
   type = 'gallery',
   personaggioId,
+  onSaveRequired,
+  onUploadComplete,
 }: ImageUploadProps) {
   const toast = useRef<Toast>(null);
   const fileUploadRef = useRef<FileUpload>(null);
@@ -34,7 +38,39 @@ export default function ImageUpload({
 
   // Gestione upload file locale
   const handleUpload = async (event: FileUploadHandlerEvent) => {
-    if (!personaggioId) {
+    let currentPersonaggioId = personaggioId;
+
+    // Se non c'è un ID e c'è una callback per salvare, salva prima il personaggio
+    if (!currentPersonaggioId && onSaveRequired) {
+      toast.current?.show({
+        severity: 'info',
+        summary: 'Saving',
+        detail: 'Saving personaggio before uploading image...',
+        life: 2000,
+      });
+
+      try {
+        currentPersonaggioId = await onSaveRequired();
+        if (!currentPersonaggioId) {
+          toast.current?.show({
+            severity: 'error',
+            summary: 'Error',
+            detail: 'Failed to save personaggio. Please fill required fields.',
+            life: 3000,
+          });
+          return;
+        }
+      } catch (error) {
+        console.error('Save error:', error);
+        toast.current?.show({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'Failed to save personaggio before upload',
+          life: 3000,
+        });
+        return;
+      }
+    } else if (!currentPersonaggioId) {
       toast.current?.show({
         severity: 'warn',
         summary: 'Warning',
@@ -68,7 +104,7 @@ export default function ImageUpload({
 
       const token = localStorage.getItem('adminToken');
       const response = await fetch(
-        `${API_BASE_URL}/api/admin/personaggi/${personaggioId}/upload`,
+        `${API_BASE_URL}/api/admin/personaggi/${currentPersonaggioId}/upload`,
         {
           method: 'POST',
           headers: {
@@ -84,8 +120,8 @@ export default function ImageUpload({
 
       const data = await response.json();
       
-      // Aggiungi la nuova immagine all'array
-      if (type === 'icon') {
+      // Aggiungi la nuova immagine all'array o sostituisci per icon/background
+      if (type === 'icon' || type === 'background') {
         onImagesChange([data.url]);
       } else {
         onImagesChange([...images, data.url]);
@@ -101,6 +137,16 @@ export default function ImageUpload({
       // Reset file upload
       if (fileUploadRef.current) {
         fileUploadRef.current.clear();
+      }
+
+      // Salva automaticamente dopo l'upload
+      if (onUploadComplete) {
+        try {
+          await onUploadComplete();
+        } catch (error) {
+          console.error('Error saving after upload:', error);
+          // L'errore è già gestito dalla callback
+        }
       }
     } catch (error) {
       console.error('Upload error:', error);
@@ -137,7 +183,7 @@ export default function ImageUpload({
       return;
     }
 
-    if (type === 'icon') {
+    if (type === 'icon' || type === 'background') {
       onImagesChange([urlInput.trim()]);
     } else {
       if (images.length >= maxImages) {
@@ -153,6 +199,15 @@ export default function ImageUpload({
     }
 
     setUrlInput('');
+
+    // Salva automaticamente dopo l'aggiunta URL
+    if (onUploadComplete) {
+      try {
+        await onUploadComplete();
+      } catch (error) {
+        console.error('Error saving after adding URL:', error);
+      }
+    }
   };
 
   // Rimuovi immagine

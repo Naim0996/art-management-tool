@@ -14,9 +14,10 @@ type Personaggio struct {
 	Icon            string         `json:"icon"`                                     // Path dell'icona principale
 	Images          datatypes.JSON `json:"images" gorm:"type:json"`                  // Array di path alle immagini
 	BackgroundColor string         `json:"backgroundColor" gorm:"default:'#E0E7FF'"` // Colore di sfondo card
-	BackgroundType  string         `json:"backgroundType" gorm:"default:'solid'"`    // 'solid', 'gradient'
+	BackgroundType  string         `json:"backgroundType" gorm:"default:'solid'"`    // 'solid', 'gradient', 'image'
 	GradientFrom    string         `json:"gradientFrom"`                             // Colore iniziale gradient
 	GradientTo      string         `json:"gradientTo"`                               // Colore finale gradient
+	BackgroundImage string         `json:"backgroundImage"`                          // Path immagine di sfondo
 	Order           int            `json:"order" gorm:"default:0"`                   // Ordine di visualizzazione
 	CreatedAt       time.Time      `json:"createdAt"`
 	UpdatedAt       time.Time      `json:"updatedAt"`
@@ -33,6 +34,7 @@ type PersonaggioInput struct {
 	BackgroundType  string   `json:"backgroundType"`
 	GradientFrom    string   `json:"gradientFrom"`
 	GradientTo      string   `json:"gradientTo"`
+	BackgroundImage string   `json:"backgroundImage"`
 	Order           int      `json:"order"`
 }
 
