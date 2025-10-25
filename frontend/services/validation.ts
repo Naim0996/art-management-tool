@@ -128,9 +128,10 @@ export interface PersonaggioValidationInput {
   icon?: string;
   images: string[];
   backgroundColor?: string;
-  backgroundType?: 'solid' | 'gradient';
+  backgroundType?: 'solid' | 'gradient' | 'image';
   gradientFrom?: string;
   gradientTo?: string;
+  backgroundImage?: string;
   order?: number;
 }
 
@@ -163,7 +164,7 @@ export function validatePersonaggio(data: PersonaggioValidationInput): Validatio
   }
 
   if (data.backgroundType) {
-    validator.oneOf('backgroundType', data.backgroundType, ['solid', 'gradient']);
+    validator.oneOf('backgroundType', data.backgroundType, ['solid', 'gradient', 'image']);
   }
 
   if (data.backgroundType === 'gradient') {
@@ -173,6 +174,11 @@ export function validatePersonaggio(data: PersonaggioValidationInput): Validatio
     if (data.gradientTo) {
       validator.colorHex('gradientTo', data.gradientTo);
     }
+  }
+
+  if (data.backgroundType === 'image' && data.backgroundImage) {
+    // Valida l'URL solo se è stato fornito
+    validator.url('backgroundImage', data.backgroundImage);
   }
 
   if (data.order !== undefined && data.order < 0) {

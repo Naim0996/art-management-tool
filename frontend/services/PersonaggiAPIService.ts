@@ -8,9 +8,10 @@ export interface PersonaggioDTO {
   icon?: string;
   images: string[];
   backgroundColor?: string;
-  backgroundType?: 'solid' | 'gradient';
+  backgroundType?: 'solid' | 'gradient' | 'image';
   gradientFrom?: string;
   gradientTo?: string;
+  backgroundImage?: string;
   order?: number;
   createdAt?: string;
   updatedAt?: string;

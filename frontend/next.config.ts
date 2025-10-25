@@ -6,6 +6,28 @@ const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts');
 const nextConfig: NextConfig = {
   output: 'standalone',
   
+  // Configure image domains
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'http',
+        hostname: 'localhost',
+        port: '8080',
+        pathname: '/uploads/**',
+      },
+      {
+        protocol: 'http',
+        hostname: 'localhost',
+        port: '3000',
+        pathname: '/uploads/**',
+      },
+      {
+        protocol: 'https',
+        hostname: '**',
+      },
+    ],
+  },
+  
   // Proxy API requests to backend to avoid CORS issues
   async rewrites() {
     // Use 'backend' service name when running in Docker, localhost otherwise
@@ -19,6 +41,10 @@ const nextConfig: NextConfig = {
       {
         source: '/health',
         destination: `${backendUrl}/health`,
+      },
+      {
+        source: '/uploads/:path*',
+        destination: `${backendUrl}/uploads/:path*`,
       },
     ];
   },

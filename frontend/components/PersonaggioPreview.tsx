@@ -46,6 +46,13 @@ export default function PersonaggioPreview({ personaggio }: PersonaggioPreviewPr
         background: `linear-gradient(to bottom right, ${personaggio.gradientFrom}, ${personaggio.gradientTo})`,
       };
     }
+    if (personaggio.backgroundType === 'image' && personaggio.backgroundImage) {
+      return {
+        backgroundImage: `url(${personaggio.backgroundImage})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+      };
+    }
     return {
       backgroundColor: personaggio.backgroundColor || '#E0E7FF',
     };

@@ -211,7 +211,7 @@ func (p *PersonaggioInput) Validate() error {
 	}
 	
 	if p.BackgroundType != "" {
-		v.OneOf("backgroundType", p.BackgroundType, []string{"solid", "gradient"})
+		v.OneOf("backgroundType", p.BackgroundType, []string{"solid", "gradient", "image"})
 	}
 	
 	if p.BackgroundType == "gradient" {
@@ -221,6 +221,10 @@ func (p *PersonaggioInput) Validate() error {
 		if p.GradientTo != "" {
 			v.ColorHex("gradientTo", p.GradientTo)
 		}
+	}
+	
+	if p.BackgroundType == "image" && p.BackgroundImage != "" {
+		v.URL("backgroundImage", p.BackgroundImage)
 	}
 	
 	if p.Order < 0 {

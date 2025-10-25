@@ -38,12 +38,14 @@ export default function AdminPersonaggiPage() {
     backgroundType: 'solid',
     gradientFrom: '',
     gradientTo: '',
+    backgroundImage: '',
     order: 0,
   });
 
   const backgroundTypeOptions = [
     { label: 'Solid Color', value: 'solid' },
     { label: 'Gradient', value: 'gradient' },
+    { label: 'Image', value: 'image' },
   ];
 
   useEffect(() => {
@@ -83,6 +85,7 @@ export default function AdminPersonaggiPage() {
       backgroundType: 'solid',
       gradientFrom: '',
       gradientTo: '',
+      backgroundImage: '',
       order: 0,
     });
     setShowFormDialog(true);
@@ -99,6 +102,7 @@ export default function AdminPersonaggiPage() {
       backgroundType: personaggio.backgroundType,
       gradientFrom: personaggio.gradientFrom,
       gradientTo: personaggio.gradientTo,
+      backgroundImage: personaggio.backgroundImage,
       order: personaggio.order,
     });
     setShowFormDialog(true);
@@ -144,6 +148,64 @@ export default function AdminPersonaggiPage() {
         detail: 'Failed to save personaggio',
         life: 3000,
       });
+    }
+  };
+
+  // Funzione per salvare il personaggio prima dell'upload (se necessario)
+  const handleSaveForUpload = async (): Promise<number | undefined> => {
+    if (!formData.name) {
+      throw new Error('Name is required');
+    }
+
+    try {
+      if (editingPersonaggio) {
+        // Se stiamo modificando, usa l'ID esistente
+        return editingPersonaggio.id;
+      } else {
+        // Crea un nuovo personaggio e restituisci l'ID
+        const newPersonaggio = await PersonaggiAPIService.createPersonaggio(formData as PersonaggioDTO);
+        // Aggiorna lo stato per riflettere che ora stiamo modificando (non creando)
+        setEditingPersonaggio(newPersonaggio);
+        setFormData({ ...formData, ...newPersonaggio });
+        
+        toast.current?.show({
+          severity: 'success',
+          summary: 'Success',
+          detail: 'Personaggio created successfully',
+          life: 2000,
+        });
+        
+        return newPersonaggio.id;
+      }
+    } catch (error) {
+      console.error('Error saving personaggio:', error);
+      throw error;
+    }
+  };
+
+  // Funzione per salvare dopo l'upload dell'immagine
+  const handleSaveAfterUpload = async (): Promise<void> => {
+    if (!editingPersonaggio?.id) {
+      return;
+    }
+
+    try {
+      await PersonaggiAPIService.updatePersonaggio(editingPersonaggio.id, formData as PersonaggioDTO);
+      toast.current?.show({
+        severity: 'success',
+        summary: 'Saved',
+        detail: 'Personaggio updated with image',
+        life: 2000,
+      });
+    } catch (error) {
+      console.error('Error saving after upload:', error);
+      toast.current?.show({
+        severity: 'error',
+        summary: 'Error',
+        detail: 'Failed to save personaggio',
+        life: 3000,
+      });
+      throw error;
     }
   };
 
@@ -207,6 +269,7 @@ export default function AdminPersonaggiPage() {
         backgroundType: personaggio.backgroundType,
         gradientFrom: personaggio.gradientFrom,
         gradientTo: personaggio.gradientTo,
+        backgroundImage: personaggio.backgroundImage,
         order: personaggio.order,
       });
     }
@@ -479,7 +542,7 @@ export default function AdminPersonaggiPage() {
                 />
               </div>
             </div>
-          ) : (
+          ) : formData.backgroundType === 'gradient' ? (
             <>
               <div className="flex flex-col gap-2">
                 <label htmlFor="gradientFrom" className="font-semibold">
@@ -521,7 +584,18 @@ export default function AdminPersonaggiPage() {
                 </div>
               </div>
             </>
-          )}
+          ) : formData.backgroundType === 'image' ? (
+            <ImageUpload
+              label="Background Image"
+              images={formData.backgroundImage ? [formData.backgroundImage] : []}
+              onImagesChange={(images) => setFormData({ ...formData, backgroundImage: images[0] || '' })}
+              maxImages={1}
+              type="background"
+              personaggioId={editingPersonaggio?.id}
+              onSaveRequired={handleSaveForUpload}
+              onUploadComplete={handleSaveAfterUpload}
+            />
+          ) : null}
 
           {/* Icon Upload */}
           <ImageUpload
@@ -531,6 +605,8 @@ export default function AdminPersonaggiPage() {
             maxImages={1}
             type="icon"
             personaggioId={editingPersonaggio?.id}
+            onSaveRequired={handleSaveForUpload}
+            onUploadComplete={handleSaveAfterUpload}
           />
 
           {/* Gallery Images Upload */}
@@ -541,6 +617,8 @@ export default function AdminPersonaggiPage() {
             maxImages={10}
             type="gallery"
             personaggioId={editingPersonaggio?.id}
+            onSaveRequired={handleSaveForUpload}
+            onUploadComplete={handleSaveAfterUpload}
           />
 
           {/* Background Preview */}
@@ -551,6 +629,8 @@ export default function AdminPersonaggiPage() {
               style={
                 formData.backgroundType === 'gradient' && formData.gradientFrom && formData.gradientTo
                   ? { background: `linear-gradient(135deg, ${formData.gradientFrom}, ${formData.gradientTo})` }
+                  : formData.backgroundType === 'image' && formData.backgroundImage
+                  ? { backgroundImage: `url(${formData.backgroundImage})`, backgroundSize: 'cover', backgroundPosition: 'center' }
                   : { backgroundColor: formData.backgroundColor }
               }
             />
