@@ -1,262 +1,327 @@
-# 📚 Art Management Tool Documentation
+# Documentation
 
-Welcome to the Art Management Tool documentation hub! This directory contains all project documentation organized by topic.
+Complete documentation for the Art Management Tool.
 
-## 🚀 Quick Navigation
+## 📚 Documentation Overview
 
-### New to the Project?
+This directory contains comprehensive documentation for developers, administrators, and integrators.
 
-Start here to get up and running quickly:
+---
 
-1. **[Environment Setup Guide](./guides/ENVIRONMENT_SETUP.md)** ⭐ - Configure your development environment
-2. **[Docker Guide](./guides/DOCKER.md)** - Run the application with Docker
-3. **[Contributing](./CONTRIBUTING.md)** - How to contribute to the project
+## 🎯 Quick Navigation
 
-### Documentation Structure
+### For Developers
+
+**API & Integration** (Start here!)
+- **[API Documentation](./api/README.md)** - Complete API and integration guide
+  - [API Reference](./api/API_REFERENCE.md) - All endpoints with examples
+  - [Models & Validation](./api/MODELS_AND_VALIDATION.md) - Data structures and rules
+  - [Frontend-Backend Flows](./api/FRONTEND_BACKEND_FLOWS.md) - Request flows and patterns
+  - [Page Flows](./api/PAGE_FLOWS.md) - Page structure and navigation
+
+**Architecture & Setup**
+- [Architecture](./generals/ARCHITECTURE.md) - System design and components
+- [Environment Variables](./ENVIRONMENT_VARIABLES.md) - Configuration guide
+- [File Upload System](./generals/FILE_UPLOAD_SYSTEM.md) - Image upload implementation
+
+**Validation & Security**
+- [Validation Quick Start](./generals/VALIDATION_QUICK_START.md) - Input validation
+- [Security Infrastructure](./generals/SECURITY_INFRASTRUCTURE.md) - Security practices
+- [Model Synchronization](./generals/MODEL_SYNCHRONIZATION.md) - Data consistency
+
+### For Etsy Integration
+
+- [Etsy Integration Overview](./generals/ETSY_INTEGRATION.md) - Setup guide
+- [Etsy Frontend Integration](./generals/ETSY_FRONTEND_INTEGRATION.md) - UI implementation
+- [Etsy Payment Integration](./generals/ETSY_PAYMENT_INTEGRATION.md) - Payment flow
+- [Etsy UI Mockup](./generals/ETSY_UI_MOCKUP.md) - Design specifications
+
+### Troubleshooting
+
+- [Environment Variable Issues](./ENV_VARIABLE_ISSUE_ANALYSIS.md) - Docker Compose config
+- [Proxy Solution](./troubleshooting/PROXY_SOLUTION.md) - CORS and proxy setup
+- [Cart Troubleshooting](./troubleshooting/CART_TROUBLESHOOTING.md) - Cart issues
+
+### Summaries & Changes
+
+- [Repository Restructure](./summaries/REPOSITORY_RESTRUCTURE_SUMMARY.md)
+- [Refactoring Summary](./summaries/REFACTORING_SUMMARY.md)
+- [Model Validation Summary](./summaries/MODEL_VALIDATION_SUMMARY.md)
+- [Admin Entity Management](./summaries/ADMIN_ENTITY_MANAGEMENT_SUMMARY.md)
+- [File Upload Implementation](./summaries/FILE_UPLOAD_IMPLEMENTATION_SUMMARY.md)
+- [Etsy Infrastructure](./summaries/ETSY_INFRASTRUCTURE_SUMMARY.md)
+- [Etsy Payment Summary](./summaries/ETSY_PAYMENT_SUMMARY.md)
+- [Frontend Etsy Integration](./summaries/FRONTEND_ETSY_INTEGRATION_SUMMARY.md)
+
+---
+
+## 🏗️ Architecture
 
 ```
-docs/
-├── README.md                   # This file - Documentation hub
-├── CHANGELOG.md                # Version history and changes
-├── ARCHITECTURE.md             # System architecture overview
-├── CONTRIBUTING.md             # Contribution guidelines
-│
-├── guides/                     # Step-by-step guides
-│   ├── ENVIRONMENT_SETUP.md    # ⭐ Environment configuration
-│   ├── DOCKER.md               # Docker deployment
-│   ├── DEPLOYMENT.md           # Production deployment
-│   ├── DEPLOYMENT_UPLOAD_SYSTEM.md # Upload system deployment
-│   ├── TESTING_GUIDE.md        # Testing strategies
-│   └── INTEGRATION_SUMMARY.md  # Integration overview
-│
-├── api/                        # API documentation
-│   └── SHOP_API.md             # REST API reference
-│
-├── troubleshooting/            # Problem-solving guides
-│   ├── CART_TROUBLESHOOTING.md # Shopping cart issues
-│   └── PROXY_SOLUTION.md       # API proxy configuration
-│
-├── summaries/                  # Implementation summaries
-│   ├── ETSY_INFRASTRUCTURE_SUMMARY.md
-│   ├── ETSY_PAYMENT_SUMMARY.md
-│   ├── FRONTEND_ETSY_INTEGRATION_SUMMARY.md
-│   └── REFACTORING_SUMMARY.md
-│
-├── FILE_UPLOAD_SYSTEM.md       # File upload system documentation
-│
-└── Integration Docs            # Third-party integrations
-    ├── ETSY_INTEGRATION.md
-    ├── ETSY_PAYMENT_INTEGRATION.md
-    ├── ETSY_FRONTEND_INTEGRATION.md
-    ├── ETSY_UI_MOCKUP.md
-    └── SECURITY_INFRASTRUCTURE.md
+┌─────────────────────────────────────────────────────────┐
+│                    Browser (Client)                      │
+└────────────────────────┬────────────────────────────────┘
+                         │
+                         │ HTTP/HTTPS
+                         ▼
+┌─────────────────────────────────────────────────────────┐
+│           Next.js Frontend (Port 3000)                   │
+│  - Server-Side Rendering (SSR)                          │
+│  - Client Components                                     │
+│  - API Route Proxies                                    │
+└────────────────────────┬────────────────────────────────┘
+                         │
+                         │ API Calls
+                         ▼
+┌─────────────────────────────────────────────────────────┐
+│           Go Backend API (Port 8080)                     │
+│  - RESTful API                                          │
+│  - JWT Authentication                                    │
+│  - Business Logic                                        │
+└────────────────────────┬────────────────────────────────┘
+                         │
+                         │ SQL Queries
+                         ▼
+┌─────────────────────────────────────────────────────────┐
+│           PostgreSQL Database (Port 5432)                │
+│  - Products, Orders, Users                              │
+│  - Categories, Carts, Notifications                     │
+└─────────────────────────────────────────────────────────┘
 ```
 
-## 📖 Documentation by Topic
+---
 
-### 🏗️ Architecture & Design
+## 🚀 Getting Started
 
-- **[Architecture](./ARCHITECTURE.md)** - System design, components, and data flow
-- **[Security Infrastructure](./SECURITY_INFRASTRUCTURE.md)** - Security best practices and implementation
-
-### 🔧 Setup & Configuration
-
-- **[Environment Setup](./guides/ENVIRONMENT_SETUP.md)** ⭐ **START HERE**
-  - Environment file configuration (.env.development, .env.test, etc.)
-  - Docker Compose environments
-  - Database setup and migrations
-  - Auto-seeding configuration
-  
-- **[Docker Guide](./guides/DOCKER.md)**
-  - Container orchestration
-  - Development vs. Production setup
-  - Multi-stage builds
-  
-- **[Deployment Guide](./guides/DEPLOYMENT.md)**
-  - Production deployment strategies
-  - Cloud platform guides (AWS, GCP, Azure)
-  - CI/CD pipelines
-
-- **[Upload System Deployment](./guides/DEPLOYMENT_UPLOAD_SYSTEM.md)**
-  - File upload system deployment
-  - Volume management and backups
-  - CDN integration
-  - Security and monitoring
-
-### 📁 File Management
-
-- **[File Upload System](./FILE_UPLOAD_SYSTEM.md)**
-  - Image upload for products and personaggi
-  - Docker-based persistent storage
-  - Security and validation
-  - API endpoints and frontend integration
-
-### 🧪 Testing
-
-- **[Testing Guide](./guides/TESTING_GUIDE.md)**
-  - Unit testing strategies
-  - Integration testing
-  - E2E testing with Playwright
-  - Test environment configuration
-
-### 🔌 API & Integration
-
-#### REST API
-
-- **[Shop API Documentation](./api/SHOP_API.md)**
-  - Complete endpoint reference
-  - Request/response schemas
-  - Authentication
-  - Error handling
-
-#### Etsy Integration
-
-- **[Etsy Integration Guide](./ETSY_INTEGRATION.md)** - Complete Etsy API integration
-- **[Etsy Payment Integration](./ETSY_PAYMENT_INTEGRATION.md)** - Payment processing
-- **[Etsy Frontend Integration](./ETSY_FRONTEND_INTEGRATION.md)** - UI components
-- **[Etsy UI Mockup](./ETSY_UI_MOCKUP.md)** - Design specifications
-
-#### Other Integrations
-
-- **[Integration Summary](./guides/INTEGRATION_SUMMARY.md)** - Overview of all integrations
-  - Stripe payment processing
-  - Shopify (stub implementation)
-  - External services
-
-### 🐛 Troubleshooting
-
-- **[Cart Troubleshooting](./troubleshooting/CART_TROUBLESHOOTING.md)**
-  - Shopping cart issues
-  - Session management
-  - State synchronization
-  
-- **[Proxy Solution](./troubleshooting/PROXY_SOLUTION.md)**
-  - CORS issues
-  - API proxy configuration
-  - Development proxy setup
-
-### 🤝 Contributing
-
-- **[Contributing Guide](./CONTRIBUTING.md)**
-  - Code style guidelines
-  - Pull request process
-  - Development workflow
-  - Testing requirements
-
-### 📝 Project History
-
-- **[Changelog](./CHANGELOG.md)** - Version history and notable changes
-
-### 📊 Implementation Summaries
-
-Detailed summaries of major features and refactorings:
-
-- **[Etsy Infrastructure Summary](./summaries/ETSY_INFRASTRUCTURE_SUMMARY.md)**
-- **[Etsy Payment Summary](./summaries/ETSY_PAYMENT_SUMMARY.md)**
-- **[Frontend Etsy Integration Summary](./summaries/FRONTEND_ETSY_INTEGRATION_SUMMARY.md)**
-- **[Refactoring Summary](./summaries/REFACTORING_SUMMARY.md)**
-
-## 🎯 Common Tasks
-
-### Setting Up Development Environment
-
-1. Read the [Environment Setup Guide](./guides/ENVIRONMENT_SETUP.md)
-2. Choose your environment: `.env.development`, `.env.test`, or `.env.local`
-3. Start with Docker: `docker compose -f docker-compose.development.yml up -d`
-4. Database migrations run automatically!
-
-### Running Tests
+### 1. Environment Setup
 
 ```bash
-# Backend tests
-cd backend
-ENV=test go test ./...
+# Copy environment template
+cp .env.example .env.development
 
-# Frontend tests
+# Configure your variables
+# See docs/ENVIRONMENT_VARIABLES.md for details
+```
+
+### 2. Start Development Environment
+
+```bash
+# Using helper script
+./scripts/start-dev.ps1
+
+# Or manually
+docker-compose --env-file .env.development -f docker-compose.development.yml up
+```
+
+### 3. Access Services
+
+- **Frontend**: http://localhost:3000
+- **Backend API**: http://localhost:8080
+- **Database**: localhost:5432
+
+### 4. Explore API
+
+See **[API Reference](./api/API_REFERENCE.md)** for all available endpoints.
+
+---
+
+## 📋 Key Concepts
+
+### Authentication
+
+**Public Endpoints**: No auth required
+- Shop catalog: `/api/shop/products`
+- Categories: `/api/shop/categories`
+- Cart operations: `/api/shop/cart`
+
+**Admin Endpoints**: JWT token required
+- All `/api/admin/*` endpoints
+- Header: `Authorization: Bearer <token>`
+
+**Session-Based**: Cart uses session tokens
+- Header: `X-Session-Token: <uuid>`
+
+### Data Flow
+
+1. Browser → Next.js Frontend
+2. Frontend → Go Backend (via API proxy)
+3. Backend → PostgreSQL Database
+4. Database → Backend → Frontend → Browser
+
+See **[Frontend-Backend Flows](./api/FRONTEND_BACKEND_FLOWS.md)** for detailed flows.
+
+### Models
+
+Core entities:
+- **Products**: Items for sale with variants and images
+- **Orders**: Customer purchases with payment tracking
+- **Cart**: Session-based shopping cart
+- **Categories**: Hierarchical product organization
+- **Discounts**: Promotional codes
+
+See **[Models & Validation](./api/MODELS_AND_VALIDATION.md)** for complete schema.
+
+---
+
+## 🎨 Frontend Pages
+
+### Public Pages
+- `/` - Home page
+- `/shop` - Product catalog
+- `/shop/[slug]` - Product detail
+- `/cart` - Shopping cart
+- `/checkout` - Checkout process
+- `/personaggi` - Gallery
+
+### Admin Pages
+- `/admin` - Dashboard
+- `/admin/shop-products` - Product management
+- `/admin/shop-orders` - Order management
+- `/admin/categories` - Category management
+- `/admin/discounts` - Discount codes
+- `/admin/notifications` - System notifications
+- `/admin/etsy-sync` - Etsy integration
+
+See **[Page Flows](./api/PAGE_FLOWS.md)** for complete navigation map.
+
+---
+
+## 🔌 API Endpoints
+
+### Shop API (Public)
+```
+GET    /api/shop/products         # List products
+GET    /api/shop/products/{slug}  # Get product
+GET    /api/shop/categories       # List categories
+GET    /api/shop/cart             # Get cart
+POST   /api/shop/cart/items       # Add to cart
+POST   /api/shop/checkout         # Process order
+```
+
+### Admin API (Authenticated)
+```
+GET    /api/admin/stats                    # Dashboard stats
+GET    /api/admin/shop/products            # List products (all)
+POST   /api/admin/shop/products            # Create product
+PATCH  /api/admin/shop/products/{id}       # Update product
+POST   /api/admin/shop/products/{id}/images # Upload image
+GET    /api/admin/shop/orders              # List orders
+PATCH  /api/admin/shop/orders/{id}/fulfillment # Update fulfillment
+```
+
+See **[API Reference](./api/API_REFERENCE.md)** for complete list.
+
+---
+
+## 🧪 Testing
+
+### Backend Tests
+```bash
+cd backend
+go test ./...
+```
+
+### Frontend Tests
+```bash
 cd frontend
 npm test
 ```
 
-See [Testing Guide](./guides/TESTING_GUIDE.md) for details.
-
-### API Development
-
-1. Review [Shop API Documentation](./api/SHOP_API.md)
-2. Use the provided Postman collection (if available)
-3. Test endpoints with curl or your favorite API client
-
-### Integrating with Etsy
-
-1. Follow [Etsy Integration Guide](./ETSY_INTEGRATION.md)
-2. Configure credentials in environment file
-3. Enable sync: `ETSY_SYNC_ENABLED=true`
-4. Monitor logs for sync status
-
-### Deploying to Production
-
-1. Review [Deployment Guide](./guides/DEPLOYMENT.md)
-2. Configure `.env.production` with secure credentials
-3. Use `docker-compose.production.yml`
-4. Set `AUTO_MIGRATE=true` for automatic migrations
-5. Never set `AUTO_SEED=true` in production!
-
-## 🔍 Quick Reference
-
-### Environment Files
-
-| File | Purpose | Docker Compose File |
-|------|---------|-------------------|
-| `.env.development` | Development defaults | `docker-compose.development.yml` |
-| `.env.test` | Testing (pre-configured) | N/A (CI/local) |
-| `.env.staging` | Staging environment | `docker-compose.staging.yml` |
-| `.env.production` | Production | `docker-compose.production.yml` |
-| `.env.local` | Local overrides (gitignored) | Overrides all |
-
-### Docker Commands
-
+### Integration Tests
 ```bash
-# Development with hot-reload
-docker compose -f docker-compose.development.yml up -d
+# Start services
+docker-compose --env-file .env.development -f docker-compose.development.yml up
 
-# Staging
-docker compose -f docker-compose.staging.yml up -d
-
-# Production
-docker compose -f docker-compose.production.yml up -d
-
-# Default (demo/quick start)
-docker compose up -d
-
-# Enable seeding
-AUTO_SEED=true docker compose up -d
+# Test endpoints
+curl http://localhost:3000/api/shop/products
+curl http://localhost:8080/health
 ```
-
-### Key Ports
-
-| Service | Development | Staging | Production |
-|---------|------------|---------|-----------|
-| Frontend | 3000 | 3001 | 3000 |
-| Backend | 8080 | 8081 | 8080 |
-| Database | 5432 | 5433 | 5432 |
-
-## 📞 Getting Help
-
-- 🐛 **Issues**: [GitHub Issues](https://github.com/Naim0996/art-management-tool/issues)
-- 💬 **Discussions**: [GitHub Discussions](https://github.com/Naim0996/art-management-tool/discussions)
-- 📧 **Email**: support@artmanagement.tool
-
-## 🔄 Documentation Updates
-
-Documentation is a living resource. If you find:
-
-- Missing information
-- Outdated instructions
-- Broken links
-- Confusing explanations
-
-Please open an issue or submit a pull request! See [Contributing Guide](./CONTRIBUTING.md).
 
 ---
 
-**Last Updated**: 2025-10-22  
-**Project Version**: See [CHANGELOG.md](./CHANGELOG.md)
+## 📦 Deployment
+
+### Environment-Specific Configs
+
+- **Development**: `.env.development` + `docker-compose.development.yml`
+- **Testing**: `.env.test` + `docker-compose.test.yml`
+- **Production**: `.env.production` + `docker-compose.production.yml`
+
+### Build & Deploy
+
+```bash
+# Production build
+docker-compose --env-file .env.production -f docker-compose.production.yml up -d --build
+
+# Check logs
+docker-compose logs -f frontend
+docker-compose logs -f backend
+```
+
+---
+
+## 🐛 Common Issues
+
+### API Returns 404
+- Check Next.js API proxy in `next.config.ts`
+- Verify `BACKEND_URL` environment variable
+- Ensure backend is running
+
+### CORS Errors
+- Use Next.js proxy (relative URLs: `/api/*`)
+- Don't call backend directly from browser
+- Check `CORS_ALLOWED_ORIGINS` in backend
+
+### Authentication Fails
+- Verify JWT token is valid
+- Check `Authorization: Bearer <token>` header format
+- Re-login if token expired
+
+See **[Troubleshooting](./troubleshooting/)** for more solutions.
+
+---
+
+## 🤝 Contributing
+
+### Adding New Features
+
+1. **Backend Changes**:
+   - Add handler in `backend/handlers/`
+   - Update models in `backend/models/`
+   - Update API docs in `docs/api/API_REFERENCE.md`
+
+2. **Frontend Changes**:
+   - Add page/component in `frontend/app/` or `frontend/components/`
+   - Update API service in `frontend/services/`
+   - Update flow docs in `docs/api/FRONTEND_BACKEND_FLOWS.md`
+
+3. **Documentation**:
+   - Update relevant docs in `docs/`
+   - Add examples and diagrams
+   - Update this README if needed
+
+---
+
+## 📞 Support
+
+### Documentation
+- [API Docs](./api/README.md) - Start here for API integration
+- [Architecture](./generals/ARCHITECTURE.md) - System design
+- [Troubleshooting](./troubleshooting/) - Common issues
+
+### Code Locations
+- Backend: `backend/`
+- Frontend: `frontend/`
+- Database migrations: `backend/migrations/`
+- Docker configs: Root directory
+
+---
+
+## 📝 License
+
+[Add your license information here]
+
+---
+
+**Last Updated**: October 2025  
+**Version**: 1.0.0

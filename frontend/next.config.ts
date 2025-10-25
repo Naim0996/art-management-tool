@@ -8,14 +8,17 @@ const nextConfig: NextConfig = {
   
   // Proxy API requests to backend to avoid CORS issues
   async rewrites() {
+    // Use 'backend' service name when running in Docker, localhost otherwise
+    const backendUrl = process.env.BACKEND_URL || 'http://backend:8080';
+    
     return [
       {
         source: '/api/:path*',
-        destination: 'http://localhost:8080/api/:path*',
+        destination: `${backendUrl}/api/:path*`,
       },
       {
         source: '/health',
-        destination: 'http://localhost:8080/health',
+        destination: `${backendUrl}/health`,
       },
     ];
   },

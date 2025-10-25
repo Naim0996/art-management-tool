@@ -3,21 +3,23 @@ services:
   postgres:
     image: postgres:16-alpine
     container_name: art-postgres-dev
+    env_file:
+      - .env.development
     environment:
-      POSTGRES_DB: artmanagement
-      POSTGRES_USER: artuser
-      POSTGRES_PASSWORD: artpassword
+      POSTGRES_DB: ${DB_NAME:-artmanagement}
+      POSTGRES_USER: ${DB_USER:-artuser}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-artpassword}
       # Auto-run initialization scripts
       POSTGRES_INITDB_ARGS: "-E UTF8"
     ports:
-      - "5432:5432"
+      - "${DB_PORT:-5432}:5432"
     volumes:
       - postgres_dev_data:/var/lib/postgresql/data
       - ./backend/init.sql:/docker-entrypoint-initdb.d/01-init.sql
       - ./backend/migrations:/docker-entrypoint-initdb.d/migrations
     restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U artuser -d artmanagement"]
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-artuser} -d ${DB_NAME:-artmanagement}"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -31,21 +33,14 @@ services:
       target: development
     container_name: art-backend-dev
     ports:
-      - "8080:8080"
+      - "${PORT:-8080}:8080"
     env_file:
       - .env.development
     environment:
-      - PORT=8080
+      - PORT=${PORT:-8080}
       - ENVIRONMENT=development
       - DB_HOST=postgres
       - DB_PORT=5432
-      - DB_USER=artuser
-      - DB_PASSWORD=artpassword
-      - DB_NAME=artmanagement
-      - DB_SSLMODE=disable
-      # Auto-run migrations and seeding
-      - AUTO_MIGRATE=true
-      - AUTO_SEED=true
     volumes:
       # Mount source for hot-reload in development
       - ./backend:/app
@@ -72,7 +67,10 @@ services:
     ports:
       - "3000:3000"
     environment:
-      - NEXT_PUBLIC_API_URL=http://backend:8080
+      # NEXT_PUBLIC_* vars are for browser, so use empty string to use relative paths
+      - NEXT_PUBLIC_API_URL=
+      # BACKEND_URL is for server-side rewrites in Next.js
+      - BACKEND_URL=http://backend:8080
       - NODE_ENV=development
     volumes:
       # Mount source for hot-reload in development

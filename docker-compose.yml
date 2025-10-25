@@ -3,18 +3,20 @@ services:
   postgres:
     image: postgres:16-alpine
     container_name: art-postgres
+    env_file:
+      - .env
     environment:
-      POSTGRES_DB: artmanagement
-      POSTGRES_USER: artuser
-      POSTGRES_PASSWORD: artpassword
+      POSTGRES_DB: ${DB_NAME:-artmanagement}
+      POSTGRES_USER: ${DB_USER:-artuser}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-artpassword}
     ports:
-      - "5432:5432"
+      - "${DB_PORT:-5432}:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./backend/init.sql:/docker-entrypoint-initdb.d/init.sql
     restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U artuser -d artmanagement"]
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-artuser} -d ${DB_NAME:-artmanagement}"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -27,15 +29,13 @@ services:
       dockerfile: Dockerfile
     container_name: art-backend
     ports:
-      - "8080:8080"
+      - "${PORT:-8080}:8080"
+    env_file:
+      - .env
     environment:
-      - PORT=8080
+      - PORT=${PORT:-8080}
       - DB_HOST=postgres
       - DB_PORT=5432
-      - DB_USER=artuser
-      - DB_PASSWORD=artpassword
-      - DB_NAME=artmanagement
-      - DB_SSLMODE=disable
       # Auto-run migrations and seeding (set AUTO_SEED=true to seed data)
       - AUTO_MIGRATE=${AUTO_MIGRATE:-true}
       - AUTO_SEED=${AUTO_SEED:-false}

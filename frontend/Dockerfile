@@ -1,3 +1,26 @@
+# Development stage
+FROM node:20-alpine AS development
+
+WORKDIR /app
+
+# Copy package files
+COPY package*.json ./
+
+# Install all dependencies (including dev dependencies)
+RUN npm install
+
+# Copy source code
+COPY . .
+
+# Expose port
+EXPOSE 3000
+
+# Set development environment
+ENV NODE_ENV=development
+
+# Run development server with hot-reload
+CMD ["npm", "run", "dev"]
+
 # Build stage
 FROM node:20-alpine AS builder
 
@@ -15,8 +38,8 @@ COPY . .
 # Build the application
 RUN npm run build
 
-# Runtime stage
-FROM node:20-alpine AS runner
+# Production runtime stage
+FROM node:20-alpine AS production
 
 WORKDIR /app
 

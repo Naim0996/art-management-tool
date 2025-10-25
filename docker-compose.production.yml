@@ -3,6 +3,8 @@ services:
   postgres:
     image: postgres:16-alpine
     container_name: art-postgres-prod
+    env_file:
+      - .env.production
     environment:
       POSTGRES_DB: ${DB_NAME:-artmanagement}
       POSTGRES_USER: ${DB_USER:-artuser}
@@ -43,7 +45,7 @@ services:
     env_file:
       - .env.production
     environment:
-      - PORT=8080
+      - PORT=${PORT:-8080}
       - ENVIRONMENT=production
       - DB_HOST=postgres
       - DB_PORT=5432
