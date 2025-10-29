@@ -63,3 +63,18 @@ html, body {
   height: 100%;
   overflow-x: hidden;
 }
+
+/* Utility per nascondere scrollbar */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* Toast notifications con padding laterale */
+.p-toast {
+  padding: 10px;
+}

@@ -13,9 +13,10 @@ interface ImageUploadProps {
   images: string[];
   onImagesChange: (images: string[]) => void;
   maxImages?: number;
-  type?: 'icon' | 'gallery' | 'background';
+  type?: 'icon' | 'gallery' | 'background' | 'cover' | 'page';
   personaggioId?: number;
-  onSaveRequired?: () => Promise<number | undefined>; // Callback per salvare il personaggio e ottenere l'ID
+  fumettoId?: number;
+  onSaveRequired?: () => Promise<number | undefined>; // Callback per salvare l'entità e ottenere l'ID
   onUploadComplete?: () => Promise<void>; // Callback dopo l'upload riuscito
 }
 
@@ -26,6 +27,7 @@ export default function ImageUpload({
   maxImages = 10,
   type = 'gallery',
   personaggioId,
+  fumettoId,
   onSaveRequired,
   onUploadComplete,
 }: ImageUploadProps) {
@@ -38,24 +40,26 @@ export default function ImageUpload({
 
   // Gestione upload file locale
   const handleUpload = async (event: FileUploadHandlerEvent) => {
-    let currentPersonaggioId = personaggioId;
+    let currentEntityId = personaggioId || fumettoId;
+    const entityType = personaggioId ? 'personaggio' : 'fumetto';
+    const uploadEndpoint = personaggioId ? 'personaggi' : 'fumetti';
 
-    // Se non c'è un ID e c'è una callback per salvare, salva prima il personaggio
-    if (!currentPersonaggioId && onSaveRequired) {
+    // Se non c'è un ID e c'è una callback per salvare, salva prima l'entità
+    if (!currentEntityId && onSaveRequired) {
       toast.current?.show({
         severity: 'info',
         summary: 'Saving',
-        detail: 'Saving personaggio before uploading image...',
+        detail: `Saving ${entityType} before uploading image...`,
         life: 2000,
       });
 
       try {
-        currentPersonaggioId = await onSaveRequired();
-        if (!currentPersonaggioId) {
+        currentEntityId = await onSaveRequired();
+        if (!currentEntityId) {
           toast.current?.show({
             severity: 'error',
             summary: 'Error',
-            detail: 'Failed to save personaggio. Please fill required fields.',
+            detail: `Failed to save ${entityType}. Please fill required fields.`,
             life: 3000,
           });
           return;
@@ -65,16 +69,16 @@ export default function ImageUpload({
         toast.current?.show({
           severity: 'error',
           summary: 'Error',
-          detail: 'Failed to save personaggio before upload',
+          detail: `Failed to save ${entityType} before upload`,
           life: 3000,
         });
         return;
       }
-    } else if (!currentPersonaggioId) {
+    } else if (!currentEntityId) {
       toast.current?.show({
         severity: 'warn',
         summary: 'Warning',
-        detail: 'Save the personaggio first before uploading images',
+        detail: `Save the ${entityType} first before uploading images`,
         life: 3000,
       });
       return;
@@ -104,7 +108,7 @@ export default function ImageUpload({
 
       const token = localStorage.getItem('adminToken');
       const response = await fetch(
-        `${API_BASE_URL}/api/admin/personaggi/${currentPersonaggioId}/upload`,
+        `${API_BASE_URL}/api/admin/${uploadEndpoint}/${currentEntityId}/upload`,
         {
           method: 'POST',
           headers: {
@@ -120,18 +124,11 @@ export default function ImageUpload({
 
       const data = await response.json();
       
-      // Aggiungi la nuova immagine all'array o sostituisci per icon/background
-      if (type === 'icon' || type === 'background') {
-        onImagesChange([data.url]);
-      } else {
-        onImagesChange([...images, data.url]);
-      }
-
       toast.current?.show({
         severity: 'success',
         summary: 'Success',
         detail: 'Image uploaded successfully',
-        life: 3000,
+        life: 2000,
       });
 
       // Reset file upload
@@ -139,12 +136,12 @@ export default function ImageUpload({
         fileUploadRef.current.clear();
       }
 
-      // Salva automaticamente dopo l'upload
+      // Ricarica i dati aggiornati dal backend
       if (onUploadComplete) {
         try {
           await onUploadComplete();
         } catch (error) {
-          console.error('Error saving after upload:', error);
+          console.error('Error reloading after upload:', error);
           // L'errore è già gestito dalla callback
         }
       }
@@ -161,7 +158,7 @@ export default function ImageUpload({
     }
   };
 
-  // Aggiungi URL
+  // Aggiungi URL (solo locale, non salva sul backend)
   const handleAddUrl = async () => {
     if (!urlInput.trim()) {
       return;
@@ -183,7 +180,7 @@ export default function ImageUpload({
       return;
     }
 
-    if (type === 'icon' || type === 'background') {
+    if (type === 'icon' || type === 'background' || type === 'cover') {
       onImagesChange([urlInput.trim()]);
     } else {
       if (images.length >= maxImages) {
@@ -199,15 +196,13 @@ export default function ImageUpload({
     }
 
     setUrlInput('');
-
-    // Salva automaticamente dopo l'aggiunta URL
-    if (onUploadComplete) {
-      try {
-        await onUploadComplete();
-      } catch (error) {
-        console.error('Error saving after adding URL:', error);
-      }
-    }
+    
+    toast.current?.show({
+      severity: 'success',
+      summary: 'Added',
+      detail: 'URL added. Remember to save!',
+      life: 2000,
+    });
   };
 
   // Rimuovi immagine
@@ -266,7 +261,7 @@ export default function ImageUpload({
             maxFileSize={10000000}
             customUpload
             uploadHandler={handleUpload}
-            disabled={uploading || (type === 'icon' && images.length > 0) || images.length >= maxImages}
+            disabled={uploading || ((type === 'icon' || type === 'cover') && images.length > 0) || images.length >= maxImages}
             chooseLabel={uploading ? 'Uploading...' : 'Choose File'}
             className="w-full"
           />
@@ -282,13 +277,13 @@ export default function ImageUpload({
               onChange={(e) => setUrlInput(e.target.value)}
               placeholder="https://example.com/image.jpg"
               className="flex-1"
-              disabled={type === 'icon' && images.length > 0}
+              disabled={(type === 'icon' || type === 'cover') && images.length > 0}
               onKeyDown={(e) => e.key === 'Enter' && handleAddUrl()}
             />
             <Button
               icon="pi pi-plus"
               onClick={handleAddUrl}
-              disabled={!urlInput.trim() || (type === 'icon' && images.length > 0) || images.length >= maxImages}
+              disabled={!urlInput.trim() || ((type === 'icon' || type === 'cover') && images.length > 0) || images.length >= maxImages}
               tooltip="Add URL"
             />
           </div>
@@ -299,9 +294,9 @@ export default function ImageUpload({
       {images.length > 0 && (
         <div className="mt-4">
           <h4 className="text-sm font-medium mb-3">
-            {type === 'icon' ? 'Icon Preview' : `Images (${images.length}/${maxImages})`}
+            {(type === 'icon' || type === 'cover') ? `${type === 'icon' ? 'Icon' : 'Cover'} Preview` : `Images (${images.length}/${maxImages})`}
           </h4>
-          <div className={`grid gap-4 ${type === 'icon' ? 'grid-cols-1 max-w-xs' : 'grid-cols-2 md:grid-cols-4'}`}>
+          <div className={`grid gap-4 ${(type === 'icon' || type === 'cover') ? 'grid-cols-1 max-w-xs' : 'grid-cols-2 md:grid-cols-4'}`}>
             {images.map((img, index) => (
               <div
                 key={index}
@@ -319,7 +314,7 @@ export default function ImageUpload({
 
                 {/* Controls */}
                 <div className="flex items-center justify-between gap-1">
-                  {type === 'gallery' && (
+                  {(type === 'gallery' || type === 'page') && (
                     <div className="flex gap-1">
                       <Button
                         icon="pi pi-arrow-up"

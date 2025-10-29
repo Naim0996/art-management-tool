@@ -113,7 +113,7 @@ export default function ShopPage() {
         <div className="max-w-7xl mx-auto">
           <Toast ref={toast} />
           <div className="flex items-center justify-center h-64">
-            <i className="pi pi-spin pi-spinner text-4xl text-purple-600"></i>
+            <i className="pi pi-spin pi-spinner text-4xl text-blue-600"></i>
           </div>
         </div>
       </div>
@@ -151,7 +151,7 @@ export default function ShopPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex justify-between items-center">
             <div>
-              <Link href={`/${locale}`} className="text-purple-600 hover:underline mb-2 inline-block">
+              <Link href={`/${locale}`} className="text-blue-600 hover:underline mb-2 inline-block">
                 <i className="pi pi-arrow-left mr-2"></i>
                 Back to Home
               </Link>
@@ -160,7 +160,7 @@ export default function ShopPage() {
             </div>
             <Link
               href={`/${locale}/cart`}
-              className="bg-purple-600 text-white px-6 py-3 rounded-lg hover:bg-purple-700 transition-colors flex items-center gap-2"
+              className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
             >
               <i className="pi pi-shopping-cart"></i>
               Cart
@@ -201,20 +201,20 @@ export default function ShopPage() {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {products.length > 0 ? (
           <>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-8">
               {products.map((product) => {
                 const stockQty = getStockQuantity(product);
                 const inStock = stockQty > 0;
                 
                 return (
-                  <Card key={product.id} className="hover:shadow-lg transition-shadow">
-                    <div className="space-y-3">
-                      <div className="relative bg-gray-100 h-48 rounded-lg overflow-hidden">
+                  <Card key={product.id} className="hover:shadow-xl transition-all duration-300 cursor-pointer">
+                    <div className="space-y-4">
+                      <div className="relative bg-gray-100 h-64 rounded-lg overflow-hidden">
                         {product.images && product.images.length > 0 ? (
                           <img
                             src={getPrimaryImage(product)}
                             alt={product.title}
-                            className="w-full h-full object-cover"
+                            className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
                           />
                         ) : (
                           <div className="flex items-center justify-center h-full">
@@ -222,33 +222,33 @@ export default function ShopPage() {
                           </div>
                         )}
                         {!inStock && (
-                          <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-                            <span className="text-white font-semibold">Out of Stock</span>
+                          <div className="absolute inset-0 bg-black bg-opacity-60 flex items-center justify-center">
+                            <span className="text-white font-semibold text-lg">Out of Stock</span>
                           </div>
                         )}
                       </div>
                       
-                      <div>
-                        <h3 className="text-lg font-semibold text-gray-900 line-clamp-2">
+                      <div className="min-h-[4rem]">
+                        <h3 className="text-lg font-semibold text-gray-900 line-clamp-2 mb-1">
                           {product.title}
                         </h3>
-                        <p className="text-sm text-gray-600 mt-1 line-clamp-2">
+                        <p className="text-sm text-gray-600 line-clamp-2">
                           {product.short_description}
                         </p>
                       </div>
 
-                      <div className="flex justify-between items-center">
-                        <div>
-                          <span className="text-2xl font-bold text-purple-600">
+                      <div className="flex flex-col gap-2">
+                        <div className="flex justify-between items-center">
+                          <span className="text-2xl font-bold text-blue-600">
                             {product.currency === 'EUR' ? '€' : '$'}{product.base_price.toFixed(2)}
                           </span>
+                          <span className={`text-sm font-medium ${inStock ? 'text-green-600' : 'text-red-600'}`}>
+                            {inStock ? `${stockQty} in stock` : 'Out of stock'}
+                          </span>
                         </div>
-                        <span className={`text-sm ${inStock ? 'text-green-600' : 'text-red-600'}`}>
-                          {inStock ? `${stockQty} in stock` : 'Out of stock'}
-                        </span>
                       </div>
 
-                      <div className="flex gap-2">
+                      <div className="flex gap-2 pt-2">
                         <Button
                           label="View"
                           icon="pi pi-eye"
@@ -262,6 +262,7 @@ export default function ShopPage() {
                           className="flex-1"
                           onClick={() => addToCart(product.id)}
                           disabled={!inStock}
+                          style={inStock ? { backgroundColor: '#3b82f6', borderColor: '#3b82f6' } : {}}
                         />
                       </div>
                     </div>

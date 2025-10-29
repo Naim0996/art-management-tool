@@ -183,26 +183,40 @@ export default function AdminPersonaggiPage() {
     }
   };
 
-  // Funzione per salvare dopo l'upload dell'immagine
-  const handleSaveAfterUpload = async (): Promise<void> => {
+  // Funzione per ricaricare i dati dopo l'upload dell'immagine
+  const handleReloadAfterUpload = async (): Promise<void> => {
     if (!editingPersonaggio?.id) {
       return;
     }
 
     try {
-      await PersonaggiAPIService.updatePersonaggio(editingPersonaggio.id, formData as PersonaggioDTO);
-      toast.current?.show({
-        severity: 'success',
-        summary: 'Saved',
-        detail: 'Personaggio updated with image',
-        life: 2000,
+      // Ricarica i dati aggiornati dal backend
+      const updatedPersonaggio = await PersonaggiAPIService.getPersonaggioAdmin(editingPersonaggio.id);
+      
+      // Aggiorna il formData con i dati freschi dal backend
+      setFormData({
+        name: updatedPersonaggio.name,
+        description: updatedPersonaggio.description,
+        icon: updatedPersonaggio.icon,
+        images: updatedPersonaggio.images || [],
+        backgroundColor: updatedPersonaggio.backgroundColor,
+        backgroundType: updatedPersonaggio.backgroundType,
+        gradientFrom: updatedPersonaggio.gradientFrom,
+        gradientTo: updatedPersonaggio.gradientTo,
+        backgroundImage: updatedPersonaggio.backgroundImage,
+        order: updatedPersonaggio.order,
       });
+      
+      // Aggiorna anche editingPersonaggio
+      setEditingPersonaggio(updatedPersonaggio);
+      
+      console.log('Reloaded personaggio data:', updatedPersonaggio);
     } catch (error) {
-      console.error('Error saving after upload:', error);
+      console.error('Error reloading after upload:', error);
       toast.current?.show({
         severity: 'error',
         summary: 'Error',
-        detail: 'Failed to save personaggio',
+        detail: 'Failed to reload personaggio data',
         life: 3000,
       });
       throw error;
@@ -593,7 +607,7 @@ export default function AdminPersonaggiPage() {
               type="background"
               personaggioId={editingPersonaggio?.id}
               onSaveRequired={handleSaveForUpload}
-              onUploadComplete={handleSaveAfterUpload}
+              onUploadComplete={handleReloadAfterUpload}
             />
           ) : null}
 
@@ -606,7 +620,7 @@ export default function AdminPersonaggiPage() {
             type="icon"
             personaggioId={editingPersonaggio?.id}
             onSaveRequired={handleSaveForUpload}
-            onUploadComplete={handleSaveAfterUpload}
+            onUploadComplete={handleReloadAfterUpload}
           />
 
           {/* Gallery Images Upload */}
@@ -618,7 +632,7 @@ export default function AdminPersonaggiPage() {
             type="gallery"
             personaggioId={editingPersonaggio?.id}
             onSaveRequired={handleSaveForUpload}
-            onUploadComplete={handleSaveAfterUpload}
+            onUploadComplete={handleReloadAfterUpload}
           />
 
           {/* Background Preview */}

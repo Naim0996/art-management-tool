@@ -2,92 +2,39 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import { useLocale } from 'next-intl';
-import { shopAPI, CheckoutRequest } from '@/services/ShopAPIService';
 import { Button } from 'primereact/button';
 import { InputText } from 'primereact/inputtext';
-import { RadioButton } from 'primereact/radiobutton';
-import { Toast } from 'primereact/toast';
 import { Card } from 'primereact/card';
+import { Toast } from 'primereact/toast';
 import { useRef } from 'react';
-
-type PaymentMethod = 'stripe' | 'mock' | 'etsy';
 
 export default function CheckoutPage() {
   const locale = useLocale();
-  const router = useRouter();
   const toast = useRef<Toast>(null);
-  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('stripe');
   const [email, setEmail] = useState('');
   const [name, setName] = useState('');
-  const [discountCode, setDiscountCode] = useState('');
-  const [address, setAddress] = useState({
-    street: '',
-    city: '',
-    state: '',
-    zip_code: '',
-    country: '',
-  });
-  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
-
-    try {
-      const checkoutData: CheckoutRequest = {
-        email,
-        name,
-        payment_method: paymentMethod,
-        shipping_address: address,
-        ...(discountCode && { discount_code: discountCode }),
-      };
-
-      const response = await shopAPI.checkout(checkoutData);
-      
-      // Handle Etsy payment redirect
-      if (paymentMethod === 'etsy' && response.client_secret) {
-        // The client_secret for Etsy contains the checkout URL
-        toast.current?.show({
-          severity: 'info',
-          summary: 'Redirecting to Etsy',
-          detail: 'You will be redirected to complete payment on Etsy...',
-          life: 3000,
-        });
-        
-        // Redirect to Etsy checkout
-        setTimeout(() => {
-          if (response.client_secret) {
-            window.location.href = response.client_secret;
-          }
-        }, 2000);
-        return;
-      }
-      
-      toast.current?.show({
-        severity: 'success',
-        summary: 'Success',
-        detail: `Order placed successfully! Order #${response.order_number}`,
-        life: 5000,
-      });
-
-      // Redirect to shop after successful checkout
-      setTimeout(() => {
-        router.push(`/${locale}/shop`);
-      }, 2000);
-    } catch (error: unknown) {
-      console.error('Error during checkout:', error);
-      const message = error instanceof Error ? error.message : 'An error occurred. Please try again.';
+    
+    // Validate
+    if (!name || !email) {
       toast.current?.show({
         severity: 'error',
-        summary: 'Checkout Failed',
-        detail: message,
-        life: 5000,
+        summary: 'Error',
+        detail: 'Please fill in all required fields',
+        life: 3000,
       });
-    } finally {
-      setLoading(false);
+      return;
     }
+
+    toast.current?.show({
+      severity: 'info',
+      summary: 'Info',
+      detail: 'Contact information saved. You can proceed to payment.',
+      life: 3000,
+    });
   };
 
   return (
@@ -97,7 +44,7 @@ export default function CheckoutPage() {
       {/* Header */}
       <header className="bg-white shadow-sm border-b">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <Link href={`/${locale}/cart`} className="text-purple-600 hover:underline mb-2 inline-block">
+          <Link href={`/${locale}/cart`} className="text-blue-600 hover:underline mb-2 inline-block">
             <i className="pi pi-arrow-left mr-2"></i>
             Back to Cart
           </Link>
@@ -139,132 +86,56 @@ export default function CheckoutPage() {
               </div>
             </Card>
 
-            {/* Shipping Address */}
-            <Card title="Shipping Address" className="shadow-sm">
+            {/* Payment Links */}
+            <Card title="Complete Payment" className="shadow-sm">
               <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium mb-2 text-gray-700">
-                    Street Address <span className="text-red-500">*</span>
-                  </label>
-                  <InputText
-                    value={address.street}
-                    onChange={(e) => setAddress({ ...address, street: e.target.value })}
-                    placeholder="123 Main St"
-                    required
-                    className="w-full"
-                  />
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium mb-2 text-gray-700">
-                      City <span className="text-red-500">*</span>
-                    </label>
-                    <InputText
-                      value={address.city}
-                      onChange={(e) => setAddress({ ...address, city: e.target.value })}
-                      placeholder="New York"
-                      required
-                      className="w-full"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium mb-2 text-gray-700">
-                      State <span className="text-red-500">*</span>
-                    </label>
-                    <InputText
-                      value={address.state}
-                      onChange={(e) => setAddress({ ...address, state: e.target.value })}
-                      placeholder="NY"
-                      required
-                      className="w-full"
-                    />
-                  </div>
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium mb-2 text-gray-700">
-                      Zip Code <span className="text-red-500">*</span>
-                    </label>
-                    <InputText
-                      value={address.zip_code}
-                      onChange={(e) => setAddress({ ...address, zip_code: e.target.value })}
-                      placeholder="10001"
-                      required
-                      className="w-full"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium mb-2 text-gray-700">
-                      Country <span className="text-red-500">*</span>
-                    </label>
-                    <InputText
-                      value={address.country}
-                      onChange={(e) => setAddress({ ...address, country: e.target.value })}
-                      placeholder="US"
-                      required
-                      className="w-full"
-                    />
-                  </div>
-                </div>
-              </div>
-            </Card>
-
-            {/* Discount Code */}
-            <Card title="Discount Code (Optional)" className="shadow-sm">
-              <div>
-                <InputText
-                  value={discountCode}
-                  onChange={(e) => setDiscountCode(e.target.value)}
-                  placeholder="Enter discount code"
-                  className="w-full"
-                />
-              </div>
-            </Card>
-
-            {/* Payment Method */}
-            <Card title="Payment Method" className="shadow-sm">
-              <div className="space-y-3">
-                <div className="flex items-center p-4 border rounded-lg cursor-pointer hover:bg-gray-50">
-                  <RadioButton
-                    inputId="stripe"
-                    name="payment"
-                    value="stripe"
-                    onChange={(e) => setPaymentMethod(e.value)}
-                    checked={paymentMethod === 'stripe'}
-                  />
-                  <label htmlFor="stripe" className="ml-3 cursor-pointer flex items-center">
-                    <i className="pi pi-credit-card text-xl mr-2 text-blue-600"></i>
-                    <span className="text-lg">Stripe Payment</span>
-                  </label>
-                </div>
-                <div className="flex items-center p-4 border rounded-lg cursor-pointer hover:bg-gray-50">
-                  <RadioButton
-                    inputId="etsy"
-                    name="payment"
-                    value="etsy"
-                    onChange={(e) => setPaymentMethod(e.value)}
-                    checked={paymentMethod === 'etsy'}
-                  />
-                  <label htmlFor="etsy" className="ml-3 cursor-pointer flex items-center">
-                    <i className="pi pi-shopping-bag text-xl mr-2 text-orange-600"></i>
-                    <div>
-                      <div className="text-lg">Etsy Payment</div>
-                      <div className="text-sm text-gray-500">Complete payment on Etsy platform</div>
+                <p className="text-gray-600 mb-4">
+                  Click on one of the payment options below to complete your purchase:
+                </p>
+                
+                <div className="space-y-3">
+                  {/* Etsy Payment */}
+                  <a
+                    href="https://www.etsy.com/shop/mrAnarchyStudioArt" 
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center p-4 border-2 border-orange-600 rounded-lg cursor-pointer hover:bg-orange-50 transition-colors"
+                  >
+                    <i className="pi pi-shopping-bag text-2xl mr-3 text-orange-600"></i>
+                    <div className="flex-1">
+                      <div className="text-lg font-semibold text-gray-900">Pay with Etsy</div>
+                      <div className="text-sm text-gray-600">Complete your purchase on Etsy platform</div>
                     </div>
-                  </label>
-                </div>
-                <div className="flex items-center p-4 border rounded-lg cursor-pointer hover:bg-gray-50">
-                  <RadioButton
-                    inputId="mock"
-                    name="payment"
-                    value="mock"
-                    onChange={(e) => setPaymentMethod(e.value)}
-                    checked={paymentMethod === 'mock'}
-                  />
-                  <label htmlFor="mock" className="ml-3 cursor-pointer flex items-center">
-                    <i className="pi pi-dollar text-xl mr-2 text-green-600"></i>
-                    <span className="text-lg">Mock Payment (Testing)</span>
-                  </label>
+                    <i className="pi pi-external-link text-gray-400"></i>
+                  </a>
+
+                  {/* PayPal Payment */}
+                  <a
+                    href="https://paypal.com/your-payment-link" 
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center p-4 border-2 border-blue-600 rounded-lg cursor-pointer hover:bg-blue-50 transition-colors"
+                  >
+                    <i className="pi pi-paypal text-2xl mr-3 text-blue-600"></i>
+                    <div className="flex-1">
+                      <div className="text-lg font-semibold text-gray-900">Pay with PayPal</div>
+                      <div className="text-sm text-gray-600">Secure payment with PayPal</div>
+                    </div>
+                    <i className="pi pi-external-link text-gray-400"></i>
+                  </a>
+
+                  {/* Other Payment */}
+                  <a
+                    href="mailto:your@email.com?subject=Payment%20Request&body=Hello,%20I%20would%20like%20to%20complete%20my%20purchase." 
+                    className="flex items-center p-4 border-2 border-gray-600 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors"
+                  >
+                    <i className="pi pi-envelope text-2xl mr-3 text-gray-600"></i>
+                    <div className="flex-1">
+                      <div className="text-lg font-semibold text-gray-900">Contact for Payment</div>
+                      <div className="text-sm text-gray-600">Send us an email to arrange payment</div>
+                    </div>
+                    <i className="pi pi-external-link text-gray-400"></i>
+                  </a>
                 </div>
               </div>
             </Card>
@@ -281,12 +152,11 @@ export default function CheckoutPage() {
                 />
               </Link>
               <Button
-                label={loading ? 'Processing...' : 'Place Order'}
+                label="Save Contact Info"
                 icon="pi pi-check"
                 iconPos="right"
                 className="flex-1"
                 type="submit"
-                loading={loading}
                 size="large"
               />
             </div>

@@ -7,10 +7,8 @@ import { useLocale } from 'next-intl';
 import { shopAPI, Product, ProductVariant } from '@/services/ShopAPIService';
 import { Button } from 'primereact/button';
 import { Toast } from 'primereact/toast';
-import { Galleria } from 'primereact/galleria';
 import { Dropdown } from 'primereact/dropdown';
 import { InputNumber } from 'primereact/inputnumber';
-import { Divider } from 'primereact/divider';
 
 export default function ProductDetailPage() {
   const params = useParams();
@@ -23,6 +21,7 @@ export default function ProductDetailPage() {
   const [selectedVariant, setSelectedVariant] = useState<ProductVariant | null>(null);
   const [quantity, setQuantity] = useState(1);
   const [addingToCart, setAddingToCart] = useState(false);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
   const slug = params?.slug as string;
 
@@ -30,6 +29,7 @@ export default function ProductDetailPage() {
     if (slug) {
       fetchProduct();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [slug]);
 
   const fetchProduct = async () => {
@@ -120,24 +120,18 @@ export default function ProductDetailPage() {
     });
   };
 
-  const itemTemplate = (item: any) => {
-    return (
-      <img 
-        src={item.url} 
-        alt={item.alt_text || product?.title} 
-        className="w-full h-auto object-contain max-h-[600px]"
-      />
-    );
+  const nextImage = () => {
+    const images = getImages();
+    setCurrentImageIndex((prev) => (prev + 1) % images.length);
   };
 
-  const thumbnailTemplate = (item: any) => {
-    return (
-      <img 
-        src={item.url} 
-        alt={item.alt_text || product?.title} 
-        className="w-20 h-20 object-cover cursor-pointer"
-      />
-    );
+  const prevImage = () => {
+    const images = getImages();
+    setCurrentImageIndex((prev) => (prev - 1 + images.length) % images.length);
+  };
+
+  const goToImage = (index: number) => {
+    setCurrentImageIndex(index);
   };
 
   if (loading) {
@@ -145,9 +139,9 @@ export default function ProductDetailPage() {
       <div className="min-h-screen p-8">
         <div className="max-w-7xl mx-auto">
           <Toast ref={toast} />
-          <div className="flex items-center justify-center h-64">
-            <i className="pi pi-spin pi-spinner text-4xl text-purple-600"></i>
-          </div>
+              <div className="flex items-center justify-center h-64">
+                <i className="pi pi-spin pi-spinner text-4xl text-blue-600"></i>
+              </div>
         </div>
       </div>
     );
@@ -182,7 +176,7 @@ export default function ProductDetailPage() {
       {/* Header */}
       <header className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <Link href={`/${locale}/shop`} className="text-purple-600 hover:underline inline-flex items-center">
+          <Link href={`/${locale}/shop`} className="text-blue-600 hover:underline inline-flex items-center">
             <i className="pi pi-arrow-left mr-2"></i>
             Back to Shop
           </Link>
@@ -192,40 +186,108 @@ export default function ProductDetailPage() {
       {/* Product Detail */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="bg-white rounded-lg shadow-lg overflow-hidden">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 p-8">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 p-8">
             {/* Image Gallery */}
             <div className="space-y-4">
-              <Galleria
-                value={images}
-                item={itemTemplate}
-                thumbnail={thumbnailTemplate}
-                numVisible={5}
-                circular
-                autoPlay={false}
-                showItemNavigators
-                showThumbnails={images.length > 1}
-                className="product-gallery"
-              />
+              <div className="w-full">
+                {/* Main Image */}
+                <div className="relative w-full h-[500px] mb-4 bg-white rounded-lg border border-gray-200 flex items-center justify-center">
+                  <img 
+                    src={images[currentImageIndex]?.url || '/placeholder-art.png'} 
+                    alt={images[currentImageIndex]?.alt_text || product?.title}
+                    className="max-w-full max-h-full object-contain"
+                  />
+                  
+                  {/* Navigation arrows */}
+                  {images.length > 1 && (
+                    <>
+                      <button
+                        onClick={prevImage}
+                        className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white text-gray-800 p-2 rounded-full shadow-md transition-all duration-200 hover:scale-110"
+                        aria-label="Previous image"
+                      >
+                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                        </svg>
+                      </button>
+                      <button
+                        onClick={nextImage}
+                        className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white text-gray-800 p-2 rounded-full shadow-md transition-all duration-200 hover:scale-110"
+                        aria-label="Next image"
+                      >
+                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                        </svg>
+                      </button>
+                    </>
+                  )}
+                  
+                  {/* Dot indicators */}
+                  {images.length > 1 && (
+                    <div className="absolute top-4 left-1/2 -translate-x-1/2 flex gap-2">
+                      {images.map((_, index) => (
+                        <button
+                          key={index}
+                          onClick={() => goToImage(index)}
+                          className={`w-2 h-2 rounded-full transition-all duration-200 ${
+                            index === currentImageIndex 
+                              ? 'bg-blue-500 w-8' 
+                              : 'bg-gray-400 hover:bg-gray-500'
+                          }`}
+                          aria-label={`Go to image ${index + 1}`}
+                        />
+                      ))}
+                    </div>
+                  )}
+                </div>
+                
+                {/* Thumbnail carousel */}
+                {images.length > 1 && (
+                  <div className="relative bg-gray-50 p-4 rounded-lg border border-gray-200">
+                    <div className="flex gap-3 overflow-x-auto scrollbar-hide pb-2">
+                      {images.map((img, index) => (
+                        <button
+                          key={index}
+                          onClick={() => goToImage(index)}
+                          className={`flex-shrink-0 relative w-20 h-20 rounded-lg border-2 transition-all duration-200 ${
+                            index === currentImageIndex 
+                              ? 'border-blue-500 ring-2 ring-blue-300' 
+                              : 'border-gray-300 hover:border-gray-400'
+                          }`}
+                          aria-label={`Thumbnail ${index + 1}`}
+                        >
+                          <img 
+                            src={img.url} 
+                            alt={img.alt_text || product?.title}
+                            className="w-full h-full object-cover rounded"
+                          />
+                          {index === currentImageIndex && (
+                            <div className="absolute inset-0 bg-blue-500/10" />
+                          )}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
 
             {/* Product Info */}
             <div className="space-y-6">
               <div>
-                <h1 className="text-4xl font-bold text-gray-900 mb-2">{product.title}</h1>
+                <h1 className="text-3xl font-bold text-gray-900 mb-2">{product.title}</h1>
                 {product.short_description && (
-                  <p className="text-xl text-gray-600">{product.short_description}</p>
+                  <p className="text-base text-gray-600">{product.short_description}</p>
                 )}
               </div>
 
-              <Divider />
-
               {/* Price */}
-              <div className="flex items-baseline gap-4">
-                <span className="text-4xl font-bold text-purple-600">
+              <div className="flex items-baseline gap-3">
+                <span className="text-4xl font-bold text-blue-600">
                   {product.currency === 'EUR' ? '€' : '$'}{currentPrice.toFixed(2)}
                 </span>
                 {selectedVariant && selectedVariant.price_adjustment !== 0 && (
-                  <span className="text-xl text-gray-400 line-through">
+                  <span className="text-2xl text-gray-400 line-through">
                     {product.currency === 'EUR' ? '€' : '$'}{product.base_price.toFixed(2)}
                   </span>
                 )}
@@ -233,7 +295,8 @@ export default function ProductDetailPage() {
 
               {/* Stock Status */}
               <div className="flex items-center gap-2">
-                <i className={`pi ${inStock ? 'pi-check-circle text-green-600' : 'pi-times-circle text-red-600'}`}></i>
+                <i className={`pi ${inStock ? 'pi-check-circle' : 'pi-times-circle'}`} 
+                   style={{ color: inStock ? '#10b981' : '#ef4444', fontSize: '1.25rem' }}></i>
                 <span className={`font-semibold ${inStock ? 'text-green-600' : 'text-red-600'}`}>
                   {inStock ? `${stockQty} in stock` : 'Out of stock'}
                 </span>
@@ -241,8 +304,8 @@ export default function ProductDetailPage() {
 
               {/* Variants */}
               {product.variants && product.variants.length > 0 && (
-                <div className="space-y-2">
-                  <label className="font-semibold text-gray-700">Select Variant:</label>
+                <div className="space-y-3">
+                  <label className="font-semibold text-gray-900 text-base">Select Variant:</label>
                   <Dropdown
                     value={selectedVariant}
                     options={product.variants}
@@ -251,7 +314,7 @@ export default function ProductDetailPage() {
                     placeholder="Choose a variant"
                     className="w-full"
                     itemTemplate={(option) => (
-                      <div className="flex justify-between items-center">
+                      <div className="flex justify-between items-center py-2">
                         <span>{option.name}</span>
                         <span className="text-sm text-gray-500">
                           {option.stock > 0 ? `${option.stock} available` : 'Out of stock'}
@@ -263,73 +326,96 @@ export default function ProductDetailPage() {
               )}
 
               {/* Quantity */}
-              <div className="space-y-2">
-                <label className="font-semibold text-gray-700">Quantity:</label>
-                <InputNumber
-                  value={quantity}
-                  onValueChange={(e) => setQuantity(e.value || 1)}
-                  min={1}
-                  max={stockQty}
-                  disabled={!inStock}
-                  showButtons
-                  buttonLayout="horizontal"
-                  decrementButtonClassName="p-button-danger"
-                  incrementButtonClassName="p-button-success"
-                  className="w-full"
-                />
+              <div className="space-y-3">
+                <label className="font-semibold text-gray-900 text-base">Quantity:</label>
+                <div className="flex items-center border rounded-md overflow-hidden w-full max-w-xs">
+                  <Button
+                    icon="pi pi-minus"
+                    className="p-button-text p-button-danger border-0 rounded-none"
+                    onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                    disabled={!inStock || quantity <= 1}
+                    style={{ height: '3rem' }}
+                  />
+                  <InputNumber
+                    value={quantity}
+                    onValueChange={(e) => setQuantity(e.value || 1)}
+                    min={1}
+                    max={stockQty}
+                    disabled={!inStock}
+                    className="flex-1 border-0"
+                    inputClassName="text-center border-0"
+                    showButtons={false}
+                    style={{ width: '100%' }}
+                  />
+                  <Button
+                    icon="pi pi-plus"
+                    className="p-button-text p-button-success border-0 rounded-none"
+                    onClick={() => setQuantity(Math.min(stockQty, quantity + 1))}
+                    disabled={!inStock || quantity >= stockQty}
+                    style={{ height: '3rem' }}
+                  />
+                </div>
               </div>
 
-              <Divider />
-
-              {/* Add to Cart Button */}
-              <div className="flex gap-4">
+              {/* Add to Cart and Checkout Buttons */}
+              <div className="flex gap-4 pt-4">
                 <Button
                   label="Add to Cart"
                   icon="pi pi-shopping-cart"
-                  className="flex-1"
+                  className="flex-1 p-button-primary"
                   size="large"
                   onClick={handleAddToCart}
                   disabled={!inStock || addingToCart}
                   loading={addingToCart}
+                  style={{ 
+                    backgroundColor: '#3b82f6',
+                    borderColor: '#3b82f6',
+                    height: '3.5rem',
+                    fontSize: '1.1rem'
+                  }}
                 />
-                <Button
-                  icon="pi pi-heart"
-                  className="p-button-outlined"
-                  size="large"
-                  tooltip="Add to wishlist"
-                  tooltipOptions={{ position: 'top' }}
-                />
+                <Link href={`/${locale}/checkout`} className="flex-1">
+                  <Button
+                    label="Checkout"
+                    icon="pi pi-credit-card"
+                    className="w-full p-button-outlined"
+                    size="large"
+                    disabled={!inStock}
+                    style={{ 
+                      borderColor: '#16a34a',
+                      color: '#16a34a',
+                      height: '3.5rem',
+                      fontSize: '1.1rem'
+                    }}
+                  />
+                </Link>
               </div>
 
-              {/* Product Meta */}
-              {(product.sku || product.gtin) && (
-                <div className="space-y-1 text-sm text-gray-600">
-                  {product.sku && (
-                    <div className="flex items-center gap-2">
-                      <span className="font-semibold">SKU:</span>
-                      <span>{product.sku}</span>
-                    </div>
-                  )}
-                  {product.gtin && (
-                    <div className="flex items-center gap-2">
-                      <span className="font-semibold">GTIN:</span>
-                      <span>{product.gtin}</span>
-                    </div>
-                  )}
-                </div>
+              {/* View Character Button */}
+              {product.character_id && (
+                <Link href={`/${locale}/personaggi`}>
+                  <Button
+                    label="View Character"
+                    icon="pi pi-user"
+                    className="w-full p-button-outlined"
+                    size="large"
+                    style={{ 
+                      height: '3.5rem',
+                      fontSize: '1.1rem',
+                      borderColor: '#3b82f6',
+                      color: '#3b82f6'
+                    }}
+                  />
+                </Link>
               )}
 
-              {/* Categories */}
-              {product.categories && product.categories.length > 0 && (
-                <div className="flex flex-wrap gap-2">
-                  {product.categories.map((category) => (
-                    <span
-                      key={category.id}
-                      className="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-sm"
-                    >
-                      {category.name}
-                    </span>
-                  ))}
+              {/* Product Meta */}
+              {product.sku && (
+                <div className="pt-4 border-t">
+                  <div className="flex items-center gap-2 text-sm text-gray-600">
+                    <span className="font-semibold">SKU:</span>
+                    <span>{product.sku}</span>
+                  </div>
                 </div>
               )}
             </div>

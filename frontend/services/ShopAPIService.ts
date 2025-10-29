@@ -19,6 +19,7 @@ export interface Product {
   sku: string;
   gtin?: string;
   status: 'published' | 'draft' | 'archived';
+  character_id?: number;
   categories?: Category[];
   images?: ProductImage[];
   variants?: ProductVariant[];

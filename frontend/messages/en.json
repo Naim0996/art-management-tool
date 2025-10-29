@@ -41,6 +41,15 @@
       }
     }
   },
+  "fumetti": {
+    "title": "Comics",
+    "modal": {
+      "title": "Comics Gallery",
+      "page": "Page",
+      "noPages": "No pages available",
+      "about": "About"
+    }
+  },
   "footer": {
     "copyright": "© 2025 Art Management Tool. All rights reserved."
   },

@@ -358,3 +358,38 @@ func ValidateProductImage(img *ProductImage) error {
 
 	return v.Errors()
 }
+
+// Validate FumettoInput
+func (f *FumettoInput) Validate() error {
+	v := NewValidator()
+
+	v.Required("title", f.Title).
+		MinLength("title", f.Title, 1).
+		MaxLength("title", f.Title, 200)
+
+	v.MaxLength("description", f.Description, 5000)
+
+	if f.CoverImage != "" {
+		v.URL("coverImage", f.CoverImage)
+	}
+
+	if len(f.Pages) > 100 {
+		v.errors = append(v.errors, ValidationError{
+			Field:   "pages",
+			Message: "cannot exceed 100 pages",
+		})
+	}
+
+	for i, page := range f.Pages {
+		v.URL(fmt.Sprintf("pages[%d]", i), page)
+	}
+
+	if f.Order < 0 {
+		v.errors = append(v.errors, ValidationError{
+			Field:   "order",
+			Message: "must be a non-negative integer",
+		})
+	}
+
+	return v.Errors()
+}

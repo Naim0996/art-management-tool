@@ -65,9 +65,9 @@ export default function LanguageSwitcher() {
       onChange={handleLanguageChange}
       itemTemplate={itemTemplate}
       valueTemplate={valueTemplate}
-      className="w-12"
+      className="w-auto"
       style={{ 
-        minWidth: '3rem',
+        minWidth: '6rem',
         height: '2.5rem'
       }}
       panelClassName="text-sm w-auto"

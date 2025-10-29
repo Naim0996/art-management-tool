@@ -87,6 +87,7 @@ func AutoMigrate() error {
 	// Prima esegui AutoMigrate per creare le tabelle
 	err := DB.AutoMigrate(
 		&models.Personaggio{},
+		&models.Fumetto{},
 		// E-commerce models
 		&models.Category{},
 		&models.EnhancedProduct{},

@@ -198,12 +198,6 @@ export default function CartPage() {
       });
       console.log(`🛒 Success toast shown`);
       
-      // Re-fetch in background to ensure consistency (but don't wait for it)
-      console.log(`🛒 Background re-fetch for consistency...`);
-      fetchCart().catch(fetchError => {
-        console.warn(`🛒 Background fetch failed, but UI already updated:`, fetchError);
-      });
-      
     } catch (error) {
       console.error('🛒 [ERROR] Error removing from cart:', error);
       console.error('🛒 [ERROR] Error details:', {
@@ -414,12 +408,12 @@ export default function CartPage() {
                   return (
                   <Card key={item.id} className="shadow-sm">
                     <div className="flex gap-4">
-                      <div className="w-24 h-24 bg-gray-100 rounded-lg flex-shrink-0 overflow-hidden">
+                      <div className="w-24 h-24 bg-gray-100 rounded-lg flex-shrink-0 overflow-hidden flex items-center justify-center">
                         {product.images && product.images.length > 0 ? (
                           <img
                             src={product.images.find(img => img.is_primary)?.url || product.images[0].url}
                             alt={product.title}
-                            className="w-full h-full object-cover"
+                            className="max-w-full max-h-full object-contain"
                           />
                         ) : (
                           <div className="flex items-center justify-center h-full">
@@ -455,7 +449,7 @@ export default function CartPage() {
                             />
                           </div>
                           <div className="flex-1 text-right">
-                            <p className="text-lg font-bold text-purple-600">
+                            <p className="text-lg font-bold text-blue-600">
                               {product.currency === 'EUR' ? '€' : '$'}{total.toFixed(2)}
                             </p>
                             <p className="text-sm text-gray-500">

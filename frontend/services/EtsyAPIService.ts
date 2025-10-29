@@ -121,6 +121,9 @@ class EtsyAPIService {
 
     if (!response.ok) {
       const error = await response.json().catch(() => ({ error: 'Request failed' }));
+
+      console.log("response: for req ", url, JSON.stringify(response, null, 2));
+      console.log("error: for req ", url, JSON.stringify(error, null, 2));
       throw new Error(error.error || `HTTP ${response.status}`);
     }
 

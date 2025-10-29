@@ -20,8 +20,71 @@ export interface PersonaggioImage {
   thumbnail?: string;
 }
 
-// Dati statici dei personaggi (da aggiornare quando aggiungi nuove immagini)
+// Dati statici dei personaggi (sincronizzati con il database)
 export const personaggiData: PersonaggioData[] = [
+  {
+    id: 'giullare',
+    name: 'Il Giullare',
+    description: 'Un personaggio divertente e colorato che porta allegria in ogni opera.',
+    folder: 'giullare',
+    icon: '/personaggi/giullare/Giullare_icon.png',
+    images: [
+      {
+        src: '/personaggi/giullare/Giullare_icon.png',
+        alt: 'Il Giullare - Giullare_icon',
+        title: 'Il Giullare - Giullare_icon',
+        thumbnail: '/personaggi/giullare/Giullare_icon.png'
+      },
+      {
+        src: '/personaggi/giullare/Giullare_muddica.jpeg',
+        alt: 'Il Giullare - Giullare_muddica',
+        title: 'Il Giullare - Giullare_muddica',
+        thumbnail: '/personaggi/giullare/Giullare_icon.png'
+      }
+    ]
+  },
+  {
+    id: 'leon',
+    name: 'Leon',
+    description: 'Un personaggio forte e determinato con uno stile unico.',
+    folder: 'leon',
+    icon: '/personaggi/leon/Leon_icon.png',
+    images: [
+      {
+        src: '/personaggi/leon/Leon_icon.png',
+        alt: 'Leon - Leon_icon',
+        title: 'Leon - Leon_icon',
+        thumbnail: '/personaggi/leon/Leon_icon.png'
+      },
+      {
+        src: '/personaggi/leon/Leon_lingua.jpeg',
+        alt: 'Leon - Leon_lingua',
+        title: 'Leon - Leon_lingua',
+        thumbnail: '/personaggi/leon/Leon_icon.png'
+      }
+    ]
+  },
+  {
+    id: 'polemico',
+    name: 'Il Polemico',
+    description: 'Un personaggio che esprime opinioni forti attraverso l\'arte.',
+    folder: 'polemico',
+    icon: '/personaggi/polemico/Polemico_icon.png',
+    images: [
+      {
+        src: '/personaggi/polemico/Polemico_icon.png',
+        alt: 'Il Polemico - Polemico_icon',
+        title: 'Il Polemico - Polemico_icon',
+        thumbnail: '/personaggi/polemico/Polemico_icon.png'
+      },
+      {
+        src: '/personaggi/polemico/Polemico_lupo.jpeg',
+        alt: 'Il Polemico - Polemico_lupo',
+        title: 'Il Polemico - Polemico_lupo',
+        thumbnail: '/personaggi/polemico/Polemico_icon.png'
+      }
+    ]
+  },
   {
     id: 'ribelle',
     name: 'Ribelle il Pigro',
@@ -30,67 +93,28 @@ export const personaggiData: PersonaggioData[] = [
     icon: '/personaggi/ribelle/Ribelle_icon.png',
     images: [
       {
+        src: '/personaggi/ribelle/Ribelle_icon.png',
+        alt: 'Ribelle il Pigro - Ribelle_icon',
+        title: 'Ribelle il Pigro - Ribelle_icon',
+        thumbnail: '/personaggi/ribelle/Ribelle_icon.png'
+      },
+      {
         src: '/personaggi/ribelle/Ribelle_pigro_ink.jpeg',
-        alt: 'Ribelle Pigro Ink',
-        title: 'Ribelle Pigro - Versione Ink',
+        alt: 'Ribelle il Pigro - Ribelle_pigro_ink',
+        title: 'Ribelle il Pigro - Ribelle_pigro_ink',
         thumbnail: '/personaggi/ribelle/Ribelle_icon.png'
       },
       {
         src: '/personaggi/ribelle/Ribellepigro_nome.jpeg',
-        alt: 'Ribelle Pigro Nome',
-        title: 'Ribelle Pigro - Con Nome',
+        alt: 'Ribelle il Pigro - Ribellepigro_nome',
+        title: 'Ribelle il Pigro - Ribellepigro_nome',
         thumbnail: '/personaggi/ribelle/Ribelle_icon.png'
       },
       {
         src: '/personaggi/ribelle/Ribelle_pigro_pinsata.jpeg',
-        alt: 'Ribelle Pigro Pinsata',
-        title: 'Ribelle Pigro - Versione Pinsata',
+        alt: 'Ribelle il Pigro - Ribelle_pigro_pinsata',
+        title: 'Ribelle il Pigro - Ribelle_pigro_pinsata',
         thumbnail: '/personaggi/ribelle/Ribelle_icon.png'
-      }
-    ]
-  },
-  {
-    id: 'giullare',
-    name: 'Il Giullare',
-    description: 'Un personaggio divertente e colorato che porta allegria in ogni opera. Con il suo spirito giocoso e la sua natura esuberante, rappresenta la gioia dell\'arte.',
-    folder: 'giullare',
-    icon: '/personaggi/giullare/Giullare_icon.png',
-    images: [
-      {
-        src: '/personaggi/giullare/Giullare_muddica.jpeg',
-        alt: 'Giullare Muddica',
-        title: 'Il Giullare - Muddica',
-        thumbnail: '/personaggi/giullare/Giullare_icon.png'
-      }
-    ]
-  },
-  {
-    id: 'leon',
-    name: 'Leon',
-    description: 'Un personaggio forte e determinato con uno stile unico. Leon rappresenta la forza interiore e la determinazione attraverso tratti artistici decisi e caratteristici.',
-    folder: 'leon',
-    icon: '/personaggi/leon/Leon_icon.png',
-    images: [
-      {
-        src: '/personaggi/leon/Leon_lingua.jpeg',
-        alt: 'Leon Lingua',
-        title: 'Leon - Lingua',
-        thumbnail: '/personaggi/leon/Leon_icon.png'
-      }
-    ]
-  },
-  {
-    id: 'polemico',
-    name: 'Il Polemico',
-    description: 'Un personaggio che esprime opinioni forti attraverso l\'arte. Con il suo carattere provocatorio e riflessivo, sfida le convenzioni e stimola il dibattito artistico.',
-    folder: 'polemico',
-    icon: '/personaggi/polemico/Polemico_icon.png',
-    images: [
-      {
-        src: '/personaggi/polemico/Polemico_lupo.jpeg',
-        alt: 'Polemico Lupo',
-        title: 'Il Polemico - Lupo',
-        thumbnail: '/personaggi/polemico/Polemico_icon.png'
       }
     ]
   }
