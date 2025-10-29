@@ -41,6 +41,15 @@
       }
     }
   },
+  "fumetti": {
+    "title": "Fumetti",
+    "modal": {
+      "title": "Galleria Fumetti",
+      "page": "Pagina",
+      "noPages": "Nessuna pagina disponibile",
+      "about": "Informazioni"
+    }
+  },
   "footer": {
     "copyright": "© 2025 Art Management Tool. Tutti i diritti riservati."
   },

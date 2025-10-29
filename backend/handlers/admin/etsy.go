@@ -31,6 +31,7 @@ func NewEtsyHandler(service *etsy.Service) *EtsyHandler {
 // POST /api/admin/etsy/sync/products
 // ⚠️ WARNING: This imports products FROM Etsy TO local database (READ operation on Etsy)
 func (h *EtsyHandler) TriggerProductSync(w http.ResponseWriter, r *http.Request) {
+	log.Println("TriggerProductSync called")
 	if !h.service.IsEnabled() {
 		http.Error(w, "Etsy integration not configured", http.StatusNotImplemented)
 		return
@@ -64,6 +65,7 @@ func (h *EtsyHandler) TriggerProductSync(w http.ResponseWriter, r *http.Request)
 // POST /api/admin/etsy/sync/inventory
 // ⚠️ WARNING: This imports inventory FROM Etsy TO local database (READ operation on Etsy)
 func (h *EtsyHandler) TriggerInventorySync(w http.ResponseWriter, r *http.Request) {
+	log.Println("TriggerInventorySync called")
 	if !h.service.IsEnabled() {
 		http.Error(w, "Etsy integration not configured", http.StatusNotImplemented)
 		return
@@ -111,6 +113,7 @@ func (h *EtsyHandler) TriggerInventorySync(w http.ResponseWriter, r *http.Reques
 // GetSyncStatus returns the current sync status
 // GET /api/admin/etsy/sync/status
 func (h *EtsyHandler) GetSyncStatus(w http.ResponseWriter, r *http.Request) {
+	log.Println("GetSyncStatus called")
 	if !h.service.IsEnabled() {
 		http.Error(w, "Etsy integration not configured", http.StatusNotImplemented)
 		return
@@ -135,6 +138,7 @@ func (h *EtsyHandler) GetSyncStatus(w http.ResponseWriter, r *http.Request) {
 // ListEtsyProducts lists all Etsy products
 // GET /api/admin/etsy/products
 func (h *EtsyHandler) ListEtsyProducts(w http.ResponseWriter, r *http.Request) {
+	log.Println("ListEtsyProducts called")
 	// Parse query parameters
 	syncStatus := r.URL.Query().Get("sync_status")
 	limitStr := r.URL.Query().Get("limit")
@@ -174,6 +178,7 @@ func (h *EtsyHandler) ListEtsyProducts(w http.ResponseWriter, r *http.Request) {
 // GetEtsyProduct retrieves a specific Etsy product
 // GET /api/admin/etsy/products/{listing_id}
 func (h *EtsyHandler) GetEtsyProduct(w http.ResponseWriter, r *http.Request) {
+	log.Println("GetEtsyProduct called")
 	vars := mux.Vars(r)
 	listingIDStr := vars["listing_id"]
 

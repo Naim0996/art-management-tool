@@ -29,6 +29,11 @@ export default function AdminSidebar() {
       path: `/${locale}/admin/personaggi`,
     },
     {
+      label: 'Fumetti',
+      icon: 'pi pi-book',
+      path: `/${locale}/admin/fumetti`,
+    },
+    {
       label: 'Products',
       icon: 'pi pi-shopping-cart',
       path: `/${locale}/admin/shop-products`,

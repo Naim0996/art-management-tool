@@ -132,7 +132,7 @@ export interface ProductListResponse {
 
 export interface CreateProductRequest {
   slug: string;
-  title: string;
+  name: string;
   short_description: string;
   long_description?: string;
   base_price: number;

@@ -43,7 +43,7 @@ const personaggiConfig = {
 };
 
 export async function generatePersonaggiConfig(): Promise<PersonaggioConfig[]> {
-  const publicPath = join(process.cwd(), 'public', 'personaggi');
+  const publicPath = join(process.cwd(), 'frontend', 'public', 'personaggi');
   const personaggiList: PersonaggioConfig[] = [];
 
   try {

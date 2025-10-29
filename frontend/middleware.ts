@@ -10,6 +10,7 @@ export default function middleware(request: NextRequest) {
   // Skip middleware for static files
   if (
     pathname.startsWith('/personaggi/') ||
+    pathname.startsWith('/fumetti/') ||
     pathname.startsWith('/_next/') ||
     pathname.startsWith('/api/') ||
     pathname.match(/\.(svg|png|jpg|jpeg|gif|webp|ico|css|js|json|txt|xml|pdf)$/i)

@@ -23,42 +23,42 @@ func main() {
 		return datatypes.JSON(b)
 	}
 
-	// Seed personaggi
+	// Seed personaggi - Personaggi sempre presenti nel database
 	personaggi := []models.Personaggio{
-		{
-			Name:            "Ribelle il Pigro",
-			Description:     "Il protagonista della nostra galleria d'arte. Un personaggio unico che rappresenta la creatività e l'originalità dell'arte contemporanea.",
-			Icon:            "/personaggi/ribelle/Ribelle_icon.png",
-			Images:          toJSON([]string{"/personaggi/ribelle/Ribelle_pigro_ink.jpeg", "/personaggi/ribelle/Ribellepigro_nome.jpeg", "/personaggi/ribelle/Ribelle_pigro_pinsata.jpeg"}),
-			BackgroundType:  "solid",
-			BackgroundColor: "#E0E7FF",
-			Order:           1,
-		},
 		{
 			Name:            "Il Giullare",
 			Description:     "Un personaggio divertente e colorato che porta allegria in ogni opera. Con il suo spirito giocoso e la sua natura esuberante, rappresenta la gioia dell'arte.",
 			Icon:            "/personaggi/giullare/Giullare_icon.png",
-			Images:          toJSON([]string{"/personaggi/giullare/Giullare_muddica.jpeg"}),
+			Images:          toJSON([]string{"/personaggi/giullare/Giullare_icon.png", "/personaggi/giullare/Giullare_muddica.jpeg"}),
 			BackgroundType:  "solid",
 			BackgroundColor: "#FEFCE8",
-			Order:           2,
+			Order:           1,
 		},
 		{
 			Name:            "Leon",
 			Description:     "Un personaggio forte e determinato con uno stile unico. Leon rappresenta la forza interiore e la determinazione attraverso tratti artistici decisi e caratteristici.",
 			Icon:            "/personaggi/leon/Leon_icon.png",
-			Images:          toJSON([]string{"/personaggi/leon/Leon_lingua.jpeg"}),
+			Images:          toJSON([]string{"/personaggi/leon/Leon_icon.png", "/personaggi/leon/Leon_lingua.jpeg"}),
 			BackgroundType:  "solid",
 			BackgroundColor: "#FEE2E2",
-			Order:           3,
+			Order:           2,
 		},
 		{
 			Name:            "Il Polemico",
 			Description:     "Un personaggio che esprime opinioni forti attraverso l'arte. Con il suo carattere provocatorio e riflessivo, sfida le convenzioni e stimola il dibattito artistico.",
 			Icon:            "/personaggi/polemico/Polemico_icon.png",
-			Images:          toJSON([]string{"/personaggi/polemico/Polemico_lupo.jpeg"}),
+			Images:          toJSON([]string{"/personaggi/polemico/Polemico_icon.png", "/personaggi/polemico/Polemico_lupo.jpeg"}),
 			BackgroundType:  "solid",
 			BackgroundColor: "#E0F2FE",
+			Order:           3,
+		},
+		{
+			Name:            "Ribelle il Pigro",
+			Description:     "Il protagonista della nostra galleria d'arte. Un personaggio unico che rappresenta la creatività e l'originalità dell'arte contemporanea.",
+			Icon:            "/personaggi/ribelle/Ribelle_icon.png",
+			Images:          toJSON([]string{"/personaggi/ribelle/Ribelle_icon.png", "/personaggi/ribelle/Ribelle_pigro_ink.jpeg", "/personaggi/ribelle/Ribellepigro_nome.jpeg", "/personaggi/ribelle/Ribelle_pigro_pinsata.jpeg"}),
+			BackgroundType:  "solid",
+			BackgroundColor: "#E0E7FF",
 			Order:           4,
 		},
 	}

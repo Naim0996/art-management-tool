@@ -31,22 +31,23 @@ const (
 
 // EnhancedProduct represents the full product with all features
 type EnhancedProduct struct {
-	ID               uint              `gorm:"primarykey" json:"id"`
-	Slug             string            `gorm:"size:255;uniqueIndex;not null" json:"slug"`
-	Title            string            `gorm:"size:500;not null" json:"title"`
-	ShortDescription string            `gorm:"size:1000" json:"short_description,omitempty"`
-	LongDescription  string            `gorm:"type:text" json:"long_description,omitempty"` // Markdown supported
-	BasePrice        float64           `gorm:"type:decimal(10,2);not null;default:0" json:"base_price"`
-	Currency         string            `gorm:"size:3;not null;default:'EUR'" json:"currency"`
-	SKU              string            `gorm:"size:100;uniqueIndex" json:"sku,omitempty"`
-	GTIN             string            `gorm:"size:50" json:"gtin,omitempty"`
-	Status           ProductStatus     `gorm:"size:20;not null;default:'draft'" json:"status"`
-	Categories       []Category        `gorm:"many2many:product_categories;" json:"categories,omitempty"`
-	Images           []ProductImage    `gorm:"foreignKey:ProductID" json:"images,omitempty"`
-	Variants         []ProductVariant  `gorm:"foreignKey:ProductID" json:"variants,omitempty"`
-	CreatedAt        time.Time         `json:"created_at"`
-	UpdatedAt        time.Time         `json:"updated_at"`
-	DeletedAt        gorm.DeletedAt    `gorm:"index" json:"-"`
+	ID               uint             `gorm:"primarykey" json:"id"`
+	Slug             string           `gorm:"size:255;uniqueIndex;not null" json:"slug"`
+	Title            string           `gorm:"size:500;not null" json:"title"`
+	ShortDescription string           `gorm:"size:1000" json:"short_description,omitempty"`
+	LongDescription  string           `gorm:"type:text" json:"long_description,omitempty"` // Markdown supported
+	BasePrice        float64          `gorm:"type:decimal(10,2);not null;default:0" json:"base_price"`
+	Currency         string           `gorm:"size:3;not null;default:'EUR'" json:"currency"`
+	SKU              string           `gorm:"size:100;uniqueIndex" json:"sku,omitempty"`
+	GTIN             string           `gorm:"size:50" json:"gtin,omitempty"`
+	Status           ProductStatus    `gorm:"size:20;not null;default:'draft'" json:"status"`
+	CharacterID      *uint            `json:"character_id,omitempty"` // Optional link to character
+	Categories       []Category       `gorm:"many2many:product_categories;" json:"categories,omitempty"`
+	Images           []ProductImage   `gorm:"foreignKey:ProductID" json:"images,omitempty"`
+	Variants         []ProductVariant `gorm:"foreignKey:ProductID" json:"variants,omitempty"`
+	CreatedAt        time.Time        `json:"-"`
+	UpdatedAt        time.Time        `json:"-"`
+	DeletedAt        gorm.DeletedAt   `gorm:"index" json:"-"`
 }
 
 // TableName overrides the table name

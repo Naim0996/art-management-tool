@@ -170,6 +170,11 @@ export class PersonaggiAPIService {
     return response.json();
   }
 
+  // Alias for getPersonaggioAdmin (for consistency)
+  static async getPersonaggioById(id: number): Promise<PersonaggioDTO> {
+    return this.getPersonaggioAdmin(id);
+  }
+
   // DELETE /api/admin/personaggi/{id}/images - Elimina un'immagine da un personaggio
   static async deleteImage(id: number, imageUrl: string, type: 'icon' | 'image'): Promise<{ message: string }> {
     const token = typeof window !== 'undefined' ? localStorage.getItem('adminToken') : null;

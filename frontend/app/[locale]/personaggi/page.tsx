@@ -29,7 +29,7 @@ export default function PersonaggiPage() {
   if (loading) {
     return (
       <div className="container mx-auto px-4">
-        <h1 className="text-3xl font-bold text-center mb-8">{t('title')}</h1>
+        <h1 className="text-3xl font-bold text-left text-black mb-8">{t('title')}</h1>
         <div className="flex justify-center items-center py-12">
           <div className="text-center">
             <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900"></div>
@@ -42,7 +42,7 @@ export default function PersonaggiPage() {
   
   return (
     <div className="container mx-auto px-4">
-      <h1 className="text-3xl font-bold text-center mb-8">{t('title')}</h1>
+      <h1 className="text-3xl font-bold text-left text-black mb-8">{t('title')}</h1>
 
       {/* Grid responsive per tutti i personaggi */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
