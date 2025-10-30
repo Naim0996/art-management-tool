@@ -146,6 +146,7 @@ func main() {
 
 	// Legacy handlers
 	personaggiHandler := handlers.NewPersonaggiHandler(database.DB)
+	fumettiHandler := handlers.NewFumettiHandler(database.DB)
 
 	r := mux.NewRouter()
 
@@ -278,6 +279,17 @@ func main() {
 	adminRouter.HandleFunc("/personaggi/{id}/upload", personaggiHandler.UploadImage).Methods("POST")
 	adminRouter.HandleFunc("/personaggi/{id}/images", personaggiHandler.DeleteImage).Methods("DELETE")
 
+	// Fumetti management routes (authenticated)
+	adminRouter.HandleFunc("/fumetti", fumettiHandler.GetFumetti).Methods("GET")
+	adminRouter.HandleFunc("/fumetti", fumettiHandler.CreateFumetto).Methods("POST")
+	adminRouter.HandleFunc("/fumetti/deleted", fumettiHandler.GetDeletedFumetti).Methods("GET")
+	adminRouter.HandleFunc("/fumetti/{id}", fumettiHandler.GetFumetto).Methods("GET")
+	adminRouter.HandleFunc("/fumetti/{id}", fumettiHandler.UpdateFumetto).Methods("PUT")
+	adminRouter.HandleFunc("/fumetti/{id}", fumettiHandler.DeleteFumetto).Methods("DELETE")
+	adminRouter.HandleFunc("/fumetti/{id}/restore", fumettiHandler.RestoreFumetto).Methods("POST")
+	adminRouter.HandleFunc("/fumetti/{id}/upload", fumettiHandler.UploadPage).Methods("POST")
+	adminRouter.HandleFunc("/fumetti/{id}/pages", fumettiHandler.DeletePage).Methods("DELETE")
+
 	// ===== Public API =====
 	// Authentication endpoints
 	r.HandleFunc("/api/auth/login", handlers.Login).Methods("POST")
@@ -287,6 +299,10 @@ func main() {
 	// Personaggi public routes (read-only)
 	r.HandleFunc("/api/personaggi", personaggiHandler.GetPersonaggi).Methods("GET")
 	r.HandleFunc("/api/personaggi/{id}", personaggiHandler.GetPersonaggio).Methods("GET")
+
+	// Fumetti public routes (read-only)
+	r.HandleFunc("/api/fumetti", fumettiHandler.GetFumetti).Methods("GET")
+	r.HandleFunc("/api/fumetti/{id}", fumettiHandler.GetFumetto).Methods("GET")
 
 	// Serve uploaded files
 	r.PathPrefix("/uploads/").Handler(http.StripPrefix("/uploads/", http.FileServer(http.Dir("./uploads"))))

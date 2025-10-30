@@ -203,7 +203,7 @@ export default function NotificationsPage() {
 
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold text-gray-800 flex items-center gap-3">
+          <h1 className="text-3xl font-bold text-black flex items-center gap-3">
             Notifications
             {unreadCount > 0 && (
               <Badge value={unreadCount} severity="warning" />

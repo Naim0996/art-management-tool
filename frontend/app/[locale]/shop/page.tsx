@@ -4,19 +4,22 @@ import { useEffect, useState, useRef, useCallback } from 'react';
 import Link from 'next/link';
 import { useLocale } from 'next-intl';
 import { shopAPI, Product } from '@/services/ShopAPIService';
+import { PersonaggiAPIService, PersonaggioDTO } from '@/services/PersonaggiAPIService';
 import { Button } from 'primereact/button';
 import { InputText } from 'primereact/inputtext';
 import { Dropdown } from 'primereact/dropdown';
 import { Card } from 'primereact/card';
 import { Toast } from 'primereact/toast';
-
 export default function ShopPage() {
   const locale = useLocale();
   const toast = useRef<Toast>(null);
   const [products, setProducts] = useState<Product[]>([]);
+  const [personaggi, setPersonaggi] = useState<PersonaggioDTO[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadingPersonaggi, setLoadingPersonaggi] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
-  const [sortBy, setSortBy] = useState('created_at');
+  const [selectedCharacter, setSelectedCharacter] = useState<number | null>(null);
+  const [sortBy, setSortBy] = useState<{ sort: string; order: string }>({ sort: 'created_at', order: 'DESC' });
   const [page, setPage] = useState(1);
   const [totalProducts, setTotalProducts] = useState(0);
   const [apiError, setApiError] = useState<string | null>(null);
@@ -35,8 +38,9 @@ export default function ShopPage() {
       const response = await shopAPI.listProducts({
         status: 'published',
         search: searchQuery || undefined,
-        sort_by: sortBy,
-        sort_order: 'DESC',
+        character: selectedCharacter || undefined,
+        sort_by: sortBy.sort,
+        sort_order: sortBy.order,
         page,
         per_page: perPage,
         // RIMOSSO: in_stock: true - Ora mostriamo tutti i prodotti published, anche senza stock
@@ -58,11 +62,26 @@ export default function ShopPage() {
     } finally {
       setLoading(false);
     }
-  }, [searchQuery, sortBy, page, perPage]);
+  }, [searchQuery, selectedCharacter, sortBy, page, perPage]);
 
   useEffect(() => {
     fetchProducts();
   }, [fetchProducts]);
+
+  useEffect(() => {
+    loadPersonaggi();
+  }, []);
+
+  const loadPersonaggi = async () => {
+    try {
+      const data = await PersonaggiAPIService.getAllPersonaggi();
+      setPersonaggi(data);
+    } catch (error) {
+      console.error('Error loading personaggi:', error);
+    } finally {
+      setLoadingPersonaggi(false);
+    }
+  };
 
   const addToCart = async (productId: number) => {
     try {
@@ -88,9 +107,10 @@ export default function ShopPage() {
   };
 
   const sortOptions = [
-    { label: 'Newest', value: 'created_at' },
-    { label: 'Price', value: 'base_price' },
-    { label: 'Title', value: 'title' },
+    { label: 'Newest', value: { sort: 'created_at', order: 'DESC' } },
+    { label: 'Price: Low to High', value: { sort: 'base_price', order: 'ASC' } },
+    { label: 'Price: High to Low', value: { sort: 'base_price', order: 'DESC' } },
+    { label: 'Title', value: { sort: 'title', order: 'ASC' } },
   ];
 
   const totalPages = Math.ceil(totalProducts / perPage);
@@ -100,11 +120,6 @@ export default function ShopPage() {
       return product.variants.reduce((sum, v) => sum + v.stock, 0);
     }
     return 0;
-  };
-
-  const getPrimaryImage = (product: Product): string => {
-    const primaryImg = product.images?.find(img => img.is_primary);
-    return primaryImg?.url || product.images?.[0]?.url || '/placeholder-art.png';
   };
 
   if (loading) {
@@ -184,13 +199,26 @@ export default function ShopPage() {
                 />
               </span>
             </div>
-            <div className="flex gap-2 items-center">
-              <label className="text-sm text-gray-600">Sort by:</label>
+            <div className="flex gap-2 items-center w-full md:w-auto">
+              <label className="text-sm text-gray-600 whitespace-nowrap">Character:</label>
+              <Dropdown
+                value={selectedCharacter}
+                options={[
+                  { label: 'All Characters', value: null },
+                  ...personaggi.map(p => ({ label: p.name, value: p.id }))
+                ]}
+                onChange={(e) => setSelectedCharacter(e.value)}
+                className="w-full md:w-48"
+                placeholder="All Characters"
+              />
+            </div>
+            <div className="flex gap-2 items-center w-full md:w-auto">
+              <label className="text-sm text-gray-600 whitespace-nowrap">Sort by:</label>
               <Dropdown
                 value={sortBy}
                 options={sortOptions}
                 onChange={(e) => setSortBy(e.value)}
-                className="w-40"
+                className="w-full md:w-40"
               />
             </div>
           </div>
@@ -207,22 +235,34 @@ export default function ShopPage() {
                 const inStock = stockQty > 0;
                 
                 return (
-                  <Card key={product.id} className="hover:shadow-xl transition-all duration-300 cursor-pointer">
+                  <Card key={product.id} className="hover:shadow-xl transition-all duration-300 cursor-pointer" onClick={(e) => {
+                    e.preventDefault();
+                    window.location.href = `/${locale}/shop/${product.slug}`;
+                  }}>
                     <div className="space-y-4">
-                      <div className="relative bg-gray-100 h-64 rounded-lg overflow-hidden">
+                      <div className="relative bg-gray-100 h-64 rounded-lg overflow-hidden group">
                         {product.images && product.images.length > 0 ? (
-                          <img
-                            src={getPrimaryImage(product)}
-                            alt={product.title}
-                            className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
-                          />
+                          <>
+                            {product.images.length > 1 && (
+                              <img
+                                src={product.images[1].url}
+                                alt={product.title}
+                                className="w-full h-full object-cover absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                              />
+                            )}
+                            <img
+                              src={product.images[0].url}
+                              alt={product.title}
+                              className="w-full h-full object-cover absolute inset-0 group-hover:opacity-0 transition-opacity duration-300"
+                            />
+                          </>
                         ) : (
                           <div className="flex items-center justify-center h-full">
                             <i className="pi pi-image text-6xl text-gray-400"></i>
                           </div>
                         )}
                         {!inStock && (
-                          <div className="absolute inset-0 bg-black bg-opacity-60 flex items-center justify-center">
+                          <div className="absolute inset-0 bg-black bg-opacity-60 flex items-center justify-center z-10">
                             <span className="text-white font-semibold text-lg">Out of Stock</span>
                           </div>
                         )}
@@ -246,24 +286,6 @@ export default function ShopPage() {
                             {inStock ? `${stockQty} in stock` : 'Out of stock'}
                           </span>
                         </div>
-                      </div>
-
-                      <div className="flex gap-2 pt-2">
-                        <Button
-                          label="View"
-                          icon="pi pi-eye"
-                          className="flex-1"
-                          outlined
-                          onClick={() => window.location.href = `/${locale}/shop/${product.slug}`}
-                        />
-                        <Button
-                          label="Add to Cart"
-                          icon="pi pi-shopping-cart"
-                          className="flex-1"
-                          onClick={() => addToCart(product.id)}
-                          disabled={!inStock}
-                          style={inStock ? { backgroundColor: '#3b82f6', borderColor: '#3b82f6' } : {}}
-                        />
                       </div>
                     </div>
                   </Card>

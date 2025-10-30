@@ -38,8 +38,8 @@ export interface ProductImage {
   id: number;
   url: string;
   alt_text?: string;
-  display_order: number;
-  is_primary: boolean;
+  position: number;
+  is_primary?: boolean; // Compatibilità con AdminShopAPIService
 }
 
 export interface ProductVariant {
@@ -276,6 +276,7 @@ class ShopAPIService {
   async listProducts(params?: {
     status?: string;
     category?: number;
+    character?: number;
     min_price?: number;
     max_price?: number;
     search?: string;

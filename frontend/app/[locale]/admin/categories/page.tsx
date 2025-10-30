@@ -205,7 +205,7 @@ export default function AdminCategoriesPage() {
 
       <div className="mb-6 flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Category Management</h1>
+          <h1 className="text-3xl font-bold text-black">Category Management</h1>
           <p className="text-gray-600 mt-2">Manage product categories for your shop</p>
         </div>
         <Button
