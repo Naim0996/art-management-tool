@@ -2,6 +2,7 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { useTranslations, useLocale } from 'next-intl';
 import { MegaMenu } from "primereact/megamenu";
 import { Ripple } from "primereact/ripple";
@@ -63,6 +64,15 @@ export default function HeaderComponent() {
         </div>
     );
 
+    const end = (
+        <div className="flex align-items-center gap-3">
+            <LanguageSwitcher />
+            <Link href={`/${locale}/cart`} className="p-button p-component p-button-icon-only p-button-rounded" title="Shopping Cart">
+                <i className="pi pi-shopping-cart"></i>
+            </Link>
+        </div>
+    );
+
     return (
         <>
             {/* Navigation Bar - Sticky Header */}
@@ -72,21 +82,21 @@ export default function HeaderComponent() {
                         model={items}
                         orientation="horizontal" 
                         start={start}
+                        end={end}
                         breakpoint="960px" 
                         className="p-3 surface-0 shadow-2" 
                         style={{ 
                             borderRadius: '3rem',
                         }}
                         pt={{
+                            root: {
+                                className: 'flex justify-content-between align-items-center'
+                            },
                             menu: {
-                                style: {
-                                    marginLeft: 'auto'
-                                }
+                                className: 'flex gap-2 p-0 m-0 border-none bg-transparent shadow-none ml-auto'
                             },
                             menuButton: {
-                                style: {
-                                    marginLeft: 'auto'
-                                }
+                                className: 'ml-auto'
                             }
                         }}
                     />

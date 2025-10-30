@@ -31,64 +31,68 @@ func NewService(db *gorm.DB) *Service {
 func (s *Service) ListProducts(filters *ProductFilters) ([]models.EnhancedProduct, int64, error) {
 	var products []models.EnhancedProduct
 	var total int64
-	
+
 	query := s.db.Model(&models.EnhancedProduct{})
-	
+
 	// Apply filters
 	if filters.Status != "" {
 		query = query.Where("status = ?", filters.Status)
 	}
-	
+
 	if filters.CategoryID > 0 {
 		query = query.Joins("JOIN product_categories ON product_categories.product_id = products.id").
 			Where("product_categories.category_id = ?", filters.CategoryID)
 	}
-	
+
+	if filters.CharacterID > 0 {
+		query = query.Where("character_id = ?", filters.CharacterID)
+	}
+
 	if filters.MinPrice > 0 {
 		query = query.Where("base_price >= ?", filters.MinPrice)
 	}
-	
+
 	if filters.MaxPrice > 0 {
 		query = query.Where("base_price <= ?", filters.MaxPrice)
 	}
-	
+
 	if filters.Search != "" {
 		search := "%" + strings.ToLower(filters.Search) + "%"
 		query = query.Where("LOWER(title) LIKE ? OR LOWER(short_description) LIKE ? OR LOWER(long_description) LIKE ?",
 			search, search, search)
 	}
-	
+
 	if filters.InStock {
 		// FIX: Usa una subquery per filtrare prodotti con almeno una variante in stock
 		// Questo funziona anche per prodotti senza varianti (non vengono esclusi)
 		query = query.Where("EXISTS (SELECT 1 FROM product_variants WHERE product_variants.product_id = products.id AND product_variants.stock > 0)")
 	}
-	
+
 	// Count total
 	if err := query.Count(&total).Error; err != nil {
 		return nil, 0, err
 	}
-	
+
 	// Apply pagination
 	offset := (filters.Page - 1) * filters.PerPage
 	query = query.Offset(offset).Limit(filters.PerPage)
-	
+
 	// Order
 	if filters.SortBy != "" {
 		query = query.Order(fmt.Sprintf("%s %s", filters.SortBy, filters.SortOrder))
 	} else {
 		query = query.Order("created_at DESC")
 	}
-	
+
 	// Load relationships
 	query = query.Preload("Categories").
 		Preload("Images").
 		Preload("Variants")
-	
+
 	if err := query.Find(&products).Error; err != nil {
 		return nil, 0, err
 	}
-	
+
 	return products, total, nil
 }
 
@@ -99,14 +103,14 @@ func (s *Service) GetProduct(id uint) (*models.EnhancedProduct, error) {
 		Preload("Images").
 		Preload("Variants").
 		First(&product, id).Error
-	
+
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, ErrProductNotFound
 		}
 		return nil, err
 	}
-	
+
 	return &product, nil
 }
 
@@ -118,14 +122,14 @@ func (s *Service) GetProductBySlug(slug string) (*models.EnhancedProduct, error)
 		Preload("Images").
 		Preload("Variants").
 		First(&product).Error
-	
+
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, ErrProductNotFound
 		}
 		return nil, err
 	}
-	
+
 	return &product, nil
 }
 
@@ -135,7 +139,7 @@ func (s *Service) CreateProduct(product *models.EnhancedProduct) error {
 	if product.Slug == "" {
 		return ErrInvalidSlug
 	}
-	
+
 	// Check for duplicate SKU
 	if product.SKU != "" {
 		var count int64
@@ -144,7 +148,7 @@ func (s *Service) CreateProduct(product *models.EnhancedProduct) error {
 			return ErrDuplicateSKU
 		}
 	}
-	
+
 	return s.db.Create(product).Error
 }
 
@@ -157,7 +161,7 @@ func (s *Service) UpdateProduct(id uint, updates *models.EnhancedProduct) error 
 		}
 		return err
 	}
-	
+
 	// Check for duplicate SKU if changing
 	if updates.SKU != "" && updates.SKU != product.SKU {
 		var count int64
@@ -166,7 +170,7 @@ func (s *Service) UpdateProduct(id uint, updates *models.EnhancedProduct) error 
 			return ErrDuplicateSKU
 		}
 	}
-	
+
 	return s.db.Model(&product).Updates(updates).Error
 }
 
@@ -176,11 +180,11 @@ func (s *Service) DeleteProduct(id uint) error {
 	if result.Error != nil {
 		return result.Error
 	}
-	
+
 	if result.RowsAffected == 0 {
 		return ErrProductNotFound
 	}
-	
+
 	return nil
 }
 
@@ -194,14 +198,14 @@ func (s *Service) AddVariant(productID uint, variant *models.ProductVariant) err
 		}
 		return err
 	}
-	
+
 	// Check for duplicate SKU
 	var count int64
 	s.db.Model(&models.ProductVariant{}).Where("sku = ?", variant.SKU).Count(&count)
 	if count > 0 {
 		return ErrDuplicateSKU
 	}
-	
+
 	variant.ProductID = productID
 	return s.db.Create(variant).Error
 }
@@ -215,7 +219,7 @@ func (s *Service) UpdateVariant(id uint, updates *models.ProductVariant) error {
 		}
 		return err
 	}
-	
+
 	// Check for duplicate SKU if changing
 	if updates.SKU != "" && updates.SKU != variant.SKU {
 		var count int64
@@ -224,7 +228,7 @@ func (s *Service) UpdateVariant(id uint, updates *models.ProductVariant) error {
 			return ErrDuplicateSKU
 		}
 	}
-	
+
 	return s.db.Model(&variant).Updates(updates).Error
 }
 
@@ -234,11 +238,11 @@ func (s *Service) DeleteVariant(id uint) error {
 	if result.Error != nil {
 		return result.Error
 	}
-	
+
 	if result.RowsAffected == 0 {
 		return ErrVariantNotFound
 	}
-	
+
 	return nil
 }
 
@@ -252,7 +256,7 @@ func (s *Service) AddImage(productID uint, image *models.ProductImage) error {
 		}
 		return err
 	}
-	
+
 	image.ProductID = productID
 	return s.db.Create(image).Error
 }
@@ -271,7 +275,7 @@ func (s *Service) UpdateInventory(variantID uint, quantity int, operation string
 		}
 		return err
 	}
-	
+
 	switch operation {
 	case "set":
 		variant.Stock = quantity
@@ -285,22 +289,23 @@ func (s *Service) UpdateInventory(variantID uint, quantity int, operation string
 	default:
 		return fmt.Errorf("invalid operation: %s", operation)
 	}
-	
+
 	return s.db.Save(&variant).Error
 }
 
 // ProductFilters represents filters for product listing
 type ProductFilters struct {
-	Status     models.ProductStatus
-	CategoryID uint
-	MinPrice   float64
-	MaxPrice   float64
-	Search     string
-	InStock    bool
-	Page       int
-	PerPage    int
-	SortBy     string
-	SortOrder  string
+	Status      models.ProductStatus
+	CategoryID  uint
+	CharacterID uint
+	MinPrice    float64
+	MaxPrice    float64
+	Search      string
+	InStock     bool
+	Page        int
+	PerPage     int
+	SortBy      string
+	SortOrder   string
 }
 
 // DefaultFilters returns default filters

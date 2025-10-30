@@ -221,7 +221,7 @@ export default function ShopOrdersManagement() {
 
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold text-gray-800">Shop Orders Management</h1>
+          <h1 className="text-3xl font-bold text-black">Shop Orders Management</h1>
           <p className="text-gray-600 mt-1">View and manage customer orders</p>
         </div>
       </div>

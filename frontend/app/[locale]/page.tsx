@@ -1,52 +1,128 @@
+"use client";
 
 import Link from "next/link";
+import Image from "next/image";
+import { useState, useEffect } from "react";
+import { useLocale } from "next-intl";
+import { PersonaggiAPIService, PersonaggioDTO } from "@/services/PersonaggiAPIService";
 
 export default function Home() {
+  const locale = useLocale();
+  const [personaggi, setPersonaggi] = useState<PersonaggioDTO[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [featuredPersonaggio, setFeaturedPersonaggio] = useState<PersonaggioDTO | null>(null);
 
+  useEffect(() => {
+    const loadPersonaggi = async () => {
+      try {
+        const data = await PersonaggiAPIService.getAllPersonaggi();
+        setPersonaggi(data);
+        // Seleziona il primo personaggio come featured
+        if (data.length > 0) {
+          setFeaturedPersonaggio(data[0]);
+        }
+      } catch (error) {
+        console.error('Error loading personaggi:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    loadPersonaggi();
+  }, []);
 
+  const getBackgroundStyle = (personaggio: PersonaggioDTO | null) => {
+    if (!personaggio) return { backgroundColor: '#E0E7FF' };
+    
+    if (personaggio.backgroundType === 'gradient' && personaggio.gradientFrom && personaggio.gradientTo) {
+      return {
+        background: `linear-gradient(to bottom right, ${personaggio.gradientFrom}, ${personaggio.gradientTo})`
+      };
+    }
+    return {
+      backgroundColor: personaggio.backgroundColor || '#E0E7FF'
+    };
+  };
 
   return (
     <div className="w-full overflow-x-hidden">
-        {/* Hero Section with Background Image */}
+        {/* Hero Section with Featured Character Banner */}
         <div className="relative min-h-[70vh] flex items-center justify-center overflow-hidden w-full">
-          {/* Artistic Gradient Background (replace with custom image later) */}
-          <div 
-            className="absolute inset-0 z-0 bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900"
-            style={{
-              backgroundAttachment: 'fixed'
-            }}
-          >
-            {/* Artistic overlay pattern */}
-            <div className="absolute inset-0 opacity-20" style={{
-              backgroundImage: 'repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(255,255,255,.05) 10px, rgba(255,255,255,.05) 20px)'
-            }}></div>
-            {/* Overlay for better text readability */}
-            <div className="absolute inset-0 bg-gradient-to-b from-black/20 to-black/40"></div>
-          </div>
-
-          {/* Hero Content */}
-          <div className="relative z-10 text-center py-12 px-4">
-            <h1 className="text-5xl md:text-6xl font-bold mb-4 text-white drop-shadow-lg">
-              Benvenuti nel Mondo dei Personaggi
-            </h1>
-            <p className="text-xl text-white/90 mb-8 max-w-2xl mx-auto drop-shadow-md">
-              Esplora i personaggi unici creati dall&apos;immaginazione di un artista fumettista
-            </p>
-            <div className="flex gap-4 justify-center">
-              <Link 
-                href="/shop"
-                className="px-8 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-lg font-semibold shadow-lg hover:shadow-xl"
+          {/* Featured Character Banner - Clickable */}
+          {featuredPersonaggio && (
+            <Link 
+              href={`/${locale}/personaggi`}
+              className="absolute inset-0 z-0 w-full h-full cursor-pointer group"
+            >
+              <div 
+                className="w-full h-full transition-all duration-500 group-hover:scale-105"
+                style={getBackgroundStyle(featuredPersonaggio)}
               >
-                Inizia Shopping
-              </Link>
-              <Link 
-                href="/personaggi"
-                className="px-8 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors text-lg font-semibold shadow-lg hover:shadow-xl"
-              >
-                Scopri Personaggi
-              </Link>
+                {/* Overlay for better text readability */}
+                <div className="absolute inset-0 bg-gradient-to-b from-black/30 to-black/60 group-hover:from-black/20 group-hover:to-black/50 transition-all duration-500"></div>
+                
+                {/* Character Image */}
+                <div className="absolute inset-0 flex items-center justify-center p-8">
+                  <div className="relative w-full max-w-md">
+                    {featuredPersonaggio.icon && (
+                      <Image
+                        src={featuredPersonaggio.icon}
+                        alt={featuredPersonaggio.name}
+                        width={600}
+                        height={600}
+                        className="object-contain"
+                        priority
+                      />
+                    )}
+                  </div>
+                </div>
+                
+                {/* Content Overlay */}
+                <div className="absolute inset-0 flex items-center justify-center z-10">
+                  <div className="text-center px-4">
+                    <h1 className="text-5xl md:text-7xl font-bold mb-4 text-white drop-shadow-2xl group-hover:scale-105 transition-transform duration-300">
+                      {featuredPersonaggio.name}
+                    </h1>
+                    <p className="text-xl md:text-2xl text-white/90 mb-8 max-w-2xl mx-auto drop-shadow-md group-hover:text-white transition-colors duration-300">
+                      {featuredPersonaggio.description}
+                    </p>
+                    <div className="inline-block px-8 py-4 bg-white/20 backdrop-blur-sm rounded-lg border-2 border-white/30 text-white font-semibold text-lg group-hover:bg-white/30 transition-all duration-300">
+                      Scopri tutti i personaggi →
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </Link>
+          )}
+          
+          {/* Fallback if no personaggi */}
+          {!featuredPersonaggio && !loading && (
+            <div className="absolute inset-0 z-0 bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900">
+              <div className="absolute inset-0 bg-gradient-to-b from-black/20 to-black/40"></div>
+              <div className="relative z-10 text-center py-12 px-4">
+                <h1 className="text-5xl md:text-6xl font-bold mb-4 text-white drop-shadow-lg">
+                  Benvenuti nel Mondo dei Personaggi
+                </h1>
+                <p className="text-xl text-white/90 mb-8 max-w-2xl mx-auto drop-shadow-md">
+                  Esplora i personaggi unici creati dall&apos;immaginazione di un artista fumettista
+                </p>
+                <div className="flex gap-4 justify-center">
+                  <Link 
+                    href={`/${locale}/shop`}
+                    className="px-8 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-lg font-semibold shadow-lg hover:shadow-xl"
+                  >
+                    Inizia Shopping
+                  </Link>
+                  <Link 
+                    href={`/${locale}/personaggi`}
+                    className="px-8 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors text-lg font-semibold shadow-lg hover:shadow-xl"
+                  >
+                    Scopri Personaggi
+                  </Link>
+                </div>
+              </div>
             </div>
-          </div>
+          )}
         </div>
 
         {/* Services Section - What a Comic Artist Can Offer */}

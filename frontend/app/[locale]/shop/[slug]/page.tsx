@@ -112,11 +112,11 @@ export default function ProductDetailPage() {
       return [{ url: '/placeholder-art.png', alt_text: product?.title || 'Product' }];
     }
     
-    // Sort by is_primary and display_order
+    // Sort by is_primary and position
     return [...product.images].sort((a, b) => {
       if (a.is_primary && !b.is_primary) return -1;
       if (!a.is_primary && b.is_primary) return 1;
-      return a.display_order - b.display_order;
+      return a.position - b.position;
     });
   };
 

@@ -45,14 +45,14 @@ export default function AdminLogin() {
     <div className="min-h-screen p-8 flex items-center justify-center bg-gray-50">
       <div className="max-w-md w-full">
         <div className="bg-white p-8 rounded-lg shadow-md">
-          <Link href="/" className="text-blue-600 hover:underline mb-4 block">
+          <Link href="/" className="text-black hover:underline mb-4 block">
             ← Back to Home
           </Link>
-          <h1 className="text-3xl font-bold mb-6 text-center">Admin Login</h1>
+          <h1 className="text-3xl font-bold mb-6 text-center text-black">Admin Login</h1>
           
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium mb-2">Username</label>
+              <label className="block text-sm font-medium mb-2 text-black">Username</label>
               <input
                 type="text"
                 required
@@ -64,7 +64,7 @@ export default function AdminLogin() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-2">Password</label>
+              <label className="block text-sm font-medium mb-2 text-black">Password</label>
               <input
                 type="password"
                 required
@@ -91,11 +91,11 @@ export default function AdminLogin() {
           </form>
 
           <div className="mt-6 p-4 bg-blue-50 rounded-lg">
-            <p className="text-sm text-gray-700">
+            <p className="text-sm text-black">
               <strong>Demo Credentials:</strong>
             </p>
-            <p className="text-sm text-gray-600">Username: admin</p>
-            <p className="text-sm text-gray-600">Password: admin</p>
+            <p className="text-sm text-black">Username: admin</p>
+            <p className="text-sm text-black">Password: admin</p>
           </div>
         </div>
       </div>

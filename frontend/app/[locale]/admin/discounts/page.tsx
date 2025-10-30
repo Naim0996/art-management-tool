@@ -265,7 +265,7 @@ export default function AdminDiscountsPage() {
 
       <div className="mb-6 flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Discount Code Management</h1>
+          <h1 className="text-3xl font-bold text-black">Discount Code Management</h1>
           <p className="text-gray-600 mt-2">Create and manage promotional discount codes</p>
         </div>
         <Button

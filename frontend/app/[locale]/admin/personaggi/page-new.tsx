@@ -369,7 +369,7 @@ export default function AdminPersonaggiPageNew() {
 
       {/* Header */}
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold">Personaggi Management</h1>
+        <h1 className="text-3xl font-bold text-black">Personaggi Management</h1>
         <Button
           label="New Personaggio"
           icon="pi pi-plus"
