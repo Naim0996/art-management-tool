@@ -210,6 +210,35 @@ export default function AdminPersonaggiPageNew() {
     }
   };
 
+  // Ricarica il personaggio in editing (usato dopo upload immagini)
+  const reloadEditingPersonaggio = async () => {
+    if (!editingPersonaggio?.id) return;
+    try {
+      const updated = await PersonaggiAPIService.getPersonaggioAdmin(editingPersonaggio.id);
+      // aggiorna lista e form con i dati aggiornati
+      await loadPersonaggi();
+      setFormData({
+        name: updated.name,
+        description: updated.description,
+        icon: updated.icon,
+        images: updated.images || [],
+        backgroundColor: updated.backgroundColor,
+        backgroundType: updated.backgroundType,
+        gradientFrom: updated.gradientFrom,
+        gradientTo: updated.gradientTo,
+        order: updated.order,
+      });
+    } catch (error) {
+      console.error('Error reloading personaggio after upload:', error);
+      toast.current?.show({
+        severity: 'error',
+        summary: 'Error',
+        detail: 'Failed to refresh after upload',
+        life: 3000,
+      });
+    }
+  };
+
   const handlePreview = (personaggio?: PersonaggioDTO) => {
     if (personaggio) {
       setFormData({
@@ -592,6 +621,7 @@ export default function AdminPersonaggiPageNew() {
                 maxImages={1}
                 type="icon"
                 personaggioId={editingPersonaggio?.id}
+                onUploadComplete={reloadEditingPersonaggio}
               />
 
               <Divider />
@@ -604,6 +634,7 @@ export default function AdminPersonaggiPageNew() {
                 maxImages={20}
                 type="gallery"
                 personaggioId={editingPersonaggio?.id}
+                onUploadComplete={reloadEditingPersonaggio}
               />
             </div>
           </TabPanel>
