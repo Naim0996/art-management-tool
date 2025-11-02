@@ -20,6 +20,7 @@ export interface Product {
   gtin?: string;
   status: 'published' | 'draft' | 'archived';
   character_id?: number;
+  etsy_shop_url?: string;
   categories?: Category[];
   images?: ProductImage[];
   variants?: ProductVariant[];

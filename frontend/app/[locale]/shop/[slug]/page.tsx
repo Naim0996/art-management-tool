@@ -170,23 +170,20 @@ export default function ProductDetailPage() {
   const images = getImages();
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-white">
       <Toast ref={toast} />
-      
-      {/* Header */}
-      <header className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <Link href={`/${locale}/shop`} className="text-blue-600 hover:underline inline-flex items-center">
-            <i className="pi pi-arrow-left mr-2"></i>
-            Back to Shop
-          </Link>
-        </div>
-      </header>
 
       {/* Product Detail */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="bg-white rounded-lg shadow-lg overflow-hidden">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 p-8">
+      <main className="max-w-7xl mx-auto px-2 sm:px-4 md:px-6 lg:px-8 py-6 md:py-8">
+        {/* Breadcrumb */}
+        <div className="mb-4 md:mb-6">
+          <Link href={`/${locale}/shop`} className="text-blue-600 hover:text-blue-700 inline-flex items-center text-sm font-medium">
+            <i className="pi pi-arrow-left mr-2"></i>
+            Torna allo Shop
+          </Link>
+        </div>
+        <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-12 p-4 md:p-8">
             {/* Image Gallery */}
             <div className="space-y-4">
               <div className="w-full">
@@ -277,7 +274,12 @@ export default function ProductDetailPage() {
               <div>
                 <h1 className="text-3xl font-bold text-gray-900 mb-2">{product.title}</h1>
                 {product.short_description && (
-                  <p className="text-base text-gray-600">{product.short_description}</p>
+                  <p className="text-base text-gray-600 mb-3">{product.short_description}</p>
+                )}
+                {product.long_description && (
+                  <div className="text-sm text-gray-700 leading-relaxed whitespace-pre-wrap mt-4">
+                    {product.long_description}
+                  </div>
                 )}
               </div>
 
@@ -358,23 +360,24 @@ export default function ProductDetailPage() {
               </div>
 
               {/* Add to Cart and Checkout Buttons */}
-              <div className="flex gap-4 pt-4">
+              <div className="flex flex-col md:flex-row gap-3 md:gap-4 pt-4">
                 <Button
                   label="Add to Cart"
                   icon="pi pi-shopping-cart"
-                  className="flex-1 p-button-primary"
+                  className="w-full md:flex-1 p-button-primary"
                   size="large"
                   onClick={handleAddToCart}
                   disabled={!inStock || addingToCart}
                   loading={addingToCart}
                   style={{ 
-                    backgroundColor: '#3b82f6',
-                    borderColor: '#3b82f6',
+                    backgroundColor: '#0066CC',
+                    borderColor: '#0066CC',
                     height: '3.5rem',
-                    fontSize: '1.1rem'
+                    fontSize: '1.1rem',
+                    fontWeight: '600'
                   }}
                 />
-                <Link href={`/${locale}/checkout`} className="flex-1">
+                <Link href={`/${locale}/checkout`} className="w-full md:flex-1">
                   <Button
                     label="Checkout"
                     icon="pi pi-credit-card"
@@ -382,15 +385,36 @@ export default function ProductDetailPage() {
                     size="large"
                     disabled={!inStock}
                     style={{ 
-                      borderColor: '#16a34a',
-                      color: '#16a34a',
+                      borderColor: '#0066CC',
+                      color: '#0066CC',
                       height: '3.5rem',
-                      fontSize: '1.1rem'
+                      fontSize: '1.1rem',
+                      fontWeight: '600'
                     }}
                   />
                 </Link>
               </div>
 
+              {/* Etsy Button */}
+              {product.etsy_shop_url && (
+                <a href={product.etsy_shop_url} target="_blank" rel="noopener noreferrer" className="block">
+                  <Button
+                    label="Acquista su Etsy"
+                    icon="pi pi-external-link"
+                    className="w-full"
+                    size="large"
+                    style={{ 
+                      backgroundColor: '#F1641E',
+                      borderColor: '#F1641E',
+                      color: '#ffffff',
+                      height: '3.5rem',
+                      fontSize: '1.1rem',
+                      fontWeight: '600'
+                    }}
+                  />
+                </a>
+              )}
+              
               {/* View Character Button */}
               {product.character_id && (
                 <Link href={`/${locale}/personaggi`}>
@@ -402,8 +426,9 @@ export default function ProductDetailPage() {
                     style={{ 
                       height: '3.5rem',
                       fontSize: '1.1rem',
-                      borderColor: '#3b82f6',
-                      color: '#3b82f6'
+                      borderColor: '#0066CC',
+                      color: '#0066CC',
+                      fontWeight: '600'
                     }}
                   />
                 </Link>
@@ -421,15 +446,6 @@ export default function ProductDetailPage() {
             </div>
           </div>
 
-          {/* Long Description */}
-          {product.long_description && (
-            <div className="border-t p-8">
-              <h2 className="text-2xl font-bold text-gray-900 mb-4">Product Details</h2>
-              <div className="prose max-w-none text-gray-700 whitespace-pre-wrap">
-                {product.long_description}
-              </div>
-            </div>
-          )}
         </div>
       </main>
     </div>

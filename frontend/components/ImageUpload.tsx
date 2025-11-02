@@ -38,7 +38,7 @@ export default function ImageUpload({
 
   const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
 
-  // Gestione upload file locale
+  // Gestione upload file locale (supporta multipli)
   const handleUpload = async (event: FileUploadHandlerEvent) => {
     let currentEntityId = personaggioId || fumettoId;
     const entityType = personaggioId ? 'personaggio' : 'fumetto';
@@ -48,8 +48,8 @@ export default function ImageUpload({
     if (!currentEntityId && onSaveRequired) {
       toast.current?.show({
         severity: 'info',
-        summary: 'Saving',
-        detail: `Saving ${entityType} before uploading image...`,
+        summary: 'Salvataggio',
+        detail: `Salvataggio ${entityType}...`,
         life: 2000,
       });
 
@@ -58,8 +58,8 @@ export default function ImageUpload({
         if (!currentEntityId) {
           toast.current?.show({
             severity: 'error',
-            summary: 'Error',
-            detail: `Failed to save ${entityType}. Please fill required fields.`,
+            summary: 'Errore',
+            detail: `Impossibile salvare ${entityType}. Compila i campi obbligatori.`,
             life: 3000,
           });
           return;
@@ -68,8 +68,8 @@ export default function ImageUpload({
         console.error('Save error:', error);
         toast.current?.show({
           severity: 'error',
-          summary: 'Error',
-          detail: `Failed to save ${entityType} before upload`,
+          summary: 'Errore',
+          detail: `Errore nel salvataggio ${entityType}`,
           life: 3000,
         });
         return;
@@ -77,59 +77,83 @@ export default function ImageUpload({
     } else if (!currentEntityId) {
       toast.current?.show({
         severity: 'warn',
-        summary: 'Warning',
-        detail: `Save the ${entityType} first before uploading images`,
+        summary: 'Attenzione',
+        detail: `Salva prima il ${entityType}`,
         life: 3000,
       });
       return;
     }
 
-    const file = event.files[0];
-    
-    // Validate file before uploading
-    const { validateImageFile } = await import('@/services/validation');
-    const validation = validateImageFile(file, 10);
-    if (validation.hasErrors()) {
-      toast.current?.show({
-        severity: 'error',
-        summary: 'Validation Error',
-        detail: validation.getErrorMessage(),
-        life: 3000,
-      });
-      return;
-    }
+    const files = event.files; // Supporto multiplo
+    if (!files || files.length === 0) return;
 
     setUploading(true);
+    let successCount = 0;
+    let errorCount = 0;
 
     try {
-      const formData = new FormData();
-      formData.append('file', file);
-      formData.append('type', type);
+      // Upload di tutti i file selezionati
+      for (const file of files) {
+        try {
+          // Validate file
+          const { validateImageFile } = await import('@/services/validation');
+          const validation = validateImageFile(file, 10);
+          if (validation.hasErrors()) {
+            toast.current?.show({
+              severity: 'error',
+              summary: 'Errore Validazione',
+              detail: `${file.name}: ${validation.getErrorMessage()}`,
+              life: 3000,
+            });
+            errorCount++;
+            continue;
+          }
 
-      const token = localStorage.getItem('adminToken');
-      const response = await fetch(
-        `${API_BASE_URL}/api/admin/${uploadEndpoint}/${currentEntityId}/upload`,
-        {
-          method: 'POST',
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-          body: formData,
+          const formData = new FormData();
+          formData.append('file', file);
+          formData.append('type', type);
+
+          const token = localStorage.getItem('adminToken');
+          const response = await fetch(
+            `${API_BASE_URL}/api/admin/${uploadEndpoint}/${currentEntityId}/upload`,
+            {
+              method: 'POST',
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+              body: formData,
+            }
+          );
+
+          if (!response.ok) {
+            throw new Error('Upload failed');
+          }
+
+          successCount++;
+        } catch (error) {
+          console.error(`Upload error for ${file.name}:`, error);
+          errorCount++;
         }
-      );
-
-      if (!response.ok) {
-        throw new Error('Upload failed');
       }
 
-      const data = await response.json();
-      
-      toast.current?.show({
-        severity: 'success',
-        summary: 'Success',
-        detail: 'Image uploaded successfully',
-        life: 2000,
-      });
+      // Mostra risultato
+      if (successCount > 0) {
+        toast.current?.show({
+          severity: 'success',
+          summary: 'Successo',
+          detail: `${successCount} immagine/i caricate`,
+          life: 2000,
+        });
+      }
+
+      if (errorCount > 0) {
+        toast.current?.show({
+          severity: 'error',
+          summary: 'Errore',
+          detail: `${errorCount} immagine/i non caricate`,
+          life: 3000,
+        });
+      }
 
       // Reset file upload
       if (fileUploadRef.current) {
@@ -137,20 +161,19 @@ export default function ImageUpload({
       }
 
       // Ricarica i dati aggiornati dal backend
-      if (onUploadComplete) {
+      if (onUploadComplete && successCount > 0) {
         try {
           await onUploadComplete();
         } catch (error) {
           console.error('Error reloading after upload:', error);
-          // L'errore è già gestito dalla callback
         }
       }
     } catch (error) {
       console.error('Upload error:', error);
       toast.current?.show({
         severity: 'error',
-        summary: 'Error',
-        detail: 'Failed to upload image',
+        summary: 'Errore',
+        detail: 'Errore durante upload',
         life: 3000,
       });
     } finally {
@@ -206,14 +229,25 @@ export default function ImageUpload({
   };
 
   // Rimuovi immagine
-  const handleRemove = (index: number) => {
+  const handleRemove = (index: number, imageUrl: string) => {
+    // Estrai nome file dall'URL
+    const fileName = imageUrl.split('/').pop() || 'immagine';
+    
     confirmDialog({
-      message: 'Are you sure you want to remove this image?',
-      header: 'Confirm',
+      message: `Vuoi rimuovere "${fileName}"?`,
+      header: 'Conferma Eliminazione',
       icon: 'pi pi-exclamation-triangle',
+      acceptLabel: 'Sì, rimuovi',
+      rejectLabel: 'Annulla',
       accept: () => {
         const newImages = images.filter((_, i) => i !== index);
         onImagesChange(newImages);
+        toast.current?.show({
+          severity: 'success',
+          summary: 'Rimossa',
+          detail: `${fileName} rimossa`,
+          life: 2000,
+        });
       },
     });
   };
@@ -257,15 +291,16 @@ export default function ImageUpload({
             ref={fileUploadRef}
             mode="basic"
             name="file"
-            accept="image/*"
+            accept="image/jpeg,image/jpg,image/png,image/gif,image/webp,image/svg+xml,image/avif"
             maxFileSize={10000000}
             customUpload
             uploadHandler={handleUpload}
-            disabled={uploading || ((type === 'icon' || type === 'cover') && images.length > 0) || images.length >= maxImages}
-            chooseLabel={uploading ? 'Uploading...' : 'Choose File'}
+            multiple={type !== 'icon' && type !== 'cover' && type !== 'background'}
+            disabled={uploading || ((type === 'icon' || type === 'cover' || type === 'background') && images.length > 0) || images.length >= maxImages}
+            chooseLabel={uploading ? 'Caricamento...' : (type === 'icon' || type === 'cover' || type === 'background' ? 'Scegli File' : 'Scegli File (multipli)')}
             className="w-full"
           />
-          <small className="text-gray-500">Max 10MB, JPG/PNG/GIF</small>
+          <small className="text-gray-500">Max 10MB, JPG/PNG/GIF/WEBP/SVG/AVIF</small>
         </div>
 
         {/* URL Input */}
@@ -342,8 +377,8 @@ export default function ImageUpload({
                     severity="danger"
                     text
                     rounded
-                    onClick={() => handleRemove(index)}
-                    tooltip="Remove"
+                    onClick={() => handleRemove(index, img)}
+                    tooltip="Rimuovi"
                     className="ml-auto"
                   />
                 </div>

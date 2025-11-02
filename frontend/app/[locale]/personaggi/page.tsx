@@ -41,11 +41,11 @@ export default function PersonaggiPage() {
   }
   
   return (
-    <div className="container mx-auto px-4">
-      <h1 className="text-3xl font-bold text-left text-black mb-8">{t('title')}</h1>
+    <div className="container mx-auto px-4 py-6 md:py-8">
+      <h1 className="text-3xl md:text-4xl font-bold text-left text-black mb-6 md:mb-8">{t('title')}</h1>
 
-      {/* Grid responsive per tutti i personaggi */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+      {/* Grid responsive: 4 colonne web, 1 colonna mobile */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         {personaggi.map((personaggio) => {
           // Genera lo stile del background in base al tipo
           const getBackgroundStyle = () => {
@@ -62,7 +62,7 @@ export default function PersonaggiPage() {
           return (
           <div 
             key={personaggio.id}
-            className="rounded-lg p-4 cursor-pointer hover:shadow-lg transition-all duration-300 hover:scale-105"
+            className="rounded-lg p-4 cursor-pointer border-2 border-transparent hover:border-blue-500 transition-all duration-150"
             style={getBackgroundStyle()}
             onClick={() => {
               setSelectedPersonaggio(personaggio);

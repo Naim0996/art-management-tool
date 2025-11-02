@@ -2,14 +2,14 @@
 
 import Image from "next/image";
 import { useState, useEffect } from "react";
-import { useTranslations } from 'next-intl';
-import FumettiModal from "@/components/FumettiModal";
+import { useTranslations, useLocale } from 'next-intl';
+import { useRouter } from 'next/navigation';
 import { FumettiAPIService, type FumettoDTO } from "@/services/FumettiAPIService";
 
 export default function FumettiPage() {
   const t = useTranslations('fumetti');
-  const [modalVisible, setModalVisible] = useState(false);
-  const [selectedFumetto, setSelectedFumetto] = useState<FumettoDTO | null>(null);
+  const locale = useLocale();
+  const router = useRouter();
   const [fumetti, setFumetti] = useState<FumettoDTO[]>([]);
   const [loading, setLoading] = useState(true);
   
@@ -47,63 +47,63 @@ export default function FumettiPage() {
   }
   
   return (
-    <div className="container mx-auto px-4">
-      <h1 className="text-3xl font-bold text-left text-black mb-8">{t('title')}</h1>
+    <div className="container mx-auto px-4 py-6 md:py-8">
+      <h1 className="text-3xl md:text-4xl font-bold text-left text-black mb-6 md:mb-8">{t('title')}</h1>
 
-      {/* Grid responsive: 3 colonne su web, 1-2 su mobile */}
+      {/* Grid di card: 3 colonne desktop, 2 tablet, 1 mobile */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {fumetti.map((fumetto) => {
+          const year = fumetto.createdAt ? new Date(fumetto.createdAt).getFullYear() : '';
+
           return (
-          <div 
-            key={fumetto.id}
-            className="rounded-lg overflow-hidden shadow-md cursor-pointer hover:shadow-xl transition-all duration-300 hover:scale-105 bg-white"
-            onClick={() => {
-              setSelectedFumetto(fumetto);
-              setModalVisible(true);
-            }}
-          >
-            {/* Copertina del fumetto */}
-            <div className="relative w-full aspect-[3/4]">
-              {fumetto.coverImage ? (
-                <Image
-                  src={fumetto.coverImage}
-                  alt={`${fumetto.title} Cover`}
-                  fill
-                  className="object-cover"
-                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                />
-              ) : fumetto.pages && fumetto.pages[0] ? (
-                <Image
-                  src={fumetto.pages[0]}
-                  alt={fumetto.title}
-                  fill
-                  className="object-cover"
-                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                />
-              ) : (
-                <div className="w-full h-full bg-gray-200 flex items-center justify-center">
-                  <span className="text-gray-500">No Cover</span>
+            <div
+              key={fumetto.id}
+              className="cursor-pointer group"
+              onClick={() => {
+                router.push(`/${locale}/fumetti/${fumetto.slug || fumetto.id}`);
+              }}
+            >
+              {/* Card */}
+              <div className="bg-white border-2 border-gray-200 rounded-lg overflow-hidden hover:border-blue-500 transition-all duration-150">
+                {/* Immagine sopra */}
+                <div className="relative w-full aspect-[3/4] bg-gray-100">
+                  {fumetto.coverImage ? (
+                    <Image
+                      src={fumetto.coverImage}
+                      alt={`${fumetto.title} Cover`}
+                      fill
+                      className="object-cover"
+                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                    />
+                  ) : fumetto.pages && fumetto.pages[0] ? (
+                    <Image
+                      src={fumetto.pages[0]}
+                      alt={fumetto.title}
+                      fill
+                      className="object-cover"
+                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                    />
+                  ) : (
+                    <div className="w-full h-full bg-gray-200 flex items-center justify-center">
+                      <span className="text-sm text-gray-500">No Cover</span>
+                    </div>
+                  )}
                 </div>
-              )}
-            </div>
-            
-            {/* Titolo del fumetto */}
-            <div className="p-4 bg-white">
-              <h3 className="text-lg font-semibold text-center text-gray-800">
-                {fumetto.title}
-              </h3>
-              {fumetto.description && (
-                <p className="text-sm text-gray-600 text-center mt-2 line-clamp-2">
-                  {fumetto.description}
-                </p>
-              )}
-              <div className="flex justify-center mt-3">
-                <span className="text-xs text-gray-500 bg-gray-100 px-3 py-1 rounded-full">
-                  {fumetto.pages?.length || 0} {(fumetto.pages?.length || 0) === 1 ? 'pagina' : 'pagine'}
-                </span>
+
+                {/* Info sotto */}
+                <div className="p-4">
+                  <h3 className="text-lg font-bold text-gray-900 group-hover:text-blue-600 transition-colors mb-1">
+                    {fumetto.title}
+                  </h3>
+                  {year && (
+                    <span className="text-sm text-gray-500">{year}</span>
+                  )}
+                  {fumetto.description && (
+                    <p className="text-sm text-gray-600 mt-2 line-clamp-2">{fumetto.description}</p>
+                  )}
+                </div>
               </div>
             </div>
-          </div>
           );
         })}
       </div>
@@ -114,17 +114,6 @@ export default function FumettiPage() {
           <p className="text-gray-500 text-lg">Nessun fumetto disponibile al momento.</p>
         </div>
       )}
-
-      {/* Modal con la galleria orizzontale */}
-      <FumettiModal 
-        visible={modalVisible} 
-        onHide={() => {
-          setModalVisible(false);
-          setSelectedFumetto(null);
-        }}
-        fumetto={selectedFumetto}
-      />
     </div>
   );
 }
-

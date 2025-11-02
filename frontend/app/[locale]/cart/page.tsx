@@ -354,34 +354,32 @@ export default function CartPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-white">
       <Toast ref={toast} />
-      
-      {/* Header */}
-      <header className="bg-white shadow-sm border-b">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <Link href={`/${locale}/shop`} className="text-purple-600 hover:underline mb-2 inline-block">
-            <i className="pi pi-arrow-left mr-2"></i>
-            Continue Shopping
-          </Link>
-          <div className="flex justify-between items-center">
-            <h1 className="text-4xl font-bold text-gray-900">Shopping Cart</h1>
-            {hasItems && (
-              <Button
-                label="Clear Cart"
-                icon="pi pi-trash"
-                severity="danger"
-                outlined
-                onClick={clearCart}
-                loading={clearingCart}
-                disabled={clearingCart}
-              />
-            )}
-          </div>
-        </div>
-      </header>
 
       <main className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Breadcrumb */}
+        <div className="mb-6">
+          <Link href={`/${locale}/shop`} className="text-blue-600 hover:text-blue-700 inline-flex items-center text-sm font-medium">
+            <i className="pi pi-arrow-left mr-2"></i>
+            Continua shopping
+          </Link>
+        </div>
+
+        {/* Header */}
+        <div className="flex justify-between items-center mb-8">
+          <h1 className="text-3xl md:text-4xl font-bold text-gray-900">Carrello</h1>
+          {hasItems && (
+            <Button
+              label="Svuota"
+              icon="pi pi-trash"
+              className="p-button-text p-button-danger"
+              onClick={clearCart}
+              loading={clearingCart}
+              disabled={clearingCart}
+            />
+          )}
+        </div>
         {hasItems ? (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Cart Items */}
@@ -406,7 +404,7 @@ export default function CartPage() {
                   console.log(`🛒 [RENDER] Rendering item ${item.id}:`, { basePrice, priceAdjustment, finalPrice, total });
 
                   return (
-                  <Card key={item.id} className="shadow-sm">
+                  <Card key={item.id} className="border border-gray-200">
                     <div className="flex gap-4">
                       <div className="w-24 h-24 bg-gray-100 rounded-lg flex-shrink-0 overflow-hidden flex items-center justify-center">
                         {product.images && product.images.length > 0 ? (
@@ -449,11 +447,11 @@ export default function CartPage() {
                             />
                           </div>
                           <div className="flex-1 text-right">
-                            <p className="text-lg font-bold text-blue-600">
+                            <p className="text-lg font-bold text-gray-900">
                               {product.currency === 'EUR' ? '€' : '$'}{total.toFixed(2)}
                             </p>
                             <p className="text-sm text-gray-500">
-                              {product.currency === 'EUR' ? '€' : '$'}{finalPrice.toFixed(2)} each
+                              {product.currency === 'EUR' ? '€' : '$'}{finalPrice.toFixed(2)} cad.
                             </p>
                           </div>
                         </div>
@@ -489,7 +487,7 @@ export default function CartPage() {
 
             {/* Order Summary */}
             <div className="lg:col-span-1">
-              <Card title="Order Summary" className="shadow-lg sticky top-4">
+              <Card title="Riepilogo Ordine" className="border-2 border-gray-200 sticky top-24">
                 <div className="space-y-3">
                   <div className="flex justify-between text-gray-700">
                     <span>Subtotal:</span>
@@ -520,28 +518,38 @@ export default function CartPage() {
                   )}
                   
                   <div className="border-t pt-3 flex justify-between text-lg font-bold text-gray-900">
-                    <span>Total:</span>
-                    <span className="text-purple-600">
+                    <span>Totale:</span>
+                    <span className="text-gray-900">
                       {cartData.cart.items[0]?.product?.currency === 'EUR' ? '€' : '$'}
                       {cartData.total.toFixed(2)}
                     </span>
                   </div>
 
                   <Button
-                    label="Proceed to Checkout"
+                    label="Vai al Checkout"
                     icon="pi pi-arrow-right"
                     iconPos="right"
                     className="w-full mt-4"
                     size="large"
                     onClick={proceedToCheckout}
+                    style={{
+                      backgroundColor: '#0066CC',
+                      borderColor: '#0066CC',
+                      fontWeight: '600'
+                    }}
                   />
 
                   <Link href={`/${locale}/shop`}>
                     <Button
-                      label="Continue Shopping"
+                      label="Continua Shopping"
                       icon="pi pi-shopping-bag"
                       outlined
                       className="w-full"
+                      style={{
+                        borderColor: '#0066CC',
+                        color: '#0066CC',
+                        fontWeight: '600'
+                      }}
                     />
                   </Link>
                 </div>
@@ -549,17 +557,22 @@ export default function CartPage() {
             </div>
           </div>
         ) : (
-          <Card className="text-center py-16 bg-white shadow-sm">
+          <Card className="text-center py-16 bg-white border-2 border-gray-200">
             <div className="space-y-4">
               <i className="pi pi-shopping-cart text-6xl text-gray-400"></i>
-              <h2 className="text-2xl font-semibold text-gray-800">Your cart is empty</h2>
-              <p className="text-gray-600">Start shopping to add items to your cart</p>
+              <h2 className="text-2xl font-semibold text-gray-800">Il tuo carrello è vuoto</h2>
+              <p className="text-gray-600">Inizia a fare shopping per aggiungere prodotti</p>
               <Link href={`/${locale}/shop`}>
                 <Button
-                  label="Browse Products"
+                  label="Vai allo Shop"
                   icon="pi pi-shopping-bag"
                   size="large"
                   className="mt-4"
+                  style={{
+                    backgroundColor: '#0066CC',
+                    borderColor: '#0066CC',
+                    fontWeight: '600'
+                  }}
                 />
               </Link>
             </div>
