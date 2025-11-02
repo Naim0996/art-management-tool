@@ -29,53 +29,76 @@ export default function ProductImageUpload({
 
   const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
 
-  // Handle file upload
+  // Handle file upload (supporta multipli)
   const handleUpload = async (event: FileUploadHandlerEvent) => {
     if (!productId) {
       toast.current?.show({
         severity: 'warn',
-        summary: 'Warning',
-        detail: 'Save the product first before uploading images',
+        summary: 'Attenzione',
+        detail: 'Salva prima il prodotto',
         life: 3000,
       });
       return;
     }
 
-    const file = event.files[0];
-    
-    // Validate file before uploading
-    const { validateImageFile } = await import('@/services/validation');
-    const validation = validateImageFile(file, 10);
-    if (validation.hasErrors()) {
-      toast.current?.show({
-        severity: 'error',
-        summary: 'Validation Error',
-        detail: validation.getErrorMessage(),
-        life: 3000,
-      });
-      return;
-    }
+    const files = event.files;
+    if (!files || files.length === 0) return;
 
     setUploading(true);
+    let successCount = 0;
+    let errorCount = 0;
 
     try {
-      const position = images.length;
-      const result = await adminShopAPI.uploadProductImage(
-        productId,
-        file,
-        '',
-        position
-      );
+      for (const file of files) {
+        try {
+          // Validate file
+          const { validateImageFile } = await import('@/services/validation');
+          const validation = validateImageFile(file, 10);
+          if (validation.hasErrors()) {
+            toast.current?.show({
+              severity: 'error',
+              summary: 'Errore Validazione',
+              detail: `${file.name}: ${validation.getErrorMessage()}`,
+              life: 3000,
+            });
+            errorCount++;
+            continue;
+          }
 
-      // Add the new image to the array
-      onImagesChange([...images, result.image]);
+          const position = images.length + successCount;
+          const result = await adminShopAPI.uploadProductImage(
+            productId,
+            file,
+            '',
+            position
+          );
 
-      toast.current?.show({
-        severity: 'success',
-        summary: 'Success',
-        detail: 'Image uploaded successfully',
-        life: 3000,
-      });
+          // Add the new image to the array
+          onImagesChange([...images, result.image]);
+          successCount++;
+        } catch (error) {
+          console.error(`Upload error for ${file.name}:`, error);
+          errorCount++;
+        }
+      }
+
+      if (successCount > 0) {
+        toast.current?.show({
+          severity: 'success',
+          summary: 'Successo',
+          detail: `${successCount} immagine/i caricate`,
+          life: 2000,
+        });
+      }
+
+      if (errorCount > 0) {
+        toast.current?.show({
+          severity: 'error',
+          summary: 'Errore',
+          detail: `${errorCount} immagine/i non caricate`,
+          life: 3000,
+        });
+      }
 
       // Reset file upload
       if (fileUploadRef.current) {
@@ -85,8 +108,8 @@ export default function ProductImageUpload({
       console.error('Upload error:', error);
       toast.current?.show({
         severity: 'error',
-        summary: 'Error',
-        detail: error instanceof Error ? error.message : 'Failed to upload image',
+        summary: 'Errore',
+        detail: 'Errore durante upload',
         life: 3000,
       });
     } finally {
@@ -96,10 +119,15 @@ export default function ProductImageUpload({
 
   // Remove image
   const handleRemove = async (image: ProductImage, index: number) => {
+    // Estrai nome file dall'URL
+    const fileName = image.url.split('/').pop() || `Immagine #${index + 1}`;
+    
     confirmDialog({
-      message: 'Are you sure you want to remove this image?',
-      header: 'Confirm',
+      message: `Vuoi rimuovere "${fileName}"?`,
+      header: 'Conferma Eliminazione',
       icon: 'pi pi-exclamation-triangle',
+      acceptLabel: 'Sì, rimuovi',
+      rejectLabel: 'Annulla',
       accept: async () => {
         try {
           await adminShopAPI.deleteProductImage(productId, image.id);
@@ -108,16 +136,16 @@ export default function ProductImageUpload({
           
           toast.current?.show({
             severity: 'success',
-            summary: 'Success',
-            detail: 'Image removed successfully',
-            life: 3000,
+            summary: 'Rimossa',
+            detail: `${fileName} rimossa`,
+            life: 2000,
           });
         } catch (error) {
           console.error('Delete error:', error);
           toast.current?.show({
             severity: 'error',
-            summary: 'Error',
-            detail: 'Failed to delete image',
+            summary: 'Errore',
+            detail: 'Errore eliminazione immagine',
             life: 3000,
           });
         }
@@ -144,8 +172,8 @@ export default function ProductImageUpload({
       console.error('Move error:', error);
       toast.current?.show({
         severity: 'error',
-        summary: 'Error',
-        detail: 'Failed to reorder images',
+        summary: 'Errore',
+        detail: 'Errore riordino immagini',
         life: 3000,
       });
     }
@@ -170,8 +198,8 @@ export default function ProductImageUpload({
       console.error('Move error:', error);
       toast.current?.show({
         severity: 'error',
-        summary: 'Error',
-        detail: 'Failed to reorder images',
+        summary: 'Errore',
+        detail: 'Errore riordino immagini',
         life: 3000,
       });
     }
@@ -196,16 +224,16 @@ export default function ProductImageUpload({
       
       toast.current?.show({
         severity: 'success',
-        summary: 'Success',
-        detail: 'Alt text updated',
+        summary: 'Aggiornato',
+        detail: 'Testo alternativo aggiornato',
         life: 2000,
       });
     } catch (error) {
       console.error('Update error:', error);
       toast.current?.show({
         severity: 'error',
-        summary: 'Error',
-        detail: 'Failed to update alt text',
+        summary: 'Errore',
+        detail: 'Errore aggiornamento testo alternativo',
         life: 3000,
       });
     }
@@ -223,31 +251,32 @@ export default function ProductImageUpload({
       <Toast ref={toast} />
       <ConfirmDialog />
 
-      <label className="block text-sm font-medium mb-2">Product Images</label>
+      <label className="block text-sm font-medium mb-2">Immagini Prodotto</label>
 
       {/* Upload Section */}
       <div>
-        <label className="block text-xs text-gray-600 mb-2">Upload Image</label>
+        <label className="block text-xs text-gray-600 mb-2">Carica Immagini</label>
         <FileUpload
           ref={fileUploadRef}
           mode="basic"
           name="file"
-          accept="image/*"
+          accept="image/jpeg,image/jpg,image/png,image/gif,image/webp,image/svg+xml,image/avif"
           maxFileSize={10000000}
           customUpload
           uploadHandler={handleUpload}
+          multiple={true}
           disabled={uploading || images.length >= maxImages}
-          chooseLabel={uploading ? 'Uploading...' : 'Choose File'}
+          chooseLabel={uploading ? 'Caricamento...' : 'Scegli File (multipli)'}
           className="w-full"
         />
-        <small className="text-gray-500">Max 10MB, JPG/PNG/GIF/WebP. Upload up to {maxImages} images.</small>
+        <small className="text-gray-500">Max 10MB, JPG/PNG/GIF/WEBP/SVG/AVIF. Fino a {maxImages} immagini.</small>
       </div>
 
       {/* Images Preview */}
       {images.length > 0 && (
         <div className="mt-4">
           <h4 className="text-sm font-medium mb-3">
-            Images ({images.length}/{maxImages})
+            Immagini ({images.length}/{maxImages})
           </h4>
           <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
             {images.map((img, index) => (
@@ -343,7 +372,7 @@ export default function ProductImageUpload({
       {images.length === 0 && (
         <div className="text-center py-8 border-2 border-dashed border-gray-300 rounded-lg text-gray-500">
           <i className="pi pi-image text-4xl mb-2 block"></i>
-          <p>No images yet. Upload images to showcase your product.</p>
+          <p>Nessuna immagine. Carica immagini per mostrare il tuo prodotto.</p>
         </div>
       )}
     </div>

@@ -3,6 +3,7 @@
 import { useEffect, useState, useRef, useCallback } from 'react';
 import Link from 'next/link';
 import { useLocale } from 'next-intl';
+import { useSearchParams } from 'next/navigation';
 import { shopAPI, Product } from '@/services/ShopAPIService';
 import { PersonaggiAPIService, PersonaggioDTO } from '@/services/PersonaggiAPIService';
 import { Button } from 'primereact/button';
@@ -10,8 +11,10 @@ import { InputText } from 'primereact/inputtext';
 import { Dropdown } from 'primereact/dropdown';
 import { Card } from 'primereact/card';
 import { Toast } from 'primereact/toast';
+
 export default function ShopPage() {
   const locale = useLocale();
+  const searchParams = useSearchParams();
   const toast = useRef<Toast>(null);
   const [products, setProducts] = useState<Product[]>([]);
   const [personaggi, setPersonaggi] = useState<PersonaggioDTO[]>([]);
@@ -24,6 +27,13 @@ export default function ShopPage() {
   const [totalProducts, setTotalProducts] = useState(0);
   const [apiError, setApiError] = useState<string | null>(null);
   const perPage = 12;
+  
+  useEffect(() => {
+    const characterParam = searchParams.get('character');
+    if (characterParam) {
+      setSelectedCharacter(parseInt(characterParam, 10));
+    }
+  }, [searchParams]);
 
   const fetchProducts = useCallback(async () => {
     setLoading(true);
@@ -161,72 +171,67 @@ export default function ShopPage() {
         </div>
       )}
       
-      {/* Header */}
-      <header className="bg-white shadow-sm border-b">
+      {/* Filters - Minimale */}
+      <div className="bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="flex justify-between items-center">
-            <div>
-              <Link href={`/${locale}`} className="text-blue-600 hover:underline mb-2 inline-block">
-                <i className="pi pi-arrow-left mr-2"></i>
-                Back to Home
-              </Link>
-              <h1 className="text-4xl font-bold text-gray-900">Art Shop</h1>
-              <p className="text-gray-600 mt-1">Discover unique artworks</p>
-            </div>
-            <Link
-              href={`/${locale}/cart`}
-              className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
-            >
-              <i className="pi pi-shopping-cart"></i>
-              Cart
-            </Link>
-          </div>
-        </div>
-      </header>
+          <h1 className="text-3xl font-bold text-gray-900 mb-6">Shop</h1>
+          <div className="flex flex-col md:flex-row md:flex-wrap gap-2 md:items-center text-sm">
+            {/* Search */}
+            <span className="p-input-icon-left flex-1 w-full md:min-w-[200px]">
+              <i className="pi pi-search" />
+              <InputText
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Cerca..."
+                className="w-full p-inputtext-sm"
+              />
+            </span>
 
-      {/* Filters */}
-      <div className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex flex-col md:flex-row gap-4 items-center">
-            <div className="flex-1 w-full">
-              <span className="p-input-icon-left w-full">
-                <i className="pi pi-search" />
-                <InputText
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Search products..."
-                  className="w-full"
-                />
-              </span>
-            </div>
-            <div className="flex gap-2 items-center w-full md:w-auto">
-              <label className="text-sm text-gray-600 whitespace-nowrap">Character:</label>
+            <div className="flex gap-2 items-center flex-wrap">
+              {/* Character Filter */}
               <Dropdown
                 value={selectedCharacter}
                 options={[
-                  { label: 'All Characters', value: null },
+                  { label: 'Tutti', value: null },
                   ...personaggi.map(p => ({ label: p.name, value: p.id }))
                 ]}
                 onChange={(e) => setSelectedCharacter(e.value)}
-                className="w-full md:w-48"
-                placeholder="All Characters"
+                className="flex-1 md:w-40"
+                placeholder="Personaggio"
               />
-            </div>
-            <div className="flex gap-2 items-center w-full md:w-auto">
-              <label className="text-sm text-gray-600 whitespace-nowrap">Sort by:</label>
+
+              {/* Sort */}
               <Dropdown
                 value={sortBy}
                 options={sortOptions}
                 onChange={(e) => setSortBy(e.value)}
-                className="w-full md:w-40"
+                className="flex-1 md:w-36"
               />
+
+              {/* Clear */}
+              {(searchQuery || selectedCharacter) && (
+                <Button
+                  icon="pi pi-times"
+                  className="p-button-text p-button-sm"
+                  onClick={() => {
+                    setSearchQuery('');
+                    setSelectedCharacter(null);
+                    setPage(1);
+                  }}
+                />
+              )}
             </div>
+
+            {/* Results */}
+            <span className="text-gray-500 w-full md:w-auto md:ml-auto text-right md:text-left">
+              {totalProducts} prodotti
+            </span>
           </div>
         </div>
       </div>
 
       {/* Products Grid */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 bg-white">
         {products.length > 0 ? (
           <>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-8">
@@ -235,60 +240,53 @@ export default function ShopPage() {
                 const inStock = stockQty > 0;
                 
                 return (
-                  <Card key={product.id} className="hover:shadow-xl transition-all duration-300 cursor-pointer" onClick={(e) => {
-                    e.preventDefault();
-                    window.location.href = `/${locale}/shop/${product.slug}`;
-                  }}>
-                    <div className="space-y-4">
-                      <div className="relative bg-gray-100 h-64 rounded-lg overflow-hidden group">
-                        {product.images && product.images.length > 0 ? (
-                          <>
-                            {product.images.length > 1 && (
-                              <img
-                                src={product.images[1].url}
-                                alt={product.title}
-                                className="w-full h-full object-cover absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-                              />
-                            )}
+                  <div 
+                    key={product.id}
+                    className="bg-white border border-gray-200 rounded cursor-pointer hover:border-gray-400 transition-all group"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      window.location.href = `/${locale}/shop/${product.slug}`;
+                    }}
+                  >
+                    {/* Immagine */}
+                    <div className="relative bg-gray-50 aspect-square overflow-hidden">
+                      {product.images && product.images.length > 0 ? (
+                        <>
+                          {product.images.length > 1 && (
                             <img
-                              src={product.images[0].url}
+                              src={product.images[1].url}
                               alt={product.title}
-                              className="w-full h-full object-cover absolute inset-0 group-hover:opacity-0 transition-opacity duration-300"
+                              className="w-full h-full object-cover absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
                             />
-                          </>
-                        ) : (
-                          <div className="flex items-center justify-center h-full">
-                            <i className="pi pi-image text-6xl text-gray-400"></i>
-                          </div>
-                        )}
-                        {!inStock && (
-                          <div className="absolute inset-0 bg-black bg-opacity-60 flex items-center justify-center z-10">
-                            <span className="text-white font-semibold text-lg">Out of Stock</span>
-                          </div>
-                        )}
-                      </div>
-                      
-                      <div className="min-h-[4rem]">
-                        <h3 className="text-lg font-semibold text-gray-900 line-clamp-2 mb-1">
-                          {product.title}
-                        </h3>
-                        <p className="text-sm text-gray-600 line-clamp-2">
-                          {product.short_description}
-                        </p>
-                      </div>
-
-                      <div className="flex flex-col gap-2">
-                        <div className="flex justify-between items-center">
-                          <span className="text-2xl font-bold text-blue-600">
-                            {product.currency === 'EUR' ? '€' : '$'}{product.base_price.toFixed(2)}
-                          </span>
-                          <span className={`text-sm font-medium ${inStock ? 'text-green-600' : 'text-red-600'}`}>
-                            {inStock ? `${stockQty} in stock` : 'Out of stock'}
-                          </span>
+                          )}
+                          <img
+                            src={product.images[0].url}
+                            alt={product.title}
+                            className="w-full h-full object-cover absolute inset-0 group-hover:opacity-0 transition-opacity duration-300"
+                          />
+                        </>
+                      ) : (
+                        <div className="flex items-center justify-center h-full">
+                          <i className="pi pi-image text-4xl text-gray-300"></i>
                         </div>
+                      )}
+                      {!inStock && (
+                        <div className="absolute inset-0 bg-black/70 flex items-center justify-center">
+                          <span className="text-white font-medium text-sm">Esaurito</span>
+                        </div>
+                      )}
+                    </div>
+                    
+                    {/* Info prodotto */}
+                    <div className="p-3">
+                      <h3 className="text-sm font-medium text-gray-900 line-clamp-2 mb-2 min-h-[2.5rem]">
+                        {product.title}
+                      </h3>
+                      <div className="text-lg font-bold text-gray-900">
+                        €{product.base_price.toFixed(2)}
                       </div>
                     </div>
-                  </Card>
+                  </div>
                 );
               })}
             </div>

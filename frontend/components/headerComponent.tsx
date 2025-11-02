@@ -17,12 +17,35 @@ export default function HeaderComponent() {
     const itemRenderer = (item: any) => {
         return (
             <a 
-                className="flex align-items-center cursor-pointer px-3 py-2 overflow-hidden relative font-semibold text-base uppercase p-ripple hover:surface-ground" 
-                style={{ borderRadius: '2rem' }} 
+                className="flex align-items-center cursor-pointer px-3 py-2 overflow-hidden relative font-semibold text-base uppercase p-ripple" 
+                style={{ 
+                    borderRadius: '0.5rem',
+                    color: '#1f2937',
+                    transition: 'all 150ms'
+                }} 
                 onClick={item.command}
+                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f3f4f6'}
+                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
             >
-                <span className={item.icon} />
-                <span className="ml-2">{item.label}</span>
+                <span>{item.label}</span>
+                <Ripple />
+            </a>
+        );
+    };
+
+    const submenuItemRenderer = (item: any) => {
+        return (
+            <a 
+                className="flex align-items-center cursor-pointer px-3 py-2 overflow-hidden relative p-ripple" 
+                style={{ 
+                    color: '#1f2937',
+                    transition: 'all 150ms'
+                }}
+                onClick={item.command}
+                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#e0f2fe'}
+                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+            >
+                <span>{item.label}</span>
                 <Ripple />
             </a>
         );
@@ -31,23 +54,39 @@ export default function HeaderComponent() {
     const items = [
         {
             label: t('fumetti'),
-            icon: 'pi pi-book',
             template: itemRenderer,
             command: () => {
                 navRouter.push(`/${locale}/fumetti`);
             }
         },
         {
-            label: t('personaggi'),
-            icon: 'pi pi-users',
+            label: t('animantra'),
             template: itemRenderer,
-            command: () => {
-                navRouter.push(`/${locale}/personaggi`);
-            }
+            items: [
+                [
+                    {
+                        items: [
+                            {
+                                label: t('personaggi'),
+                                template: submenuItemRenderer,
+                                command: () => {
+                                    navRouter.push(`/${locale}/personaggi`);
+                                }
+                            },
+                            {
+                                label: t('brand'),
+                                template: submenuItemRenderer,
+                                command: () => {
+                                    navRouter.push(`/${locale}/brand`);
+                                }
+                            }
+                        ]
+                    }
+                ]
+            ]
         },
         {
             label: locale === 'it' ? 'Shop' : 'Shop',
-            icon: 'pi pi-shopping-cart',
             template: itemRenderer,
             command: () => {
                 navRouter.push(`/${locale}/shop`);
@@ -67,8 +106,8 @@ export default function HeaderComponent() {
     const end = (
         <div className="flex align-items-center gap-3">
             <LanguageSwitcher />
-            <Link href={`/${locale}/cart`} className="p-button p-component p-button-icon-only p-button-rounded" title="Shopping Cart">
-                <i className="pi pi-shopping-cart"></i>
+            <Link href={`/${locale}/cart`} className="p-button p-component p-button-icon-only p-button-rounded flex align-items-center justify-content-center" title="Shopping Cart" style={{ backgroundColor: '#0066CC', borderColor: '#0066CC' }}>
+                <i className="pi pi-shopping-cart" style={{ color: '#ffffff' }}></i>
             </Link>
         </div>
     );
@@ -76,7 +115,7 @@ export default function HeaderComponent() {
     return (
         <>
             {/* Navigation Bar - Sticky Header */}
-            <div className="sticky top-0 z-50 bg-white/95 backdrop-blur-sm">
+            <div className="sticky top-0 z-50 bg-white shadow-sm">
                 <div className="card">
                     <MegaMenu 
                         model={items}
@@ -84,19 +123,44 @@ export default function HeaderComponent() {
                         start={start}
                         end={end}
                         breakpoint="960px" 
-                        className="p-3 surface-0 shadow-2" 
+                        className="p-3" 
                         style={{ 
-                            borderRadius: '3rem',
+                            borderRadius: '0',
+                            backgroundColor: '#ffffff',
+                            border: 'none'
                         }}
                         pt={{
                             root: {
-                                className: 'flex justify-content-between align-items-center'
+                                className: 'flex align-items-center',
+                                style: { 
+                                    backgroundColor: '#ffffff', 
+                                    display: 'flex',
+                                    width: '100%'
+                                }
+                            },
+                            start: {
+                                className: 'flex',
+                                style: { flex: '0 0 auto' }
                             },
                             menu: {
-                                className: 'flex gap-2 p-0 m-0 border-none bg-transparent shadow-none ml-auto'
+                                className: 'flex gap-4 p-0 m-0 border-none bg-transparent shadow-none',
+                                style: { 
+                                    marginLeft: 'auto',
+                                    flex: '1 1 auto',
+                                    justifyContent: 'flex-end',
+                                    paddingRight: '1rem'
+                                }
+                            },
+                            end: {
+                                className: 'flex align-items-center gap-3',
+                                style: { flex: '0 0 auto' }
                             },
                             menuButton: {
-                                className: 'ml-auto'
+                                className: 'ml-auto',
+                                style: { color: '#1f2937' }
+                            },
+                            submenu: {
+                                style: { backgroundColor: '#ffffff', border: '1px solid #e5e7eb' }
                             }
                         }}
                     />

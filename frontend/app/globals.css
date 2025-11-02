@@ -74,7 +74,30 @@ html, body {
   display: none;
 }
 
-/* Toast notifications con padding laterale */
+/* Toast notifications - dimensioni ridotte e compatte */
 .p-toast {
   padding: 10px;
+}
+
+.p-toast .p-toast-message {
+  max-width: 400px;
+  min-width: 300px;
+}
+
+.p-toast .p-toast-message-content {
+  padding: 0.75rem;
+}
+
+.p-toast .p-toast-summary {
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.p-toast .p-toast-detail {
+  font-size: 0.85rem;
+  margin-top: 0.25rem;
+}
+
+.p-toast .p-toast-icon {
+  font-size: 1.5rem;
 }

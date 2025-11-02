@@ -1,7 +1,9 @@
 /* eslint-disable @next/next/no-img-element */
 import React, { useState, useEffect } from 'react';
 import { Dialog } from 'primereact/dialog';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
+import { Button } from 'primereact/button';
+import { useRouter } from 'next/navigation';
 import type { PersonaggioDTO } from '@/services/PersonaggiAPIService';
 
 interface PersonaggioModalProps {
@@ -12,6 +14,8 @@ interface PersonaggioModalProps {
 
 export default function PersonaggioModal({ visible, onHide, personaggio }: PersonaggioModalProps) {
     const t = useTranslations('personaggi.modal');
+    const locale = useLocale();
+    const router = useRouter();
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
     const [images, setImages] = useState<string[]>([]);
 
@@ -39,16 +43,22 @@ export default function PersonaggioModal({ visible, onHide, personaggio }: Perso
     };
 
     return (
-        <Dialog 
-            visible={visible} 
+        <Dialog
+            visible={visible}
             onHide={onHide}
             header={personaggio?.name || t('title')}
             style={{ width: '90vw', maxWidth: '1000px' }}
             modal
             draggable={false}
             resizable={false}
+            className="p-dialog-mobile-optimized"
+            pt={{
+                content: {
+                    className: 'p-2 md:p-6'
+                }
+            }}
         >
-            <div className="flex flex-col md:flex-row gap-6">
+            <div className="flex flex-col md:flex-row gap-4 md:gap-6">
                 {/* Galleria a sinistra */}
                 <div className="flex-1">
                     {images && images.length > 0 ? (
@@ -143,30 +153,17 @@ export default function PersonaggioModal({ visible, onHide, personaggio }: Perso
                 
                 {/* Testo descrittivo a destra */}
                 <div className="flex-1 md:max-w-md">
-                    <div className="bg-gray-50 p-6 rounded-lg">
+                    <div className="bg-gray-50 p-4 md:p-6 rounded-lg">
                         <h3 className="text-2xl font-bold mb-4 text-gray-800">
-                            {personaggio?.name || t('charactersTitle')}
+                            {personaggio?.name}
                         </h3>
                         
                         <div className="space-y-4 text-gray-700">
-                            <p>
-                                <strong>{personaggio?.name || 'Ribelle il Pigro'}</strong>{' '}
-                                {personaggio?.description || t('description1')}
-                            </p>
-                            
-                            <p>
-                                {t('description2')}
-                            </p>
-                            
-                            <div className="bg-white p-4 rounded border-l-4 border-blue-500">
-                                <h4 className="font-semibold mb-2">{t('characteristicsTitle')}</h4>
-                                <ul className="list-disc list-inside space-y-1 text-sm">
-                                    <li>{t('characteristics.style')}</li>
-                                    <li>{t('characteristics.color')}</li>
-                                    <li>{t('characteristics.emotion')}</li>
-                                    <li>{t('characteristics.technique')}</li>
-                                </ul>
-                            </div>
+                            {personaggio?.description && (
+                                <p className="text-base leading-relaxed">
+                                    {personaggio.description}
+                                </p>
+                            )}
                             
                             {personaggio && (
                                 <div className="bg-blue-50 p-3 rounded">
@@ -176,9 +173,20 @@ export default function PersonaggioModal({ visible, onHide, personaggio }: Perso
                                 </div>
                             )}
                             
-                            <p className="text-sm text-gray-600 italic">
-                                {t('finalNote')}
-                            </p>
+                            {/* Link allo shop */}
+                            {personaggio && personaggio.id && (
+                                <div className="mt-6 pt-4 border-t border-gray-200">
+                                    <Button
+                                        label="Vai allo Shop"
+                                        icon="pi pi-shopping-cart"
+                                        className="w-full"
+                                        onClick={() => {
+                                            router.push(`/${locale}/shop?character=${personaggio.id}`);
+                                            onHide();
+                                        }}
+                                    />
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>

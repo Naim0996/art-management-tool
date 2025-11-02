@@ -4,7 +4,9 @@
 export interface FumettoDTO {
   id?: number;
   title: string;
+  slug?: string;
   description?: string;
+  about?: string;
   coverImage?: string;
   pages?: string[];
   order?: number;
