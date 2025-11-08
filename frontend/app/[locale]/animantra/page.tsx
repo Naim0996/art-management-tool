@@ -12,7 +12,7 @@ export default function AnimantraPage() {
       <div className="container mx-auto px-4 py-8 md:py-16">
         {/* Hero Section */}
         <div className="text-center mb-12 md:mb-16">
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 mb-4 md:mb-6">
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-black mb-4 md:mb-6">
             Animantra
           </h1>
           <p className="text-lg md:text-xl lg:text-2xl text-gray-700 max-w-3xl mx-auto mb-6 md:mb-8">
@@ -31,7 +31,7 @@ export default function AnimantraPage() {
               <div className="w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center mb-6">
                 <i className="pi pi-users text-3xl text-white"></i>
               </div>
-              <h2 className="text-3xl font-bold text-gray-900 mb-4">Personaggi</h2>
+              <h2 className="text-3xl font-bold text-black mb-4">Personaggi</h2>
               <p className="text-gray-600 mb-6 flex-grow text-sm">
                 Scopri la galleria dei personaggi unici, ognuno con la propria personalità e storia. Esplora le illustrazioni e le loro caratteristiche distintive.
               </p>
@@ -55,7 +55,7 @@ export default function AnimantraPage() {
               <div className="w-20 h-20 bg-gradient-to-br from-pink-500 to-orange-600 rounded-full flex items-center justify-center mb-6">
                 <i className="pi pi-tag text-3xl text-white"></i>
               </div>
-              <h2 className="text-3xl font-bold text-gray-900 mb-4">Brand</h2>
+              <h2 className="text-3xl font-bold text-black mb-4">Brand</h2>
               <p className="text-gray-600 mb-6 flex-grow text-sm">
                 Scopri i brand e marchi associati al mondo Animantra. Ogni brand racconta una storia e rappresenta un&apos;identità unica.
               </p>

@@ -122,6 +122,7 @@ services:
       # For server-side rewrites in Next.js (internal Docker network)
       - BACKEND_URL=${BACKEND_URL:-http://backend:8080}
       - NODE_ENV=${NODE_ENV:-development}
+      - PORT=3000
     depends_on:
       backend:
         condition: service_healthy

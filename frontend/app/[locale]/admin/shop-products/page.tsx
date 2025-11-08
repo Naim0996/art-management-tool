@@ -37,6 +37,8 @@ export default function ShopProductsManagement() {
     currency: 'EUR',
     sku: '',
     gtin: '',
+    character_value: '',
+    etsy_link: '',
     status: 'draft' as 'published' | 'draft' | 'archived',
   });
 
@@ -97,6 +99,8 @@ export default function ShopProductsManagement() {
       currency: 'EUR',
       sku: '',
       gtin: '',
+      character_value: '',
+      etsy_link: '',
       status: 'draft',
     });
     setShowFormDialog(true);
@@ -113,6 +117,8 @@ export default function ShopProductsManagement() {
       currency: product.currency,
       sku: product.sku,
       gtin: product.gtin || '',
+      character_value: product.character_value || '',
+      etsy_link: product.etsy_link || '',
       status: product.status,
     });
     setShowFormDialog(true);
@@ -556,6 +562,27 @@ export default function ShopProductsManagement() {
                 className="w-full"
               />
             </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium mb-2">Character Value</label>
+            <InputText
+              value={formData.character_value}
+              onChange={(e) => setFormData({ ...formData, character_value: e.target.value })}
+              placeholder="Nome del personaggio (es: Leon, Il Giullare)"
+              className="w-full"
+            />
+            <small className="text-gray-500">Usato per filtrare i prodotti per personaggio</small>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium mb-2">Etsy Link</label>
+            <InputText
+              value={formData.etsy_link}
+              onChange={(e) => setFormData({ ...formData, etsy_link: e.target.value })}
+              placeholder="https://www.etsy.com/listing/..."
+              className="w-full"
+            />
           </div>
         </div>
       </Dialog>

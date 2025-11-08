@@ -8,6 +8,12 @@
     "personaggi": "Personaggi",
     "brand": "Brand"
   },
+  "brand": {
+    "title": "Animantra",
+    "subtitle": "Esplora l'universo dei personaggi e scopri i prodotti esclusivi",
+    "discoverCharacters": "Scopri i Personaggi",
+    "visitShop": "Visita lo Shop"
+  },
   "personaggi": {
     "title": "Personaggi",
     "modal": {

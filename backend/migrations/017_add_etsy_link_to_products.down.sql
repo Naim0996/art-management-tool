@@ -1,3 +1,3 @@
--- Remove Etsy shop link from products table
-ALTER TABLE products DROP COLUMN etsy_shop_url;
-
+-- Remove etsy_link field from products table
+DROP INDEX IF EXISTS idx_products_etsy_link;
+ALTER TABLE products DROP COLUMN IF EXISTS etsy_link;

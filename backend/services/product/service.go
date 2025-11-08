@@ -48,6 +48,10 @@ func (s *Service) ListProducts(filters *ProductFilters) ([]models.EnhancedProduc
 		query = query.Where("character_id = ?", filters.CharacterID)
 	}
 
+	if filters.CharacterValue != "" {
+		query = query.Where("LOWER(character_value) = LOWER(?)", filters.CharacterValue)
+	}
+
 	if filters.MinPrice > 0 {
 		query = query.Where("base_price >= ?", filters.MinPrice)
 	}
@@ -295,17 +299,18 @@ func (s *Service) UpdateInventory(variantID uint, quantity int, operation string
 
 // ProductFilters represents filters for product listing
 type ProductFilters struct {
-	Status      models.ProductStatus
-	CategoryID  uint
-	CharacterID uint
-	MinPrice    float64
-	MaxPrice    float64
-	Search      string
-	InStock     bool
-	Page        int
-	PerPage     int
-	SortBy      string
-	SortOrder   string
+	Status         models.ProductStatus
+	CategoryID     uint
+	CharacterID    uint
+	CharacterValue string
+	MinPrice       float64
+	MaxPrice       float64
+	Search         string
+	InStock        bool
+	Page           int
+	PerPage        int
+	SortBy         string
+	SortOrder      string
 }
 
 // DefaultFilters returns default filters

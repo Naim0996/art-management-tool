@@ -47,6 +47,10 @@ func (h *CatalogHandler) ListProducts(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	if characterValue := query.Get("character_value"); characterValue != "" {
+		filters.CharacterValue = characterValue
+	}
+
 	if minPrice := query.Get("min_price"); minPrice != "" {
 		if price, err := strconv.ParseFloat(minPrice, 64); err == nil {
 			filters.MinPrice = price

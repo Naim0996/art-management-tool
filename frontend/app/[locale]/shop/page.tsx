@@ -21,7 +21,7 @@ export default function ShopPage() {
   const [loading, setLoading] = useState(true);
   const [loadingPersonaggi, setLoadingPersonaggi] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedCharacter, setSelectedCharacter] = useState<number | null>(null);
+  const [selectedCharacter, setSelectedCharacter] = useState<string | null>(null);
   const [sortBy, setSortBy] = useState<{ sort: string; order: string }>({ sort: 'created_at', order: 'DESC' });
   const [page, setPage] = useState(1);
   const [totalProducts, setTotalProducts] = useState(0);
@@ -29,9 +29,9 @@ export default function ShopPage() {
   const perPage = 12;
   
   useEffect(() => {
-    const characterParam = searchParams.get('character');
+    const characterParam = searchParams.get('character_value');
     if (characterParam) {
-      setSelectedCharacter(parseInt(characterParam, 10));
+      setSelectedCharacter(characterParam);
     }
   }, [searchParams]);
 
@@ -48,7 +48,7 @@ export default function ShopPage() {
       const response = await shopAPI.listProducts({
         status: 'published',
         search: searchQuery || undefined,
-        character: selectedCharacter || undefined,
+        character_value: selectedCharacter || undefined,
         sort_by: sortBy.sort,
         sort_order: sortBy.order,
         page,
@@ -174,7 +174,7 @@ export default function ShopPage() {
       {/* Filters - Minimale */}
       <div className="bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <h1 className="text-3xl font-bold text-gray-900 mb-6">Shop</h1>
+          <h1 className="text-3xl font-bold text-black mb-6">Shop</h1>
           <div className="flex flex-col md:flex-row md:flex-wrap gap-2 md:items-center text-sm">
             {/* Search */}
             <span className="p-input-icon-left flex-1 w-full md:min-w-[200px]">
@@ -182,6 +182,11 @@ export default function ShopPage() {
               <InputText
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    setPage(1); // Reset page on search
+                  }
+                }}
                 placeholder="Cerca..."
                 className="w-full p-inputtext-sm"
               />
@@ -193,7 +198,7 @@ export default function ShopPage() {
                 value={selectedCharacter}
                 options={[
                   { label: 'Tutti', value: null },
-                  ...personaggi.map(p => ({ label: p.name, value: p.id }))
+                  ...personaggi.map(p => ({ label: p.name, value: p.name }))
                 ]}
                 onChange={(e) => setSelectedCharacter(e.value)}
                 className="flex-1 md:w-40"
@@ -279,10 +284,10 @@ export default function ShopPage() {
                     
                     {/* Info prodotto */}
                     <div className="p-3">
-                      <h3 className="text-sm font-medium text-gray-900 line-clamp-2 mb-2 min-h-[2.5rem]">
+                      <h3 className="text-sm font-medium text-black line-clamp-2 mb-2 min-h-[2.5rem]">
                         {product.title}
                       </h3>
-                      <div className="text-lg font-bold text-gray-900">
+                      <div className="text-lg font-bold text-black">
                         €{product.base_price.toFixed(2)}
                       </div>
                     </div>
