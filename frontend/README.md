@@ -208,7 +208,7 @@ docker compose logs -f frontend
 ### First Steps
 
 1. **Browse Products**: Go to `/shop` to see the product catalog
-2. **Admin Panel**: Access `/admin` (credentials: admin/admin)
+2. **Admin Panel**: Access `/admin` (credentials: artadmin/ArtM@nag3r2025!)
 3. **Add to Cart**: Select products and add them to your cart
 4. **Checkout**: Complete a test purchase
 

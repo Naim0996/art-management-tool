@@ -4,11 +4,9 @@ import { useEffect, useState, useRef } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useLocale } from 'next-intl';
-import { shopAPI, Product, ProductVariant } from '@/services/ShopAPIService';
+import { shopAPI, Product } from '@/services/ShopAPIService';
 import { Button } from 'primereact/button';
 import { Toast } from 'primereact/toast';
-import { Dropdown } from 'primereact/dropdown';
-import { InputNumber } from 'primereact/inputnumber';
 
 export default function ProductDetailPage() {
   const params = useParams();
@@ -18,9 +16,6 @@ export default function ProductDetailPage() {
   
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
-  const [selectedVariant, setSelectedVariant] = useState<ProductVariant | null>(null);
-  const [quantity, setQuantity] = useState(1);
-  const [addingToCart, setAddingToCart] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
   const slug = params?.slug as string;
@@ -37,11 +32,6 @@ export default function ProductDetailPage() {
     try {
       const productData = await shopAPI.getProduct(slug);
       setProduct(productData);
-      
-      // Auto-select first variant if available
-      if (productData.variants && productData.variants.length > 0) {
-        setSelectedVariant(productData.variants[0]);
-      }
     } catch (error) {
       console.error('Error fetching product:', error);
       toast.current?.show({
@@ -55,56 +45,8 @@ export default function ProductDetailPage() {
     }
   };
 
-  const handleAddToCart = async () => {
-    if (!product) return;
-    
-    setAddingToCart(true);
-    try {
-      await shopAPI.addToCart({
-        product_id: product.id,
-        variant_id: selectedVariant?.id,
-        quantity,
-      });
-      
-      toast.current?.show({
-        severity: 'success',
-        summary: 'Success',
-        detail: `${quantity} item(s) added to cart!`,
-        life: 3000,
-      });
-    } catch (error) {
-      console.error('Error adding to cart:', error);
-      toast.current?.show({
-        severity: 'error',
-        summary: 'Error',
-        detail: 'Failed to add to cart',
-        life: 3000,
-      });
-    } finally {
-      setAddingToCart(false);
-    }
-  };
-
-  const getStockQuantity = (): number => {
-    if (selectedVariant) {
-      return selectedVariant.stock;
-    }
-    
-    if (product?.variants && product.variants.length > 0) {
-      return product.variants.reduce((sum, v) => sum + v.stock, 0);
-    }
-    
-    return 0;
-  };
-
   const getCurrentPrice = (): number => {
-    if (!product) return 0;
-    
-    if (selectedVariant) {
-      return product.base_price + selectedVariant.price_adjustment;
-    }
-    
-    return product.base_price;
+    return product?.base_price || 0;
   };
 
   const getImages = () => {
@@ -164,8 +106,6 @@ export default function ProductDetailPage() {
     );
   }
 
-  const stockQty = getStockQuantity();
-  const inStock = stockQty > 0;
   const currentPrice = getCurrentPrice();
   const images = getImages();
 
@@ -288,124 +228,19 @@ export default function ProductDetailPage() {
                 <span className="text-4xl font-bold text-blue-600">
                   {product.currency === 'EUR' ? '€' : '$'}{currentPrice.toFixed(2)}
                 </span>
-                {selectedVariant && selectedVariant.price_adjustment !== 0 && (
-                  <span className="text-2xl text-gray-400 line-through">
-                    {product.currency === 'EUR' ? '€' : '$'}{product.base_price.toFixed(2)}
-                  </span>
-                )}
-              </div>
-
-              {/* Stock Status */}
-              <div className="flex items-center gap-2">
-                <i className={`pi ${inStock ? 'pi-check-circle' : 'pi-times-circle'}`} 
-                   style={{ color: inStock ? '#10b981' : '#ef4444', fontSize: '1.25rem' }}></i>
-                <span className={`font-semibold ${inStock ? 'text-green-600' : 'text-red-600'}`}>
-                  {inStock ? `${stockQty} in stock` : 'Out of stock'}
-                </span>
-              </div>
-
-              {/* Variants */}
-              {product.variants && product.variants.length > 0 && (
-                <div className="space-y-3">
-                  <label className="font-semibold text-gray-900 text-base">Select Variant:</label>
-                  <Dropdown
-                    value={selectedVariant}
-                    options={product.variants}
-                    onChange={(e) => setSelectedVariant(e.value)}
-                    optionLabel="name"
-                    placeholder="Choose a variant"
-                    className="w-full"
-                    itemTemplate={(option) => (
-                      <div className="flex justify-between items-center py-2">
-                        <span>{option.name}</span>
-                        <span className="text-sm text-gray-500">
-                          {option.stock > 0 ? `${option.stock} available` : 'Out of stock'}
-                        </span>
-                      </div>
-                    )}
-                  />
-                </div>
-              )}
-
-              {/* Quantity */}
-              <div className="space-y-3">
-                <label className="font-semibold text-gray-900 text-base">Quantity:</label>
-                <div className="flex items-center border rounded-md overflow-hidden w-full max-w-xs">
-                  <Button
-                    icon="pi pi-minus"
-                    className="p-button-text p-button-danger border-0 rounded-none"
-                    onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                    disabled={!inStock || quantity <= 1}
-                    style={{ height: '3rem' }}
-                  />
-                  <InputNumber
-                    value={quantity}
-                    onValueChange={(e) => setQuantity(e.value || 1)}
-                    min={1}
-                    max={stockQty}
-                    disabled={!inStock}
-                    className="flex-1 border-0"
-                    inputClassName="text-center border-0"
-                    showButtons={false}
-                    style={{ width: '100%' }}
-                  />
-                  <Button
-                    icon="pi pi-plus"
-                    className="p-button-text p-button-success border-0 rounded-none"
-                    onClick={() => setQuantity(Math.min(stockQty, quantity + 1))}
-                    disabled={!inStock || quantity >= stockQty}
-                    style={{ height: '3rem' }}
-                  />
-                </div>
-              </div>
-
-              {/* Add to Cart and Checkout Buttons */}
-              <div className="flex flex-col md:flex-row gap-3 md:gap-4 pt-4">
-                <Button
-                  label="Add to Cart"
-                  icon="pi pi-shopping-cart"
-                  className="w-full md:flex-1 p-button-primary"
-                  size="large"
-                  onClick={handleAddToCart}
-                  disabled={!inStock || addingToCart}
-                  loading={addingToCart}
-                  style={{ 
-                    backgroundColor: '#0066CC',
-                    borderColor: '#0066CC',
-                    height: '3.5rem',
-                    fontSize: '1.1rem',
-                    fontWeight: '600'
-                  }}
-                />
-                <Link href={`/${locale}/checkout`} className="w-full md:flex-1">
-                  <Button
-                    label="Checkout"
-                    icon="pi pi-credit-card"
-                    className="w-full p-button-outlined"
-                    size="large"
-                    disabled={!inStock}
-                    style={{ 
-                      borderColor: '#0066CC',
-                      color: '#0066CC',
-                      height: '3.5rem',
-                      fontSize: '1.1rem',
-                      fontWeight: '600'
-                    }}
-                  />
-                </Link>
               </div>
 
               {/* Etsy Button */}
-              {product.etsy_shop_url && (
-                <a href={product.etsy_shop_url} target="_blank" rel="noopener noreferrer" className="block">
+              {product.etsy_link && (
+                <a href={product.etsy_link} target="_blank" rel="noopener noreferrer" className="block">
                   <Button
                     label="Acquista su Etsy"
                     icon="pi pi-external-link"
                     className="w-full"
                     size="large"
                     style={{ 
-                      backgroundColor: '#F1641E',
-                      borderColor: '#F1641E',
+                      backgroundColor: '#0066CC',
+                      borderColor: '#0066CC',
                       color: '#ffffff',
                       height: '3.5rem',
                       fontSize: '1.1rem',

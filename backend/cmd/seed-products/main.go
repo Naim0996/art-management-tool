@@ -86,6 +86,8 @@ func main() {
 			BasePrice:        29.99,
 			Currency:         "EUR",
 			SKU:              "TS-RIB-001",
+			CharacterValue:   "Ribelle il Pigro",
+			EtsyLink:         "https://www.etsy.com/listing/maglietta-ribelle-classic",
 			Status:           models.ProductStatusPublished,
 			CharacterID:      getPersonaggioID(personaggioMap, "Ribelle il Pigro"),
 			Categories: []models.Category{
@@ -112,6 +114,8 @@ func main() {
 			BasePrice:        49.99,
 			Currency:         "EUR",
 			SKU:              "HS-GIU-001",
+			CharacterValue:   "Il Giullare",
+			EtsyLink:         "https://www.etsy.com/listing/felpa-giullare-color",
 			Status:           models.ProductStatusPublished,
 			CharacterID:      getPersonaggioID(personaggioMap, "Il Giullare"),
 			Categories: []models.Category{
@@ -135,6 +139,8 @@ func main() {
 			BasePrice:        39.99,
 			Currency:         "EUR",
 			SKU:              "PRT-LEO-001",
+			CharacterValue:   "Leon",
+			EtsyLink:         "https://www.etsy.com/listing/stampa-leon-banner",
 			Status:           models.ProductStatusPublished,
 			CharacterID:      getPersonaggioID(personaggioMap, "Leon"),
 			Categories: []models.Category{
@@ -159,6 +165,8 @@ func main() {
 			BasePrice:        24.99,
 			Currency:         "EUR",
 			SKU:              "PRT-POL-001",
+			CharacterValue:   "Il Polemico",
+			EtsyLink:         "https://www.etsy.com/listing/poster-polemico",
 			Status:           models.ProductStatusPublished,
 			CharacterID:      getPersonaggioID(personaggioMap, "Il Polemico"),
 			Categories: []models.Category{
@@ -179,6 +187,8 @@ func main() {
 			BasePrice:        19.99,
 			Currency:         "EUR",
 			SKU:              "MUG-TEAM-001",
+			CharacterValue:   "Saggio Antico",
+			EtsyLink:         "https://www.etsy.com/listing/tazza-team-quattro",
 			Status:           models.ProductStatusPublished,
 			Categories: []models.Category{
 				{ID: categoryMap["accessori"]},
@@ -203,6 +213,8 @@ func main() {
 			BasePrice:        22.99,
 			Currency:         "EUR",
 			SKU:              "BTL-RIB-001",
+			CharacterValue:   "Ribelle il Pigro",
+			EtsyLink:         "https://www.etsy.com/listing/borraccia-ribelle-sport",
 			Status:           models.ProductStatusPublished,
 			CharacterID:      getPersonaggioID(personaggioMap, "Ribelle il Pigro"),
 			Categories: []models.Category{
@@ -225,6 +237,8 @@ func main() {
 			BasePrice:        59.99,
 			Currency:         "EUR",
 			SKU:              "BAG-LEO-001",
+			CharacterValue:   "Leon",
+			EtsyLink:         "https://www.etsy.com/listing/zaino-leon-adventure",
 			Status:           models.ProductStatusPublished,
 			CharacterID:      getPersonaggioID(personaggioMap, "Leon"),
 			Categories: []models.Category{
@@ -247,6 +261,8 @@ func main() {
 			BasePrice:        99.99,
 			Currency:         "EUR",
 			SKU:              "SET-STAMPE-001",
+			CharacterValue:   "Saggio Antico",
+			EtsyLink:         "https://www.etsy.com/listing/set-stampe-collezione",
 			Status:           models.ProductStatusPublished,
 			Categories: []models.Category{
 				{ID: categoryMap["stampe-arte"]},

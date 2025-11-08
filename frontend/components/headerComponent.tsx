@@ -36,13 +36,17 @@ export default function HeaderComponent() {
     const submenuItemRenderer = (item: any) => {
         return (
             <a 
-                className="flex align-items-center cursor-pointer px-3 py-2 overflow-hidden relative p-ripple" 
+                className="flex align-items-center cursor-pointer overflow-hidden relative p-ripple" 
                 style={{ 
                     color: '#1f2937',
-                    transition: 'all 150ms'
+                    transition: 'all 150ms',
+                    fontWeight: 'normal',
+                    textTransform: 'none',
+                    fontSize: '0.95rem',
+                    padding: '0.5rem 1rem'
                 }}
                 onClick={item.command}
-                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#e0f2fe'}
+                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f3f4f6'}
                 onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
             >
                 <span>{item.label}</span>
@@ -67,17 +71,17 @@ export default function HeaderComponent() {
                     {
                         items: [
                             {
-                                label: t('personaggi'),
-                                template: submenuItemRenderer,
-                                command: () => {
-                                    navRouter.push(`/${locale}/personaggi`);
-                                }
-                            },
-                            {
                                 label: t('brand'),
                                 template: submenuItemRenderer,
                                 command: () => {
                                     navRouter.push(`/${locale}/brand`);
+                                }
+                            },
+                            {
+                                label: t('personaggi'),
+                                template: submenuItemRenderer,
+                                command: () => {
+                                    navRouter.push(`/${locale}/personaggi`);
                                 }
                             }
                         ]
@@ -86,7 +90,7 @@ export default function HeaderComponent() {
             ]
         },
         {
-            label: locale === 'it' ? 'Shop' : 'Shop',
+            label: 'Shop',
             template: itemRenderer,
             command: () => {
                 navRouter.push(`/${locale}/shop`);
@@ -106,9 +110,6 @@ export default function HeaderComponent() {
     const end = (
         <div className="flex align-items-center gap-3">
             <LanguageSwitcher />
-            <Link href={`/${locale}/cart`} className="p-button p-component p-button-icon-only p-button-rounded flex align-items-center justify-content-center" title="Shopping Cart" style={{ backgroundColor: '#0066CC', borderColor: '#0066CC' }}>
-                <i className="pi pi-shopping-cart" style={{ color: '#ffffff' }}></i>
-            </Link>
         </div>
     );
 
@@ -160,7 +161,15 @@ export default function HeaderComponent() {
                                 style: { color: '#1f2937' }
                             },
                             submenu: {
-                                style: { backgroundColor: '#ffffff', border: '1px solid #e5e7eb' }
+                                style: { 
+                                    backgroundColor: '#ffffff', 
+                                    border: 'none',
+                                    boxShadow: 'none',
+                                    padding: '0'
+                                }
+                            },
+                            panel: {
+                                className: 'p-0 m-0'
                             }
                         }}
                     />

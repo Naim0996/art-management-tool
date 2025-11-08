@@ -20,7 +20,8 @@ export interface Product {
   gtin?: string;
   status: 'published' | 'draft' | 'archived';
   character_id?: number;
-  etsy_shop_url?: string;
+  character_value?: string;
+  etsy_link?: string;
   categories?: Category[];
   images?: ProductImage[];
   variants?: ProductVariant[];
@@ -278,6 +279,7 @@ class ShopAPIService {
     status?: string;
     category?: number;
     character?: number;
+    character_value?: string;
     min_price?: number;
     max_price?: number;
     search?: string;

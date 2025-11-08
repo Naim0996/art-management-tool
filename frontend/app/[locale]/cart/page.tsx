@@ -368,7 +368,7 @@ export default function CartPage() {
 
         {/* Header */}
         <div className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl md:text-4xl font-bold text-gray-900">Carrello</h1>
+          <h1 className="text-3xl md:text-4xl font-bold text-black">Carrello</h1>
           {hasItems && (
             <Button
               label="Svuota"
@@ -421,7 +421,7 @@ export default function CartPage() {
                       </div>
 
                       <div className="flex-1">
-                        <h3 className="text-lg font-semibold text-gray-900">
+                        <h3 className="text-lg font-semibold text-black">
                           {product.title}
                         </h3>
                         {variant && (
@@ -447,7 +447,7 @@ export default function CartPage() {
                             />
                           </div>
                           <div className="flex-1 text-right">
-                            <p className="text-lg font-bold text-gray-900">
+                            <p className="text-lg font-bold text-black">
                               {product.currency === 'EUR' ? '€' : '$'}{total.toFixed(2)}
                             </p>
                             <p className="text-sm text-gray-500">
@@ -517,9 +517,9 @@ export default function CartPage() {
                     </div>
                   )}
                   
-                  <div className="border-t pt-3 flex justify-between text-lg font-bold text-gray-900">
+                  <div className="border-t pt-3 flex justify-between text-lg font-bold text-black">
                     <span>Totale:</span>
-                    <span className="text-gray-900">
+                    <span className="text-black">
                       {cartData.cart.items[0]?.product?.currency === 'EUR' ? '€' : '$'}
                       {cartData.total.toFixed(2)}
                     </span>

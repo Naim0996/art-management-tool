@@ -34,8 +34,8 @@ export default function FumettiPage() {
   
   if (loading) {
     return (
-      <div className="container mx-auto px-4">
-        <h1 className="text-3xl font-bold text-left text-black mb-8">{t('title')}</h1>
+      <div className="max-w-5xl mx-auto px-4 py-12">
+        <h1 className="text-4xl font-bold text-black mb-12">{t('title')}</h1>
         <div className="flex justify-center items-center py-12">
           <div className="text-center">
             <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900"></div>
@@ -47,13 +47,15 @@ export default function FumettiPage() {
   }
   
   return (
-    <div className="container mx-auto px-4 py-6 md:py-8">
-      <h1 className="text-3xl md:text-4xl font-bold text-left text-black mb-6 md:mb-8">{t('title')}</h1>
-
-      {/* Grid di card: 3 colonne desktop, 2 tablet, 1 mobile */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div className="max-w-5xl mx-auto px-4 py-12">
+      {/* Zerocalcare-style title */}
+      <h1 className="text-4xl font-bold text-black mb-12">{t('title')}</h1>
+      {/* Grid: 2 colonne come Zerocalcare */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-16">
         {fumetti.map((fumetto) => {
-          const year = fumetto.createdAt ? new Date(fumetto.createdAt).getFullYear() : '';
+          const year = fumetto.createdAt 
+            ? new Date(fumetto.createdAt).getFullYear()
+            : '';
 
           return (
             <div
@@ -63,46 +65,35 @@ export default function FumettiPage() {
                 router.push(`/${locale}/fumetti/${fumetto.slug || fumetto.id}`);
               }}
             >
-              {/* Card */}
-              <div className="bg-white border-2 border-gray-200 rounded-lg overflow-hidden hover:border-blue-500 transition-all duration-150">
-                {/* Immagine sopra */}
-                <div className="relative w-full aspect-[3/4] bg-gray-100">
-                  {fumetto.coverImage ? (
-                    <Image
-                      src={fumetto.coverImage}
-                      alt={`${fumetto.title} Cover`}
-                      fill
-                      className="object-cover"
-                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                    />
-                  ) : fumetto.pages && fumetto.pages[0] ? (
-                    <Image
-                      src={fumetto.pages[0]}
-                      alt={fumetto.title}
-                      fill
-                      className="object-cover"
-                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                    />
-                  ) : (
-                    <div className="w-full h-full bg-gray-200 flex items-center justify-center">
-                      <span className="text-sm text-gray-500">No Cover</span>
-                    </div>
-                  )}
-                </div>
-
-                {/* Info sotto */}
-                <div className="p-4">
-                  <h3 className="text-lg font-bold text-gray-900 group-hover:text-blue-600 transition-colors mb-1">
-                    {fumetto.title}
-                  </h3>
-                  {year && (
-                    <span className="text-sm text-gray-500">{year}</span>
-                  )}
-                  {fumetto.description && (
-                    <p className="text-sm text-gray-600 mt-2 line-clamp-2">{fumetto.description}</p>
-                  )}
-                </div>
+              {/* Immagine */}
+              <div className="relative w-full aspect-[4/3] bg-white mb-4 overflow-hidden">
+                {fumetto.coverImage ? (
+                  <Image
+                    src={fumetto.coverImage}
+                    alt={`${fumetto.title} Cover`}
+                    fill
+                    className="object-contain transition-opacity group-hover:opacity-90"
+                    sizes="(max-width: 768px) 100vw, 50vw"
+                  />
+                ) : fumetto.pages && fumetto.pages[0] ? (
+                  <Image
+                    src={fumetto.pages[0]}
+                    alt={fumetto.title}
+                    fill
+                    className="object-contain transition-opacity group-hover:opacity-90"
+                    sizes="(max-width: 768px) 100vw, 50vw"
+                  />
+                ) : (
+                  <div className="w-full h-full bg-gray-100 flex items-center justify-center">
+                    <span className="text-sm text-gray-400">No Cover</span>
+                  </div>
+                )}
               </div>
+
+              {/* Title with year - Zerocalcare style */}
+              <p className="zerocalcare-comic-title">
+                {fumetto.title} {year && `(${year})`}
+              </p>
             </div>
           );
         })}
@@ -111,7 +102,7 @@ export default function FumettiPage() {
       {/* Messaggio se non ci sono fumetti */}
       {fumetti.length === 0 && !loading && (
         <div className="text-center py-12">
-          <p className="text-gray-500 text-lg">Nessun fumetto disponibile al momento.</p>
+          <p className="text-gray-500 text-base">Nessun fumetto disponibile al momento.</p>
         </div>
       )}
     </div>

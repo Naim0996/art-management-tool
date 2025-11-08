@@ -41,7 +41,9 @@ type EnhancedProduct struct {
 	SKU              string           `gorm:"size:100;uniqueIndex" json:"sku,omitempty"`
 	GTIN             string           `gorm:"size:50" json:"gtin,omitempty"`
 	Status           ProductStatus    `gorm:"size:20;not null;default:'draft'" json:"status"`
-	CharacterID      *uint            `json:"character_id,omitempty"` // Optional link to character
+	CharacterID      *uint            `json:"character_id,omitempty"`                    // Optional link to character
+	CharacterValue   string           `gorm:"size:255" json:"character_value,omitempty"` // Character name for filtering
+	EtsyLink         string           `gorm:"size:500" json:"etsy_link,omitempty"`
 	Categories       []Category       `gorm:"many2many:product_categories;" json:"categories,omitempty"`
 	Images           []ProductImage   `gorm:"foreignKey:ProductID" json:"images,omitempty"`
 	Variants         []ProductVariant `gorm:"foreignKey:ProductID" json:"variants,omitempty"`

@@ -90,6 +90,8 @@ export interface Product {
   currency: string;
   sku: string;
   gtin?: string;
+  character_value?: string;
+  etsy_link?: string;
   status: 'published' | 'draft' | 'archived';
   categories?: Category[];
   images?: ProductImage[];
@@ -132,13 +134,15 @@ export interface ProductListResponse {
 
 export interface CreateProductRequest {
   slug: string;
-  name: string;
+  title: string;
   short_description: string;
   long_description?: string;
   base_price: number;
   currency?: string;
   sku: string;
   gtin?: string;
+  character_value?: string;
+  etsy_link?: string;
   status?: 'published' | 'draft' | 'archived';
 }
 

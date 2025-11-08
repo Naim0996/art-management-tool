@@ -53,11 +53,11 @@ func GetDashboardStats(db *gorm.DB) http.HandlerFunc {
 			month := now.AddDate(0, -i, 0)
 			var monthlySales float64
 			db.Table("orders").
-				Where("EXTRACT(MONTH FROM created_at) = ? AND EXTRACT(YEAR FROM created_at) = ?", 
+				Where("EXTRACT(MONTH FROM created_at) = ? AND EXTRACT(YEAR FROM created_at) = ?",
 					int(month.Month()), month.Year()).
 				Select("COALESCE(SUM(total), 0)").
 				Scan(&monthlySales)
-			
+
 			stats.SalesData = append(stats.SalesData, MonthlySales{
 				Month: month.Format("January"),
 				Sales: monthlySales,
@@ -68,15 +68,15 @@ func GetDashboardStats(db *gorm.DB) http.HandlerFunc {
 			Name      string
 			CreatedAt time.Time
 		}
-		
+
 		var personaggi []Row
 		db.Table("personaggi").
 			Where("deleted_at IS NULL").
 			Order("created_at DESC").
 			Limit(3).
-			Select("nome as name, created_at").
+			Select("title as name, created_at").
 			Scan(&personaggi)
-		
+
 		for _, p := range personaggi {
 			stats.RecentActivity = append(stats.RecentActivity, Activity{
 				Type:        "personaggio",
@@ -90,9 +90,9 @@ func GetDashboardStats(db *gorm.DB) http.HandlerFunc {
 			Where("deleted_at IS NULL").
 			Order("created_at DESC").
 			Limit(3).
-			Select("name, created_at").
+			Select("title as name, created_at").
 			Scan(&products)
-		
+
 		for _, p := range products {
 			stats.RecentActivity = append(stats.RecentActivity, Activity{
 				Type:        "product",
