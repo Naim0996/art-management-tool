@@ -24,8 +24,8 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// In a real application, validate credentials against a database
-	// For demo purposes, we'll accept a simple admin/admin combination
-	if req.Username == "admin" && req.Password == "admin" {
+	// For demo purposes, we'll accept a simple combination
+	if req.Username == "artadmin" && req.Password == "ArtM@nag3r2025!" {
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(LoginResponse{
 			Token: "demo-token-12345",
