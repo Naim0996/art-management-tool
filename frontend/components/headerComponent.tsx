@@ -165,11 +165,32 @@ export default function HeaderComponent() {
                                     backgroundColor: '#ffffff', 
                                     border: 'none',
                                     boxShadow: 'none',
-                                    padding: '0'
+                                    padding: '0',
+                                    margin: '0'
+                                }
+                            },
+                            submenuHeader: {
+                                style: {
+                                    display: 'none'
                                 }
                             },
                             panel: {
-                                className: 'p-0 m-0'
+                                className: 'p-0 m-0',
+                                style: {
+                                    padding: '0',
+                                    margin: '0'
+                                }
+                            },
+                            grid: {
+                                style: {
+                                    margin: '0',
+                                    padding: '0'
+                                }
+                            },
+                            column: {
+                                style: {
+                                    padding: '0'
+                                }
                             }
                         }}
                     />
