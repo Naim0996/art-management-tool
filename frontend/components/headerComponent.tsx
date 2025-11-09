@@ -115,8 +115,8 @@ export default function HeaderComponent() {
 
     return (
         <>
-            {/* Navigation Bar - Sticky Header */}
-            <div className="sticky top-0 z-50 bg-white shadow-sm">
+            {/* Navigation Bar - Fixed Header */}
+            <div className="fixed top-0 left-0 right-0 z-50 bg-white shadow-sm">
                 <div className="card">
                     <MegaMenu 
                         model={items}
