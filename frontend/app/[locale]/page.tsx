@@ -244,59 +244,6 @@ export default function Home() {
           )}
         </div>
 
-        {/* Services Section - What a Comic Artist Can Offer */}
-        <div className="py-16 px-4 bg-white">
-          <h3 className="text-4xl font-bold mb-12 text-center text-gray-900">Servizi Offerti</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl mx-auto">
-            <div className="flex items-start space-x-4 p-6 bg-white border-2 border-gray-200 rounded-lg hover:border-blue-500 transition-all duration-150">
-              <span className="text-3xl">✏️</span>
-              <div>
-                <h4 className="font-bold text-xl mb-2 text-gray-900">Character Design</h4>
-                <p className="text-gray-700 text-sm">Creazione di personaggi originali con personalità uniche, dal concept iniziale al design finale</p>
-              </div>
-            </div>
-
-            <div className="flex items-start space-x-4 p-6 bg-white border-2 border-gray-200 rounded-lg hover:border-blue-500 transition-all duration-150">
-              <span className="text-3xl">📖</span>
-              <div>
-                <h4 className="font-bold text-xl mb-2 text-gray-900">Tavole Fumettistiche</h4>
-                <p className="text-gray-700 text-sm">Realizzazione di tavole complete con layout dinamici, sequenze narrative e storytelling visivo</p>
-              </div>
-            </div>
-
-            <div className="flex items-start space-x-4 p-6 bg-white border-2 border-gray-200 rounded-lg hover:border-blue-500 transition-all duration-150">
-              <span className="text-3xl">🎨</span>
-              <div>
-                <h4 className="font-bold text-xl mb-2 text-gray-900">Illustrazioni Custom</h4>
-                <p className="text-gray-700 text-sm">Illustrazioni personalizzate per copertine, poster, merchandising e progetti editoriali</p>
-              </div>
-            </div>
-
-            <div className="flex items-start space-x-4 p-6 bg-white border-2 border-gray-200 rounded-lg hover:border-blue-500 transition-all duration-150">
-              <span className="text-3xl">🎬</span>
-              <div>
-                <h4 className="font-bold text-xl mb-2 text-gray-900">Storyboard & Concept Art</h4>
-                <p className="text-gray-700 text-sm">Sviluppo di storyboard per animazioni, film e video, con attenzione ai dettagli narrativi</p>
-              </div>
-            </div>
-
-            <div className="flex items-start space-x-4 p-6 bg-white border-2 border-gray-200 rounded-lg hover:border-blue-500 transition-all duration-150">
-              <span className="text-3xl">📋</span>
-              <div>
-                <h4 className="font-bold text-xl mb-2 text-gray-900">Character Sheets</h4>
-                <p className="text-gray-700 text-sm">Fogli di riferimento completi con espressioni facciali, pose e turnaround per animatori</p>
-              </div>
-            </div>
-
-            <div className="flex items-start space-x-4 p-6 bg-white border-2 border-gray-200 rounded-lg hover:border-blue-500 transition-all duration-150">
-              <span className="text-3xl">📚</span>
-              <div>
-                <h4 className="font-bold text-xl mb-2 text-gray-900">Graphic Novel & Copertine</h4>
-                <p className="text-gray-700 text-sm">Design di copertine impattanti e layout per graphic novel, manga e webcomics</p>
-              </div>
-            </div>
-          </div>
-        </div>
     </div>
   );
 }
