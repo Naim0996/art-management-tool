@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-const BACKEND_URL = process.env.BACKEND_URL || 'http://localhost:8080';
+const BACKEND_URL = process.env.BACKEND_URL || 'http://giorgiopriviteralab.com:8080';
 
 /**
  * Proxy all /api/shop requests to backend, handling cookies properly

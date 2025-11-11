@@ -42,7 +42,7 @@ export default function ShopPage() {
       console.log('🔄 Fetching products from API...', {
         mode: 'Next.js Proxy',
         endpoint: '/api/shop/products',
-        proxiesTo: 'http://localhost:8080/api/shop/products',
+        proxiesTo: 'http://giorgiopriviteralab.com:8080/api/shop/products',
       });
       
       const response = await shopAPI.listProducts({
@@ -159,7 +159,7 @@ export default function ShopPage() {
                 <h3 className="text-red-800 font-semibold">API Connection Error</h3>
                 <p className="text-red-700 text-sm mt-1">{apiError}</p>
                 <p className="text-red-600 text-xs mt-2">
-                  Mode: Next.js Proxy → http://localhost:8080 • 
+                  Mode: Next.js Proxy → http://giorgiopriviteralab.com:8080 • 
                   Testing page: <Link href={`/${locale}/api-test`} className="underline">Click here</Link>
                 </p>
               </div>

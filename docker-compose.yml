@@ -73,7 +73,7 @@ services:
       - ETSY_SHOP_NAME=${ETSY_SHOP_NAME:-}
       - ETSY_SHOP_URL=${ETSY_SHOP_URL:-}
       - ETSY_ACCESS_TOKEN=${ETSY_ACCESS_TOKEN:-}
-      - ETSY_REDIRECT_URI=${ETSY_REDIRECT_URI:-http://localhost:3000/admin/etsy-sync/callback}
+      - ETSY_REDIRECT_URI=${ETSY_REDIRECT_URI:-http://giorgiopriviteralab.com:3000/admin/etsy-sync/callback}
       - ETSY_API_BASE_URL=${ETSY_API_BASE_URL:-https://openapi.etsy.com/v3}
       - ETSY_PAYMENT_CALLBACK_URL=${ETSY_PAYMENT_CALLBACK_URL:-}
       - ETSY_SYNC_ENABLED=${ETSY_SYNC_ENABLED:-false}
@@ -99,7 +99,7 @@ services:
       postgres:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      test: ["CMD", "curl", "-f", "http://giorgiopriviteralab.com:8080/health"]
       interval: 30s
       timeout: 10s
       retries: 3

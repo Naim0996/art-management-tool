@@ -27,7 +27,7 @@ export default function ProductImageUpload({
   const [uploading, setUploading] = useState(false);
   const [editingAltText, setEditingAltText] = useState<{ [key: number]: string }>({});
 
-  const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
+  const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://giorgiopriviteralab.com:8080';
 
   // Handle file upload (supporta multipli)
   const handleUpload = async (event: FileUploadHandlerEvent) => {

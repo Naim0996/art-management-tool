@@ -23,7 +23,7 @@ export interface PersonaggiListResponse {
   count: number;
 }
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://giorgiopriviteralab.com:8080';
 
 export class PersonaggiAPIService {
   private static getAuthHeaders(): HeadersInit {
