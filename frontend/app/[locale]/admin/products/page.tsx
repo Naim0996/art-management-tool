@@ -43,7 +43,7 @@ export default function ProductsManagement() {
     const token = localStorage.getItem('adminToken');
     setLoading(true);
     try {
-      const response = await fetch('http://localhost:8080/api/admin/products', {
+      const response = await fetch('http://giorgiopriviteralab.com/api/admin/products', {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -102,8 +102,8 @@ export default function ProductsManagement() {
 
     try {
       const url = editingProduct
-        ? `http://localhost:8080/api/admin/products/${editingProduct.id}`
-        : 'http://localhost:8080/api/admin/products';
+        ? `http://giorgiopriviteralab.com/api/admin/products/${editingProduct.id}`
+        : 'http://giorgiopriviteralab.com/api/admin/products';
       
       const response = await fetch(url, {
         method: editingProduct ? 'PUT' : 'POST',
@@ -143,7 +143,7 @@ export default function ProductsManagement() {
       accept: async () => {
         const token = localStorage.getItem('adminToken');
         try {
-          await fetch(`http://localhost:8080/api/admin/products/${product.id}`, {
+          await fetch(`http://giorgiopriviteralab.com/api/admin/products/${product.id}`, {
             method: 'DELETE',
             headers: {
               Authorization: `Bearer ${token}`,

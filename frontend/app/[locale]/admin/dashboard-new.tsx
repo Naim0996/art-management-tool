@@ -105,7 +105,7 @@ export default function AdminDashboard() {
         const token = localStorage.getItem('adminToken');
         
         // Fetch all stats from single endpoint
-        const response = await fetch('http://localhost:8080/api/admin/stats', {
+        const response = await fetch('http://giorgiopriviteralab.com/api/admin/stats', {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         
