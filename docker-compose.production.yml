@@ -140,7 +140,7 @@ services:
       args:
         # Build-time argument for NEXT_PUBLIC_API_URL
         # This MUST be set during build, not runtime
-        NEXT_PUBLIC_API_URL: giorgiopriviteralab.com:8080
+        NEXT_PUBLIC_API_URL: http://giorgiopriviteralab.com:8080
     container_name: art-frontend-prod
     ports:
       - "3000:3000"
@@ -150,9 +150,9 @@ services:
       # Port for Next.js server (must be 3000 to match EXPOSE)
       - PORT=3000
       # NEXT_PUBLIC_API_URL should be the public-facing API URL
-      - NEXT_PUBLIC_API_URL=giorgiopriviteralab.com:8080
+      - NEXT_PUBLIC_API_URL=http://giorgiopriviteralab.com:8080
       # BACKEND_URL is for server-side rewrites in Next.js (internal Docker network)
-      - BACKEND_URL=giorgiopriviteralab.com:8080
+      - BACKEND_URL=http://giorgiopriviteralab.com:8080
       - NODE_ENV=${NODE_ENV:-production}
     depends_on:
       backend:
