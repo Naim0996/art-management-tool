@@ -41,7 +41,7 @@ services:
       target: production
     container_name: art-backend-prod
     ports:
-      - "${PORT:-8080}:8080"
+      - "8080:8080"
     env_file:
       - .env.production
     environment:
