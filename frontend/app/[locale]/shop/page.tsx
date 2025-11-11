@@ -42,7 +42,7 @@ export default function ShopPage() {
       console.log('🔄 Fetching products from API...', {
         mode: 'Next.js Proxy',
         endpoint: '/api/shop/products',
-        proxiesTo: 'http://giorgiopriviteralab.com/api/shop/products',
+        proxiesTo: 'http://giorgiopriviteralab.com:8080/api/shop/products',
       });
       
       const response = await shopAPI.listProducts({
