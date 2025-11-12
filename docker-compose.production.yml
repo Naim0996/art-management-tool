@@ -141,6 +141,8 @@ services:
         # Build-time argument for NEXT_PUBLIC_API_URL
         # This MUST be set during build, not runtime
         NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-}
+        # BACKEND_URL needed for Next.js rewrites configuration
+        BACKEND_URL: ${BACKEND_URL:-http://backend:8080}
     container_name: art-frontend-prod
     ports:
       - "3000:3000"
