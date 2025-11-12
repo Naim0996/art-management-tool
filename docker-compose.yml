@@ -111,6 +111,9 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-}
+        BACKEND_URL: ${BACKEND_URL:-http://backend:8080}
     container_name: art-frontend
     ports:
       - "3000:3000"
