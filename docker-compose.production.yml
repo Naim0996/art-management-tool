@@ -55,7 +55,7 @@ services:
       - DB_USER=${DB_USER}
       - DB_PASSWORD=${DB_PASSWORD}
       - DB_NAME=${DB_NAME}
-      - DB_SSLMODE=${DB_SSLMODE:-require}
+      - DB_SSLMODE=${DB_SSLMODE:-disable}
       
       # Auto-Migration & Seeding
       - AUTO_MIGRATE=${AUTO_MIGRATE:-true}
