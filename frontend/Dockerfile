@@ -40,6 +40,10 @@ COPY . .
 ARG NEXT_PUBLIC_API_URL
 ENV NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
 
+# BACKEND_URL is needed for next.config.ts rewrites configuration
+ARG BACKEND_URL
+ENV BACKEND_URL=${BACKEND_URL}
+
 # Build the application
 RUN npm run build
 
@@ -50,6 +54,10 @@ WORKDIR /app
 
 # Set production environment
 ENV NODE_ENV=production
+
+# BACKEND_URL is also needed at runtime for server-side rewrites
+ARG BACKEND_URL
+ENV BACKEND_URL=${BACKEND_URL}
 
 # Copy package.json for runtime dependencies info
 COPY --from=builder /app/package.json ./package.json

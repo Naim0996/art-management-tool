@@ -11,13 +11,13 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       {
         protocol: 'http',
-        hostname: 'giorgiopriviteralab.com',
+        hostname: 'localhost',
         port: '8080',
         pathname: '/uploads/**',
       },
       {
         protocol: 'http',
-        hostname: 'giorgiopriviteralab.com',
+        hostname: 'localhost',
         port: '3000',
         pathname: '/uploads/**',
       },
@@ -30,8 +30,8 @@ const nextConfig: NextConfig = {
   
   // Proxy API requests to backend to avoid CORS issues
   async rewrites() {
-    // Use 'backend' service name when running in Docker, giorgiopriviteralab.com otherwise
-    const backendUrl = process.env.BACKEND_URL || 'http://giorgiopriviteralab.com';
+    // Use 'backend' service name when running in Docker, localhost otherwise
+    const backendUrl = process.env.BACKEND_URL || 'http://localhost:8080';
     
     return [
       {

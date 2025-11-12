@@ -4,6 +4,7 @@
  */
 
 // Use relative paths - Next.js rewrites will proxy to backend
+// Empty string means use relative paths through Next.js proxy
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || '';
 
 // ==================== Types ====================

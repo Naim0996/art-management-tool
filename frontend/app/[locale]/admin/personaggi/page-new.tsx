@@ -316,7 +316,7 @@ export default function AdminPersonaggiPageNew() {
 
   const iconTemplate = (rowData: PersonaggioDTO) => {
     if (!rowData.icon) return <span className="text-gray-400">No icon</span>;
-    const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://giorgiopriviteralab.com';
+    const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
     const iconUrl = rowData.icon.startsWith('http') ? rowData.icon : `${API_BASE_URL}${rowData.icon}`;
     return (
       <img
