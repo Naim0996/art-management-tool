@@ -19,7 +19,7 @@ export default function HeaderComponent() {
     return (
         <>
             {/* Navigation Bar - Sticky Header with Wood Texture */}
-            <header className="sticky top-0 z-50 right-0 left-0">
+            <header className="sticky top-0 z-50">
                 {/* Desktop Header */}
                 <div 
                     className="hidden md:flex items-center justify-between px-6 py-4"

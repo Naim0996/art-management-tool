@@ -41,7 +41,7 @@ services:
       target: production
     container_name: art-backend-prod
     ports:
-      - "8080:8080"
+      - "${PORT:-8080}:8080"
     env_file:
       - .env.production
     environment:
@@ -140,19 +140,18 @@ services:
       args:
         # Build-time argument for NEXT_PUBLIC_API_URL
         # This MUST be set during build, not runtime
-        NEXT_PUBLIC_API_URL: http://giorgiopriviteralab.com:8080
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-}
     container_name: art-frontend-prod
     ports:
       - "3000:3000"
     env_file:
       - .env.production
     environment:
-      # Port for Next.js server (must be 3000 to match EXPOSE)
       - PORT=3000
-      # NEXT_PUBLIC_API_URL should be the public-facing API URL
-      - NEXT_PUBLIC_API_URL=http://giorgiopriviteralab.com:8080
-      # BACKEND_URL is for server-side rewrites in Next.js (internal Docker network)
-      - BACKEND_URL=http://giorgiopriviteralab.com:8080
+      # NEXT_PUBLIC_* vars are for browser, so use empty string to use relative paths
+      - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-}
+      # BACKEND_URL is for server-side rewrites in Next.js
+      - BACKEND_URL=${BACKEND_URL:-http://backend:8080}
       - NODE_ENV=${NODE_ENV:-production}
     depends_on:
       backend:
