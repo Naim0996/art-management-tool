@@ -36,7 +36,7 @@ export interface DiscountStatsResponse {
   days_until_expiry: number | null;
 }
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://giorgiopriviteralab.com';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
 
 export class DiscountAPIService {
   private static getAuthHeaders(): HeadersInit {
