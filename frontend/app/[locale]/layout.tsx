@@ -23,7 +23,7 @@ export default async function LocaleLayout({
       <body className="antialiased h-full overflow-x-hidden">
         <NextIntlClientProvider messages={messages}>
           <PrimeReactProvider>
-            <div className="min-h-screen bg-gradient-to-b from-purple-50 to-white flex flex-col overflow-x-hidden">
+            <div className="min-h-screen bg-gradient-to-b from-purple-50 to-white flex flex-col overflow-x-hidden pt-20">
               {/* Header sempre in alto e sticky */}
               <HeaderComponent />
 

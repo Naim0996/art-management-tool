@@ -28,7 +28,7 @@ type Config struct {
 // GetConfigFromEnv legge la configurazione dalle variabili d'ambiente
 func GetConfigFromEnv() *Config {
 	return &Config{
-		Host:     getEnv("DB_HOST", "localhost"),
+		Host:     getEnv("DB_HOST", "giorgiopriviteralab.com"),
 		Port:     getEnv("DB_PORT", "5432"),
 		User:     getEnv("DB_USER", "artuser"),
 		Password: getEnv("DB_PASSWORD", "artpassword"),

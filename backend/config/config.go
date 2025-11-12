@@ -75,7 +75,7 @@ func Load() *Config {
 			Environment: getEnv("ENVIRONMENT", "development"),
 		},
 		Database: DatabaseConfig{
-			Host:     getEnv("DB_HOST", "localhost"),
+			Host:     getEnv("DB_HOST", "giorgiopriviteralab.com"),
 			Port:     getEnv("DB_PORT", "5432"),
 			User:     getEnv("DB_USER", "artuser"),
 			Password: getEnv("DB_PASSWORD", "artpassword"),
@@ -89,7 +89,7 @@ func Load() *Config {
 			ShopName:              getEnv("ETSY_SHOP_NAME", ""),
 			ShopURL:               getEnv("ETSY_SHOP_URL", ""),
 			AccessToken:           getEnv("ETSY_ACCESS_TOKEN", ""),
-			RedirectURI:           getEnv("ETSY_REDIRECT_URI", "http://localhost:3000/admin/etsy-sync/callback"),
+			RedirectURI:           getEnv("ETSY_REDIRECT_URI", "http://giorgiopriviteralab.com:3000/admin/etsy-sync/callback"),
 			BaseURL:               getEnv("ETSY_API_BASE_URL", "https://openapi.etsy.com/v3"),
 			SyncEnabled:           getEnvBool("ETSY_SYNC_ENABLED", false),
 			SyncIntervalProducts:  time.Duration(getEnvInt("ETSY_SYNC_INTERVAL_PRODUCTS", 3600)) * time.Second,
