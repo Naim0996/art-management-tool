@@ -67,25 +67,29 @@ export default function HeaderComponent() {
                     <div style={{
                         display: 'flex',
                         alignItems: 'center',
-                        gap: '12px',
-                        height: '70px'
+                        justifyContent: 'flex-end',
+                        gap: '0px',
+                        height: '110px',
+                        marginBottom: '15px'
                     }}>
                         {/* Fumetti Button */}
                         <button
                             onClick={() => handleNavigate('/fumetti')}
                             style={{ 
-                                height: '70px', 
-                                width: '154px',
+                                height: '110px', 
+                                width: '220px',
                                 padding: 0,
                                 margin: 0,
                                 border: 'none',
                                 background: 'transparent',
                                 cursor: 'pointer',
                                 transition: 'transform 0.2s',
-                                display: 'inline-block',
-                                verticalAlign: 'middle',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
                                 lineHeight: 0,
-                                flexShrink: 0
+                                flexShrink: 0,
+                                flexBasis: '220px'
                             }}
                             onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
                             onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
@@ -93,13 +97,13 @@ export default function HeaderComponent() {
                             <Image 
                                 src="/assets/pulsante_fumetti.svg" 
                                 alt="Fumetti" 
-                                width={154} 
-                                height={70}
+                                width={220} 
+                                height={110}
                                 style={{ 
                                     display: 'block',
-                                    width: '154px',
-                                    height: '70px',
-                                    verticalAlign: 'top'
+                                    width: '100%',
+                                    height: '100%',
+                                    objectFit: 'contain'
                                 }}
                             />
                         </button>
@@ -110,25 +114,28 @@ export default function HeaderComponent() {
                             onMouseLeave={() => setIsAnimantraOpen(false)}
                             style={{ 
                                 position: 'relative',
-                                height: '70px',
-                                width: '154px',
-                                display: 'inline-block',
-                                verticalAlign: 'middle',
-                                flexShrink: 0
+                                height: '110px',
+                                width: '220px',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                flexShrink: 0,
+                                flexBasis: '220px'
                             }}
                         >
                             <button
                                 style={{ 
-                                    height: '70px', 
-                                    width: '154px',
+                                    height: '110px', 
+                                    width: '220px',
                                     padding: 0,
                                     margin: 0,
                                     border: 'none',
                                     background: 'transparent',
                                     cursor: 'pointer',
                                     transition: 'transform 0.2s',
-                                    display: 'inline-block',
-                                    verticalAlign: 'middle',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
                                     lineHeight: 0
                                 }}
                                 onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
@@ -137,13 +144,13 @@ export default function HeaderComponent() {
                                 <Image 
                                     src="/assets/pulsante_animantra.svg" 
                                     alt="Animantra" 
-                                    width={154} 
-                                    height={70}
+                                    width={220} 
+                                    height={110}
                                     style={{ 
                                         display: 'block',
-                                        width: '154px',
-                                        height: '70px',
-                                        verticalAlign: 'middle'
+                                        width: '100%',
+                                        height: '100%',
+                                        objectFit: 'contain'
                                     }}
                                 />
                             </button>
@@ -210,44 +217,8 @@ export default function HeaderComponent() {
                         <button
                             onClick={() => handleNavigate('/shop')}
                             style={{ 
-                                height: '70px', 
-                                width: '154px',
-                                padding: 0,
-                                margin: 0,
-                                border: 'none',
-                                background: 'transparent',
-                                cursor: 'pointer',
-                                transition: 'transform 0.2s',
-                                display: 'inline-block',
-                                verticalAlign: 'middle',
-                                lineHeight: 0,
-                                flexShrink: 0
-                            }}
-                            onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
-                            onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
-                        >
-                            <Image 
-                                src="/assets/pulsante_shop.svg" 
-                                alt="Shop" 
-                                width={154} 
-                                height={70}
-                                style={{ 
-                                    display: 'block',
-                                    width: '154px',
-                                    height: '70px',
-                                    verticalAlign: 'middle'
-                                }}
-                            />
-                        </button>
-
-                        {/* Language Switcher Button with SVG and Text */}
-                        <button
-                            onClick={toggleLanguage}
-                            title={locale === 'it' ? 'Switch to English' : 'Passa all\'Italiano'}
-                            style={{
-                                position: 'relative',
-                                width: '184px',
-                                height: '90px',
+                                height: '110px', 
+                                width: '220px',
                                 padding: 0,
                                 margin: 0,
                                 border: 'none',
@@ -257,9 +228,46 @@ export default function HeaderComponent() {
                                 display: 'flex',
                                 alignItems: 'center',
                                 justifyContent: 'center',
-                                verticalAlign: 'middle',
+                                lineHeight: 0,
                                 flexShrink: 0,
-                                marginBottom: '10px'
+                                flexBasis: '220px'
+                            }}
+                            onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
+                            onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+                        >
+                            <Image 
+                                src="/assets/pulsante_shop.svg" 
+                                alt="Shop" 
+                                width={220} 
+                                height={110}
+                                style={{ 
+                                    display: 'block',
+                                    width: '100%',
+                                    height: '100%',
+                                    objectFit: 'contain'
+                                }}
+                            />
+                        </button>
+
+                        <button
+                            onClick={toggleLanguage}
+                            title={locale === 'it' ? 'Switch to English' : 'Passa all\'Italiano'}
+                            style={{
+                                position: 'relative',
+                                width: '240px',
+                                height: '130px',
+                                padding: 0,
+                                margin: 0,
+                                border: 'none',
+                                background: 'transparent',
+                                cursor: 'pointer',
+                                transition: 'transform 0.2s',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                lineHeight: 0,
+                                flexShrink: 0,
+                                flexBasis: '220px'
                             }}
                             onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
                             onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
@@ -267,8 +275,8 @@ export default function HeaderComponent() {
                             <Image 
                                 src="/assets/pulsante_lingua.svg" 
                                 alt="Language" 
-                                width={154} 
-                                height={70}
+                                width={240} 
+                                height={130}
                                 style={{ 
                                     position: 'absolute',
                                     top: 0,
@@ -280,15 +288,19 @@ export default function HeaderComponent() {
                             />
                             <span
                                 style={{
-                                    position: 'relative',
+                                    position: 'absolute',
+                                    top: '50%',
+                                    left: '50%',
+                                    transform: 'translate(-50%, -50%)',
                                     zIndex: 1,
-                                    marginTop: '35px',
                                     color: '#6E4220',
                                     fontWeight: '900',
-                                    fontSize: '16px',
+                                    fontSize: '24px',
                                     pointerEvents: 'none',
                                     lineHeight: 1,
                                     letterSpacing: '2px',
+                                    marginTop: '28px',
+                                    marginRight: '5px',
                                 }}
                             >
                                 {locale.toUpperCase()}

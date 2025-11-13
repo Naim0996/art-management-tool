@@ -10,23 +10,22 @@ export default function Home() {
 
   return (
     <div className="w-full overflow-x-hidden bg-white min-h-screen py-20">
-      {/* Purple Card Container */}
+      {/* Two separate purple cards side by side */}
       <div className="max-w-7xl mx-auto px-16">
-        <div 
-          className="relative rounded-3xl shadow-2xl py-20 px-12"
-          style={{
-            background: 'linear-gradient(135deg, #6B46C1 0%, #7C3AED 50%, #8B5CF6 100%)'
-          }}
-        >
-          {/* Subtle overlay for depth */}
-          <div className="absolute inset-0 bg-black/10 rounded-3xl"></div>
+        <div className="grid md:grid-cols-[1.2fr_0.8fr] items-stretch" style={{ gap: '1px' }}>
           
-          {/* Main content container */}
-          <div className="relative z-10">
-            <div className="grid md:grid-cols-2 gap-20 items-center">
+          {/* Left Card - Text content */}
+          <div 
+            className="relative rounded-l-3xl shadow-2xl py-20 px-12"
+            style={{
+              background: 'linear-gradient(135deg, #6B46C1 0%, #7C3AED 50%, #8B5CF6 100%)'
+            }}
+          >
+            {/* Subtle overlay for depth */}
+            <div className="absolute inset-0 bg-black/10 rounded-l-3xl"></div>
             
-            {/* Left side - Text content */}
-            <div className="text-left space-y-6">
+            {/* Text content */}
+            <div className="relative z-10 text-left space-y-6">
               {/* Title with JungleFever font */}
               <h1 className="junglefever-title text-black">
                 {t('title')}
@@ -38,7 +37,7 @@ export default function Home() {
               </h2>
               
               {/* Description text */}
-              <p className="text-black text-base md:text-lg leading-relaxed max-w-xl">
+              <p className="text-black text-base md:text-lg leading-relaxed">
                 {t('description')}
               </p>
               
@@ -71,38 +70,46 @@ export default function Home() {
                 </Link>
               </div>
             </div>
+          </div>
+          
+          {/* Right Card - Character image */}
+          <div 
+            className="relative rounded-r-3xl shadow-2xl p-8 flex justify-center items-center"
+            style={{
+              background: 'linear-gradient(135deg, #6B46C1 0%, #7C3AED 50%, #8B5CF6 100%)'
+            }}
+          >
+            {/* Subtle overlay for depth */}
+            <div className="absolute inset-0 bg-black/10 rounded-r-3xl"></div>
             
-            {/* Right side - Character image */}
-            <div className="flex justify-center items-center p-8">
-              <div className="relative w-full max-w-md">
-                {/* Placeholder for skull/character image */}
-                <div className="relative aspect-square bg-black/20 rounded-2xl border-4 border-black/30 flex items-center justify-center p-8">
-                  <Image
-                    src="/images/hero-character.png"
-                    alt="Character"
-                    width={300}
-                    height={300}
-                    className="object-contain"
-                    priority
-                    onError={(e) => {
-                      // Fallback to placeholder if image doesn't exist
-                      const target = e.target as HTMLImageElement;
-                      target.style.display = 'none';
-                    }}
-                  />
-                  <div className="absolute inset-0 flex items-center justify-center text-white/50 text-center p-12">
-                    <div>
-                      <p className="text-xl font-bold mb-2">Character Image</p>
-                      <p className="text-sm">Place your skull/character image at:</p>
-                      <p className="text-xs font-mono mt-2">/frontend/public/images/hero-character.png</p>
-                    </div>
+            {/* Character image */}
+            <div className="relative z-10 w-full max-w-md">
+              {/* Placeholder for skull/character image */}
+              <div className="relative aspect-square bg-black/20 rounded-2xl border-4 border-black/30 flex items-center justify-center p-8">
+                <Image
+                  src="/images/hero-character.png"
+                  alt="Character"
+                  width={300}
+                  height={300}
+                  className="object-contain"
+                  priority
+                  onError={(e) => {
+                    // Fallback to placeholder if image doesn't exist
+                    const target = e.target as HTMLImageElement;
+                    target.style.display = 'none';
+                  }}
+                />
+                <div className="absolute inset-0 flex items-center justify-center text-white/50 text-center p-12">
+                  <div>
+                    <p className="text-xl font-bold mb-2">Character Image</p>
+                    <p className="text-sm">Place your skull/character image at:</p>
+                    <p className="text-xs font-mono mt-2">/frontend/public/images/hero-character.png</p>
                   </div>
                 </div>
               </div>
             </div>
-            
-            </div>
           </div>
+          
         </div>
       </div>
     </div>
