@@ -21,9 +21,8 @@ export default function HeaderComponent() {
         const newLocale = locale === 'it' ? 'en' : 'it';
         // Rimuovi il prefisso locale corrente dal pathname
         const currentPath = pathname.replace(`/${locale}`, '') || '';
-        // Naviga al nuovo locale mantenendo il path
-        navRouter.push(`/${newLocale}${currentPath}`);
-        navRouter.refresh();
+        // Hard reload per forzare il ricaricamento dei messaggi next-intl
+        window.location.href = `/${newLocale}${currentPath}`;
     };
 
     return (
@@ -69,14 +68,14 @@ export default function HeaderComponent() {
                         display: 'flex',
                         alignItems: 'center',
                         gap: '12px',
-                        height: '50px'
+                        height: '70px'
                     }}>
                         {/* Fumetti Button */}
                         <button
                             onClick={() => handleNavigate('/fumetti')}
                             style={{ 
-                                height: '50px', 
-                                width: '110px',
+                                height: '70px', 
+                                width: '154px',
                                 padding: 0,
                                 margin: 0,
                                 border: 'none',
@@ -94,12 +93,12 @@ export default function HeaderComponent() {
                             <Image 
                                 src="/assets/pulsante_fumetti.svg" 
                                 alt="Fumetti" 
-                                width={110} 
-                                height={50}
+                                width={154} 
+                                height={70}
                                 style={{ 
                                     display: 'block',
-                                    width: '110px',
-                                    height: '50px',
+                                    width: '154px',
+                                    height: '70px',
                                     verticalAlign: 'top'
                                 }}
                             />
@@ -111,8 +110,8 @@ export default function HeaderComponent() {
                             onMouseLeave={() => setIsAnimantraOpen(false)}
                             style={{ 
                                 position: 'relative',
-                                height: '50px',
-                                width: '110px',
+                                height: '70px',
+                                width: '154px',
                                 display: 'inline-block',
                                 verticalAlign: 'middle',
                                 flexShrink: 0
@@ -120,8 +119,8 @@ export default function HeaderComponent() {
                         >
                             <button
                                 style={{ 
-                                    height: '50px', 
-                                    width: '110px',
+                                    height: '70px', 
+                                    width: '154px',
                                     padding: 0,
                                     margin: 0,
                                     border: 'none',
@@ -138,12 +137,12 @@ export default function HeaderComponent() {
                                 <Image 
                                     src="/assets/pulsante_animantra.svg" 
                                     alt="Animantra" 
-                                    width={110} 
-                                    height={50}
+                                    width={154} 
+                                    height={70}
                                     style={{ 
                                         display: 'block',
-                                        width: '110px',
-                                        height: '50px',
+                                        width: '154px',
+                                        height: '70px',
                                         verticalAlign: 'middle'
                                     }}
                                 />
@@ -211,8 +210,8 @@ export default function HeaderComponent() {
                         <button
                             onClick={() => handleNavigate('/shop')}
                             style={{ 
-                                height: '50px', 
-                                width: '110px',
+                                height: '70px', 
+                                width: '154px',
                                 padding: 0,
                                 margin: 0,
                                 border: 'none',
@@ -230,44 +229,70 @@ export default function HeaderComponent() {
                             <Image 
                                 src="/assets/pulsante_shop.svg" 
                                 alt="Shop" 
-                                width={110} 
-                                height={50}
+                                width={154} 
+                                height={70}
                                 style={{ 
                                     display: 'block',
-                                    width: '110px',
-                                    height: '50px',
+                                    width: '154px',
+                                    height: '70px',
                                     verticalAlign: 'middle'
                                 }}
                             />
                         </button>
 
-                        {/* Language Switcher Button with Text */}
+                        {/* Language Switcher Button with SVG and Text */}
                         <button
                             onClick={toggleLanguage}
                             title={locale === 'it' ? 'Switch to English' : 'Passa all\'Italiano'}
                             style={{
-                                backgroundColor: '#8B6F47',
-                                color: 'white',
-                                border: '2px solid #6E4220',
-                                borderRadius: '8px',
-                                width: '110px',
-                                height: '50px',
+                                position: 'relative',
+                                width: '184px',
+                                height: '90px',
                                 padding: 0,
                                 margin: 0,
+                                border: 'none',
+                                background: 'transparent',
                                 cursor: 'pointer',
-                                fontWeight: 'bold',
-                                fontSize: '20px',
                                 transition: 'transform 0.2s',
-                                display: 'inline-flex',
+                                display: 'flex',
                                 alignItems: 'center',
                                 justifyContent: 'center',
                                 verticalAlign: 'middle',
-                                flexShrink: 0
+                                flexShrink: 0,
+                                marginBottom: '10px'
                             }}
                             onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
                             onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
                         >
-                            {locale.toUpperCase()}
+                            <Image 
+                                src="/assets/pulsante_lingua.svg" 
+                                alt="Language" 
+                                width={154} 
+                                height={70}
+                                style={{ 
+                                    position: 'absolute',
+                                    top: 0,
+                                    left: 0,
+                                    width: '100%',
+                                    height: '100%',
+                                    objectFit: 'fill',
+                                }}
+                            />
+                            <span
+                                style={{
+                                    position: 'relative',
+                                    zIndex: 1,
+                                    marginTop: '35px',
+                                    color: '#6E4220',
+                                    fontWeight: '900',
+                                    fontSize: '16px',
+                                    pointerEvents: 'none',
+                                    lineHeight: 1,
+                                    letterSpacing: '2px',
+                                }}
+                            >
+                                {locale.toUpperCase()}
+                            </span>
                         </button>
                     </div>
                 </div>

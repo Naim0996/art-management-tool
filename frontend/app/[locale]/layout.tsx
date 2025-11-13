@@ -29,12 +29,12 @@ export default async function LocaleLayout({
   
   // Providing all messages to the client
   // side is the easiest way to get started
-  const messages = await getMessages();
+  const messages = await getMessages({locale});
  
   return (
     <html lang={locale} className={`h-full ${jungleFever.variable}`}>
       <body className="antialiased h-full overflow-x-hidden">
-        <NextIntlClientProvider messages={messages}>
+        <NextIntlClientProvider locale={locale} messages={messages}>
           <PrimeReactProvider>
             {/* Header sempre in alto e sticky - FUORI dal container principale */}
             <HeaderComponent />
