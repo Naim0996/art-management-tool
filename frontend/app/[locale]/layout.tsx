@@ -3,6 +3,19 @@ import {getMessages} from 'next-intl/server';
 import { PrimeReactProvider } from 'primereact/api';
 import HeaderComponent from "@/components/headerComponent";
 import FooterComponent from "@/components/footerComponent";
+import localFont from 'next/font/local';
+
+const jungleFever = localFont({
+  src: [
+    {
+      path: '../../public/fonts/JungleFeverNF.ttf',
+      weight: '400',
+      style: 'normal',
+    },
+  ],
+  variable: '--font-junglefever',
+  display: 'swap',
+});
 
 export default async function LocaleLayout({
   children,
@@ -16,22 +29,20 @@ export default async function LocaleLayout({
   
   // Providing all messages to the client
   // side is the easiest way to get started
-  const messages = await getMessages();
+  const messages = await getMessages({locale});
  
   return (
-    <html lang={locale} className="h-full">
+    <html lang={locale} className={`h-full ${jungleFever.variable}`}>
       <body className="antialiased h-full overflow-x-hidden">
-        <NextIntlClientProvider messages={messages}>
+        <NextIntlClientProvider locale={locale} messages={messages}>
           <PrimeReactProvider>
             {/* Header sempre in alto e sticky - FUORI dal container principale */}
             <HeaderComponent />
             
-            <div className="min-h-screen bg-gradient-to-b from-purple-50 to-white flex flex-col">
+            <div className="min-h-screen flex flex-col">
               {/* Contenuto principale che si espande per riempire lo spazio disponibile */}
-              <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full overflow-x-hidden">
-                <div className="pt-4">
-                  {children}
-                </div>
+              <main className="flex-1 w-full overflow-x-hidden">
+                {children}
               </main>
 
               {/* Footer sempre in basso */}

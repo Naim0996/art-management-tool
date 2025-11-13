@@ -2,248 +2,116 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { useState, useEffect, useRef } from "react";
-import { useLocale } from "next-intl";
-import { Carousel } from "primereact/carousel";
-import { PersonaggiAPIService, PersonaggioDTO } from "@/services/PersonaggiAPIService";
-import { FumettiAPIService, FumettoDTO } from "@/services/FumettiAPIService";
-
-interface BannerItem {
-  type: 'personaggio' | 'fumetto';
-  data: PersonaggioDTO | FumettoDTO;
-}
+import { useLocale, useTranslations } from "next-intl";
 
 export default function Home() {
   const locale = useLocale();
-  const [personaggi, setPersonaggi] = useState<PersonaggioDTO[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [bannerItems, setBannerItems] = useState<BannerItem[]>([]);
-  const carouselRef = useRef<Carousel>(null);
-
-  useEffect(() => {
-    const loadData = async () => {
-      try {
-        const [personaggiData, fumettiData] = await Promise.all([
-          PersonaggiAPIService.getAllPersonaggi(),
-          FumettiAPIService.getAllFumetti()
-        ]);
-        
-        setPersonaggi(personaggiData);
-        
-        const items: BannerItem[] = [];
-        
-        if (personaggiData.length > 0) {
-          items.push({
-            type: 'personaggio',
-            data: personaggiData[0]
-          });
-        }
-        
-        const fumettiWithPages = fumettiData.filter((f: FumettoDTO) => f.pages && f.pages.length > 0);
-        const sortedFumetti = fumettiWithPages.sort((a, b) => {
-          const dateA = new Date(a.createdAt || 0).getTime();
-          const dateB = new Date(b.createdAt || 0).getTime();
-          return dateB - dateA;
-        });
-        
-        if (sortedFumetti.length > 0) {
-          items.push({
-            type: 'fumetto',
-            data: sortedFumetti[0]
-          });
-        }
-        
-        setBannerItems(items);
-      } catch (error) {
-        console.error('Error loading data:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    
-    loadData();
-  }, []);
-
-  const getBackgroundStyle = (personaggio: PersonaggioDTO | null) => {
-    if (!personaggio) return { backgroundColor: '#E0E7FF' };
-    
-    if (personaggio.backgroundType === 'gradient' && personaggio.gradientFrom && personaggio.gradientTo) {
-      return {
-        background: `linear-gradient(to bottom right, ${personaggio.gradientFrom}, ${personaggio.gradientTo})`
-      };
-    }
-    return {
-      backgroundColor: personaggio.backgroundColor || '#E0E7FF'
-    };
-  };
-
-  const bannerTemplate = (item: BannerItem) => {
-    if (item.type === 'personaggio') {
-      const personaggio = item.data as PersonaggioDTO;
-      const bgStyle = getBackgroundStyle(personaggio);
-      
-      return (
-        <Link 
-          href={`/${locale}/personaggi`}
-          className="relative w-full h-full cursor-pointer group block"
-        >
-          <div 
-            className="w-full h-full transition-all duration-500 group-hover:scale-105"
-            style={bgStyle}
-          >
-            <div className="absolute inset-0 bg-gradient-to-b from-black/30 to-black/60 group-hover:from-black/20 group-hover:to-black/50 transition-all duration-500"></div>
-            
-            <div className="absolute inset-0 flex items-center justify-center p-8">
-              <div className="relative w-full max-w-md">
-                {personaggio.icon && (
-                  <Image
-                    src={personaggio.icon}
-                    alt={personaggio.name}
-                    width={600}
-                    height={600}
-                    className="object-contain"
-                    priority
-                  />
-                )}
-              </div>
-            </div>
-            
-            <div className="absolute inset-0 flex items-center justify-center z-10">
-              <div className="text-center px-4">
-                <h1 className="text-5xl md:text-7xl font-bold mb-4 text-white drop-shadow-2xl group-hover:scale-105 transition-transform duration-300">
-                  {personaggio.name}
-                </h1>
-                <p className="text-xl md:text-2xl text-white/90 mb-8 max-w-2xl mx-auto drop-shadow-md group-hover:text-white transition-colors duration-300">
-                  {personaggio.description}
-                </p>
-                <div className="inline-block px-8 py-3 bg-blue-600 rounded-lg text-white font-semibold text-lg hover:bg-blue-700 transition-all duration-150" style={{ backgroundColor: '#0066CC' }} onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#0052A3'} onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#0066CC'}>
-                  Scopri tutti i personaggi →
-                </div>
-              </div>
-            </div>
-          </div>
-        </Link>
-      );
-    } else {
-      const fumetto = item.data as FumettoDTO;
-      
-      return (
-        <Link 
-          href={`/${locale}/fumetti/${fumetto.slug || fumetto.id}`}
-          className="relative w-full h-full cursor-pointer group block"
-        >
-          <div className="w-full h-full transition-all duration-500 group-hover:scale-105 bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900">
-            <div className="absolute inset-0 bg-gradient-to-b from-black/20 to-black/40"></div>
-            
-            <div className="absolute inset-0 flex items-center justify-center p-8">
-              <div className="relative w-full max-w-md">
-                {(fumetto.coverImage || (fumetto.pages && fumetto.pages[0])) && (
-                  <Image
-                    src={fumetto.coverImage || fumetto.pages![0]}
-                    alt={fumetto.title}
-                    width={400}
-                    height={600}
-                    className="object-contain"
-                    priority
-                  />
-                )}
-              </div>
-            </div>
-            
-            <div className="absolute inset-0 flex items-center justify-center z-10">
-              <div className="text-center px-4">
-                <h1 className="text-5xl md:text-7xl font-bold mb-4 text-white drop-shadow-2xl group-hover:scale-105 transition-transform duration-300">
-                  {fumetto.title}
-                </h1>
-                {fumetto.description && (
-                  <p className="text-xl md:text-2xl text-white/90 mb-8 max-w-2xl mx-auto drop-shadow-md group-hover:text-white transition-colors duration-300">
-                    {fumetto.description}
-                  </p>
-                )}
-                <div className="inline-block px-8 py-3 bg-blue-600 rounded-lg text-white font-semibold text-lg hover:bg-blue-700 transition-all duration-150" style={{ backgroundColor: '#0066CC' }} onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#0052A3'} onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#0066CC'}>
-                  Leggi il fumetto →
-                </div>
-              </div>
-            </div>
-          </div>
-        </Link>
-      );
-    }
-  };
+  const t = useTranslations('hero');
 
   return (
-    <div className="w-full overflow-x-hidden">
-        {/* Hero Section with Scrollable Banner */}
-        <div className="relative min-h-[70vh] flex items-center justify-center overflow-hidden w-full">
-          {bannerItems.length > 0 && (
-            <div className="absolute inset-0 z-0 w-full h-full">
-                            <Carousel
-                                ref={carouselRef}
-                                value={bannerItems}
-                                itemTemplate={bannerTemplate}
-                                numVisible={1}
-                                numScroll={1}
-                                circular
-                                autoplayInterval={5000}
-                                showNavigators={bannerItems.length > 1}
-                                showIndicators={bannerItems.length > 1}
-                                className="custom-carousel h-full"
-                                pt={{
-                                    root: { className: 'h-full' },
-                                    content: { className: 'h-full' },
-                                    container: { className: 'h-full' },
-                                    itemsContent: { className: 'h-full' },
-                                    itemsContainer: { className: 'h-full' },
-                                    item: { className: 'h-full' },
-                                    previousButton: { 
-                                        className: 'md:w-12 md:h-12 w-10 h-10',
-                                        style: { background: 'rgba(255,255,255,0.9)' }
-                                    },
-                                    nextButton: { 
-                                        className: 'md:w-12 md:h-12 w-10 h-10',
-                                        style: { background: 'rgba(255,255,255,0.9)' }
-                                    }
-                                }}
-                            />
-            </div>
-          )}
+    <div className="w-full overflow-x-hidden bg-white min-h-screen py-20">
+      {/* Two separate purple cards side by side */}
+      <div className="max-w-7xl mx-auto px-16">
+        <div className="grid md:grid-cols-[1.2fr_0.8fr] items-stretch" style={{ gap: '1px' }}>
           
-          {/* Fallback if no items */}
-          {bannerItems.length === 0 && !loading && (
-            <div className="absolute inset-0 z-0 bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900">
-              <div className="absolute inset-0 bg-gradient-to-b from-black/20 to-black/40"></div>
-              <div className="relative z-10 text-center py-12 px-4">
-                <h1 className="text-5xl md:text-6xl font-bold mb-4 text-white drop-shadow-lg">
-                  Benvenuti nel Mondo dei Personaggi
-                </h1>
-                <p className="text-xl text-white/90 mb-8 max-w-2xl mx-auto drop-shadow-md">
-                  Esplora i personaggi unici creati dall&apos;immaginazione di un artista fumettista
-                </p>
-                <div className="flex gap-4 justify-center">
-                  <Link 
-                    href={`/${locale}/shop`}
-                    className="px-8 py-3 text-white rounded-lg transition-all duration-150 text-lg font-semibold"
-                    style={{ backgroundColor: '#0066CC' }}
-                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#0052A3'}
-                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#0066CC'}
-                  >
-                    Inizia Shopping
-                  </Link>
-                  <Link 
-                    href={`/${locale}/personaggi`}
-                    className="px-8 py-3 text-white rounded-lg transition-all duration-150 text-lg font-semibold"
-                    style={{ backgroundColor: '#0066CC' }}
-                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#0052A3'}
-                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#0066CC'}
-                  >
-                    Scopri Personaggi
-                  </Link>
+          {/* Left Card - Text content */}
+          <div 
+            className="relative rounded-l-3xl shadow-2xl py-20 px-12"
+            style={{
+              background: 'linear-gradient(135deg, #6B46C1 0%, #7C3AED 50%, #8B5CF6 100%)'
+            }}
+          >
+            {/* Subtle overlay for depth */}
+            <div className="absolute inset-0 bg-black/10 rounded-l-3xl"></div>
+            
+            {/* Text content */}
+            <div className="relative z-10 text-left space-y-6">
+              {/* Title with JungleFever font */}
+              <h1 className="junglefever-title text-black">
+                {t('title')}
+              </h1>
+              
+              {/* Subtitle with JungleFever font */}
+              <h2 className="junglefever-subtitle text-black">
+                {t('subtitle')}
+              </h2>
+              
+              {/* Description text */}
+              <p className="text-black text-base md:text-lg leading-relaxed">
+                {t('description')}
+              </p>
+              
+              {/* CTA Buttons with wooden style */}
+              <div className="flex flex-col sm:flex-row gap-4 pt-6">
+                <Link 
+                  href={`/${locale}/shop`}
+                  className="inline-block"
+                >
+                  <Image
+                    src="/assets/pulsante_shopping.svg"
+                    alt={t('startShopping')}
+                    width={280}
+                    height={80}
+                    className="hover:scale-105 transition-transform duration-200"
+                  />
+                </Link>
+                
+                <Link 
+                  href={`/${locale}/personaggi`}
+                  className="inline-block"
+                >
+                  <Image
+                    src="/assets/pulsante_personaggi.svg"
+                    alt={t('discoverCharacters')}
+                    width={280}
+                    height={80}
+                    className="hover:scale-105 transition-transform duration-200"
+                  />
+                </Link>
+              </div>
+            </div>
+          </div>
+          
+          {/* Right Card - Character image */}
+          <div 
+            className="relative rounded-r-3xl shadow-2xl p-8 flex justify-center items-center"
+            style={{
+              background: 'linear-gradient(135deg, #6B46C1 0%, #7C3AED 50%, #8B5CF6 100%)'
+            }}
+          >
+            {/* Subtle overlay for depth */}
+            <div className="absolute inset-0 bg-black/10 rounded-r-3xl"></div>
+            
+            {/* Character image */}
+            <div className="relative z-10 w-full max-w-md">
+              {/* Placeholder for skull/character image */}
+              <div className="relative aspect-square bg-black/20 rounded-2xl border-4 border-black/30 flex items-center justify-center p-8">
+                <Image
+                  src="/images/hero-character.png"
+                  alt="Character"
+                  width={300}
+                  height={300}
+                  className="object-contain"
+                  priority
+                  onError={(e) => {
+                    // Fallback to placeholder if image doesn't exist
+                    const target = e.target as HTMLImageElement;
+                    target.style.display = 'none';
+                  }}
+                />
+                <div className="absolute inset-0 flex items-center justify-center text-white/50 text-center p-12">
+                  <div>
+                    <p className="text-xl font-bold mb-2">Character Image</p>
+                    <p className="text-sm">Place your skull/character image at:</p>
+                    <p className="text-xs font-mono mt-2">/frontend/public/images/hero-character.png</p>
+                  </div>
                 </div>
               </div>
             </div>
-          )}
+          </div>
+          
         </div>
-
+      </div>
     </div>
   );
 }

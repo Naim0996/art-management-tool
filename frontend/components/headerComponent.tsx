@@ -2,18 +2,27 @@
 
 import Image from "next/image";
 import { useLocale } from 'next-intl';
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { useState } from "react";
 
 export default function HeaderComponent() {
     const locale = useLocale();
     const navRouter = useRouter();
+    const pathname = usePathname();
     const [isAnimantraOpen, setIsAnimantraOpen] = useState(false);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
     const handleNavigate = (path: string) => {
         navRouter.push(`/${locale}${path}`);
         setIsMobileMenuOpen(false);
+    };
+
+    const toggleLanguage = () => {
+        const newLocale = locale === 'it' ? 'en' : 'it';
+        // Rimuovi il prefisso locale corrente dal pathname
+        const currentPath = pathname.replace(`/${locale}`, '') || '';
+        // Hard reload per forzare il ricaricamento dei messaggi next-intl
+        window.location.href = `/${newLocale}${currentPath}`;
     };
 
     return (
@@ -24,6 +33,7 @@ export default function HeaderComponent() {
                 <div 
                     className="hidden md:flex items-center justify-between px-6 py-4"
                     style={{
+                        marginTop: '10px',
                         backgroundImage: 'url(/assets/Vector.svg)',
                         backgroundSize: 'cover',
                         backgroundPosition: 'center',
@@ -32,73 +42,148 @@ export default function HeaderComponent() {
                         overflow: 'visible'
                     }}
                 >
-                    {/* Logo - height = texture (112px) + 20px = 132px */}
+                    {/* Logo - completely on the left */}
                     <div
                         className="cursor-pointer flex-shrink-0" 
                         onClick={() => handleNavigate('')}
                         style={{
                             position: 'relative',
                             zIndex: 60,
-                            marginTop: '-26px',
-                            marginBottom: '-26px'
+                            marginTop: '-50px',
+                            marginBottom: '-50px',
+                            marginLeft: '-40px'
                         }}
                     >
                         <Image 
                             src="/assets/LOGO_SITO-02 1.svg" 
                             alt="Giorgio Privitera Lab" 
-                            width={360} 
-                            height={132}
+                            width={700} 
+                            height={280}
                             priority
                         />
                     </div>
 
-                    {/* Navigation Buttons */}
-                    <div className="flex items-center gap-3">
+                    {/* Navigation Buttons - completely on the right */}
+                    <div style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'flex-end',
+                        gap: '0px',
+                        height: '110px',
+                        marginBottom: '15px'
+                    }}>
                         {/* Fumetti Button */}
                         <button
                             onClick={() => handleNavigate('/fumetti')}
-                            className="cursor-pointer transition-transform hover:scale-105 active:scale-95"
+                            style={{ 
+                                height: '110px', 
+                                width: '220px',
+                                padding: 0,
+                                margin: 0,
+                                border: 'none',
+                                background: 'transparent',
+                                cursor: 'pointer',
+                                transition: 'transform 0.2s',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                lineHeight: 0,
+                                flexShrink: 0,
+                                flexBasis: '220px'
+                            }}
+                            onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
+                            onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
                         >
                             <Image 
-                                src="/assets/Fumetti.svg" 
+                                src="/assets/pulsante_fumetti.svg" 
                                 alt="Fumetti" 
-                                width={110} 
-                                height={42}
+                                width={220} 
+                                height={110}
+                                style={{ 
+                                    display: 'block',
+                                    width: '100%',
+                                    height: '100%',
+                                    objectFit: 'contain'
+                                }}
                             />
                         </button>
 
                         {/* Animantra Button with Dropdown */}
                         <div 
-                            className="relative"
                             onMouseEnter={() => setIsAnimantraOpen(true)}
                             onMouseLeave={() => setIsAnimantraOpen(false)}
+                            style={{ 
+                                position: 'relative',
+                                height: '110px',
+                                width: '220px',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                flexShrink: 0,
+                                flexBasis: '220px'
+                            }}
                         >
                             <button
-                                className="cursor-pointer transition-transform hover:scale-105 active:scale-95"
+                                style={{ 
+                                    height: '110px', 
+                                    width: '220px',
+                                    padding: 0,
+                                    margin: 0,
+                                    border: 'none',
+                                    background: 'transparent',
+                                    cursor: 'pointer',
+                                    transition: 'transform 0.2s',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    lineHeight: 0
+                                }}
+                                onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
+                                onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
                             >
                                 <Image 
-                                    src="/assets/personaggiButton.svg" 
+                                    src="/assets/pulsante_animantra.svg" 
                                     alt="Animantra" 
-                                    width={110} 
-                                    height={42}
+                                    width={220} 
+                                    height={110}
+                                    style={{ 
+                                        display: 'block',
+                                        width: '100%',
+                                        height: '100%',
+                                        objectFit: 'contain'
+                                    }}
                                 />
                             </button>
 
                             {/* Dropdown Menu */}
                             {isAnimantraOpen && (
                                 <div 
-                                    className="absolute top-full left-0 shadow-xl rounded-md overflow-hidden min-w-[160px] z-50"
                                     style={{
+                                        position: 'absolute',
+                                        top: '100%',
+                                        left: 0,
                                         backgroundColor: '#8B6F47',
                                         border: '2px solid #6E4220',
+                                        borderRadius: '6px',
+                                        overflow: 'hidden',
+                                        minWidth: '160px',
+                                        zIndex: 50,
+                                        boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
                                         marginTop: '-2px'
                                     }}
                                 >
                                     <button
                                         onClick={() => handleNavigate('/brand')}
-                                        className="w-full text-left px-4 py-3 transition-colors text-white font-semibold hover:bg-opacity-80"
                                         style={{
-                                            backgroundColor: 'rgba(110, 66, 32, 0.3)'
+                                            width: '100%',
+                                            textAlign: 'left',
+                                            padding: '12px 16px',
+                                            backgroundColor: 'rgba(110, 66, 32, 0.3)',
+                                            color: 'white',
+                                            fontWeight: '600',
+                                            border: 'none',
+                                            cursor: 'pointer',
+                                            transition: 'background-color 0.2s'
                                         }}
                                         onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(110, 66, 32, 0.5)'}
                                         onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'rgba(110, 66, 32, 0.3)'}
@@ -107,10 +192,17 @@ export default function HeaderComponent() {
                                     </button>
                                     <button
                                         onClick={() => handleNavigate('/personaggi')}
-                                        className="w-full text-left px-4 py-3 transition-colors text-white font-semibold"
                                         style={{
+                                            width: '100%',
+                                            textAlign: 'left',
+                                            padding: '12px 16px',
                                             backgroundColor: 'rgba(110, 66, 32, 0.3)',
-                                            borderTop: '1px solid rgba(255, 255, 255, 0.2)'
+                                            color: 'white',
+                                            fontWeight: '600',
+                                            border: 'none',
+                                            borderTop: '1px solid rgba(255, 255, 255, 0.2)',
+                                            cursor: 'pointer',
+                                            transition: 'background-color 0.2s'
                                         }}
                                         onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(110, 66, 32, 0.5)'}
                                         onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'rgba(110, 66, 32, 0.3)'}
@@ -124,14 +216,95 @@ export default function HeaderComponent() {
                         {/* Shop Button */}
                         <button
                             onClick={() => handleNavigate('/shop')}
-                            className="cursor-pointer transition-transform hover:scale-105 active:scale-95"
+                            style={{ 
+                                height: '110px', 
+                                width: '220px',
+                                padding: 0,
+                                margin: 0,
+                                border: 'none',
+                                background: 'transparent',
+                                cursor: 'pointer',
+                                transition: 'transform 0.2s',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                lineHeight: 0,
+                                flexShrink: 0,
+                                flexBasis: '220px'
+                            }}
+                            onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
+                            onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
                         >
                             <Image 
-                                src="/assets/shopButton.svg" 
+                                src="/assets/pulsante_shop.svg" 
                                 alt="Shop" 
-                                width={80} 
-                                height={42}
+                                width={220} 
+                                height={110}
+                                style={{ 
+                                    display: 'block',
+                                    width: '100%',
+                                    height: '100%',
+                                    objectFit: 'contain'
+                                }}
                             />
+                        </button>
+
+                        <button
+                            onClick={toggleLanguage}
+                            title={locale === 'it' ? 'Switch to English' : 'Passa all\'Italiano'}
+                            style={{
+                                position: 'relative',
+                                width: '240px',
+                                height: '130px',
+                                padding: 0,
+                                margin: 0,
+                                border: 'none',
+                                background: 'transparent',
+                                cursor: 'pointer',
+                                transition: 'transform 0.2s',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                lineHeight: 0,
+                                flexShrink: 0,
+                                flexBasis: '220px'
+                            }}
+                            onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
+                            onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+                        >
+                            <Image 
+                                src="/assets/pulsante_lingua.svg" 
+                                alt="Language" 
+                                width={240} 
+                                height={130}
+                                style={{ 
+                                    position: 'absolute',
+                                    top: 0,
+                                    left: 0,
+                                    width: '100%',
+                                    height: '100%',
+                                    objectFit: 'fill',
+                                }}
+                            />
+                            <span
+                                style={{
+                                    position: 'absolute',
+                                    top: '50%',
+                                    left: '50%',
+                                    transform: 'translate(-50%, -50%)',
+                                    zIndex: 1,
+                                    color: '#6E4220',
+                                    fontWeight: '900',
+                                    fontSize: '24px',
+                                    pointerEvents: 'none',
+                                    lineHeight: 1,
+                                    letterSpacing: '2px',
+                                    marginTop: '28px',
+                                    marginRight: '5px',
+                                }}
+                            >
+                                {locale.toUpperCase()}
+                            </span>
                         </button>
                     </div>
                 </div>
@@ -279,12 +452,25 @@ export default function HeaderComponent() {
                             onClick={() => handleNavigate('/shop')}
                             className="w-full text-left px-6 py-4 transition-colors font-semibold text-lg"
                             style={{
-                                color: '#6E4220'
+                                color: '#6E4220',
+                                borderBottom: '1px solid #D4A574'
                             }}
                             onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#E8D5B7'}
                             onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                         >
                             Shop
+                        </button>
+
+                        <button
+                            onClick={toggleLanguage}
+                            className="w-full text-left px-6 py-4 transition-colors font-semibold text-lg"
+                            style={{
+                                color: '#6E4220'
+                            }}
+                            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#E8D5B7'}
+                            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                        >
+                            {locale.toUpperCase()}
                         </button>
                     </div>
                 )}
