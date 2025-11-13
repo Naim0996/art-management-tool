@@ -8,6 +8,13 @@
     "personaggi": "Personaggi",
     "brand": "Brand"
   },
+  "hero": {
+    "title": "TITOLO (FONT JUNGLEFNF 61 PT)",
+    "subtitle": "Testo 1kranji 31 pt",
+    "description": "Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat. Ut wisi enim ad minim veniam, qui nostrud exerci tation ul-lamcorper suscipit lobortis nisl ut aliquip ex ea.",
+    "startShopping": "Inizia Shopping",
+    "discoverCharacters": "Scopri i Personaggi"
+  },
   "brand": {
     "title": "Animantra",
     "subtitle": "Esplora l'universo dei personaggi e scopri i prodotti esclusivi",

@@ -21,17 +21,14 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
 body {
-  background: var(--background);
+  background: #ffffff !important;
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+html {
+  background: #ffffff !important;
 }
 
 /* Rimuovi scroll orizzontale */
@@ -142,7 +139,6 @@ html, body {
 .zerocalcare-comic-title {
   font-size: 16px;
   line-height: 1.5;
-  color: #c73429;
   font-weight: 600;
   margin: 0;
   transition: all 0.2s ease;
@@ -157,7 +153,6 @@ html, body {
 .zerocalcare-detail-title {
   font-size: 55px;
   line-height: 1.2;
-  color: #c73429;
   font-weight: 700;
   margin: 0;
   text-align: center;
@@ -166,5 +161,30 @@ html, body {
 @media (max-width: 768px) {
   .zerocalcare-detail-title {
     font-size: 36px;
+  }
+}
+
+/* JungleFever Font Classes */
+.junglefever-title {
+  font-family: var(--font-junglefever), sans-serif;
+  font-size: 61pt;
+  line-height: 1.2;
+  font-weight: normal;
+}
+
+.junglefever-subtitle {
+  font-family: var(--font-junglefever), sans-serif;
+  font-size: 31pt;
+  line-height: 1.3;
+  font-weight: normal;
+}
+
+@media (max-width: 768px) {
+  .junglefever-title {
+    font-size: 36pt;
+  }
+  
+  .junglefever-subtitle {
+    font-size: 20pt;
   }
 }
