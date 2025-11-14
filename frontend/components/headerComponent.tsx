@@ -28,19 +28,17 @@ export default function HeaderComponent() {
             {/* Navigation Bar - Sticky Header with Wood Texture */}
             <header className="sticky top-0 z-50"
                 style={{ 
-                    marginTop: '0px', 
-                    marginLeft: '20px', 
-                    marginRight: '20px'
+                    marginTop: '0px'
                 }}>
             {/* Desktop Header */}
             <div 
                 className="hidden md:flex items-center relative"
                 style={{
                     marginTop: '0px',
-                    marginLeft: '0px',
-                    marginRight: '0px',
-                    paddingLeft: '50px',
-                    paddingRight: '50px',
+                    marginLeft: '30px',
+                    marginRight: '30px',
+                    paddingLeft: 'clamp(120px, 8vw, 180px)',
+                    paddingRight: 'clamp(120px, 8vw, 180px)',
                     paddingTop: '16px',
                     paddingBottom: '16px',
                     backgroundImage: 'url(/assets/Vector.svg)',
@@ -50,7 +48,8 @@ export default function HeaderComponent() {
                     minHeight: '112px',
                     height: 'auto',
                     overflow: 'visible',
-                    width: '100%',
+                    width: 'calc(100% - 60px)',
+                    maxWidth: '100%',
                     justifyContent: 'space-between'
                 }}
             >
@@ -63,10 +62,12 @@ export default function HeaderComponent() {
                         zIndex: 60,
                         marginTop: '-50px',
                         marginBottom: '-50px',
-                        marginLeft: 'clamp(-40px, -2vw, 0px)',
-                        maxWidth: 'min(700px, 40vw)',
+                        marginLeft: '0px',
+                        maxWidth: 'min(700px, calc(50% - 200px))',
                         width: 'auto',
-                        height: 'auto'
+                        height: 'auto',
+                        flexShrink: 1,
+                        minWidth: '200px'
                     }}
                 >
                     <Image 
@@ -91,24 +92,23 @@ export default function HeaderComponent() {
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'flex-end',
-                        gap: '0px',
-                        marginRight: '30px',
+                        gap: '24px',
                         padding: '0px',
-                        position: 'absolute',
-                        right: '0px',
-                        top: '50%',
-                        transform: 'translateY(-50%)',
                         flexWrap: 'nowrap',
                         width: 'auto',
-                        height: 'auto'
+                        height: 'auto',
+                        maxWidth: 'min(calc(50% - 100px), 600px)',
+                        minWidth: '400px',
+                        marginLeft: 'auto',
+                        flexShrink: 0
                     }}
                 >
                         {/* Fumetti Button */}
                         <button
                             onClick={() => handleNavigate('/fumetti')}
                             style={{
-                                height: 'clamp(45px, 5vw, 55px)',
-                                width: 'clamp(115px, 11.5vw, 130px)',
+                                height: 'clamp(45px, 5vw, 90px)',
+                                width: 'clamp(115px, 11.5vw, 180px)',
                                 padding: '0px',
                                 margin: '0px',
                                 marginRight: '-1px',
@@ -119,6 +119,7 @@ export default function HeaderComponent() {
                                 display: 'flex',
                                 alignItems: 'center',
                                 justifyContent: 'center',
+                                marginTop: '10px',
                                 lineHeight: 0,
                                 flexShrink: 0
                             }}
@@ -128,8 +129,8 @@ export default function HeaderComponent() {
                                 <Image
                                     src="/assets/pulsante_fumetti.svg"
                                     alt="Fumetti"
-                                    width={130} 
-                                    height={55}
+                                    width={180} 
+                                    height={90}
                                     style={{
                                         width: '100%',
                                         height: '100%',
@@ -139,15 +140,15 @@ export default function HeaderComponent() {
                                         padding: '0px'
                                     }}
                                 />
-                            </button>
+                        </button>
                         {/* Animantra Button with Dropdown */}
                         <div
                             onMouseEnter={() => setIsAnimantraOpen(true)}
                             onMouseLeave={() => setIsAnimantraOpen(false)}
                             style={{
                                 position: 'relative',
-                                height: 'clamp(40px, 4.5vw, 50px)',
-                                width: 'clamp(105px, 10.5vw, 120px)',
+                                height: 'clamp(40px, 4.5vw, 80px)',
+                                width: 'clamp(105px, 10.5vw, 160px)',
                                 display: 'flex',
                                 alignItems: 'center',
                                 justifyContent: 'center',
@@ -158,8 +159,8 @@ export default function HeaderComponent() {
                         >
                             <button
                                 style={{
-                                    height: 'clamp(40px, 4.5vw, 50px)',
-                                    width: 'clamp(105px, 10.5vw, 120px)',
+                                    height: 'clamp(40px, 4.5vw, 80px)',
+                                    width: 'clamp(105px, 10.5vw, 160px)',
                                     padding: '0px',
                                     margin: '0px',
                                     marginLeft: '-1px',
@@ -179,8 +180,8 @@ export default function HeaderComponent() {
                                 <Image
                                     src="/assets/pulsante_animantra.svg"
                                     alt="Animantra"
-                                    width={120}
-                                    height={50}
+                                    width={180}
+                                    height={90}
                                     style={{
                                         width: '100%',
                                         height: '100%',
@@ -204,7 +205,7 @@ export default function HeaderComponent() {
                                         borderRadius: '6px',
                                         overflow: 'hidden',
                                         minWidth: '130px',
-                                        zIndex: 50,
+                                        zIndex: 100,
                                         boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
                                         marginTop: '-2px'
                                     }}
@@ -253,8 +254,8 @@ export default function HeaderComponent() {
                         <button
                             onClick={() => handleNavigate('/shop')}
                             style={{
-                                height: 'clamp(32px, 3.5vw, 40px)',
-                                width: 'clamp(85px, 8.5vw, 100px)',
+                                height: 'clamp(32px, 3.5vw, 60px)',
+                                width: 'clamp(85px, 8.5vw, 140px)',
                                 padding: '0px',
                                 margin: '0px',
                                 marginLeft: '-1px',
@@ -275,8 +276,8 @@ export default function HeaderComponent() {
                                 <Image
                                     src="/assets/pulsante_shop.svg"
                                     alt="Shop"
-                                    width={100}
-                                    height={40}
+                                    width={140}
+                                    height={60}
                                     style={{
                                         width: '100%',
                                         height: '100%',
@@ -293,8 +294,8 @@ export default function HeaderComponent() {
                             title={locale === 'it' ? 'Switch to English' : 'Passa all\'Italiano'}
                             style={{
                                 position: 'relative',
-                                width: 'clamp(85px, 8.5vw, 100px)',
-                                height: 'clamp(32px, 3.5vw, 40px)',
+                                width: 'clamp(85px, 8.5vw, 140px)',
+                                height: 'clamp(32px, 3.5vw, 60px)',
                                 padding: '0px',
                                 margin: '0px',
                                 marginLeft: '-1px',
@@ -314,8 +315,8 @@ export default function HeaderComponent() {
                                 <Image
                                     src="/assets/pulsante_lingua.svg"
                                     alt="Language"
-                                    width={100}
-                                    height={40}
+                                    width={140}
+                                    height={60}
                                     style={{
                                         width: '100%',
                                         height: '100%',
