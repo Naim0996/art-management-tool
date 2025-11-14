@@ -11,6 +11,8 @@ import { InputText } from 'primereact/inputtext';
 import { Dropdown } from 'primereact/dropdown';
 import { Card } from 'primereact/card';
 import { Toast } from 'primereact/toast';
+import { IconField } from 'primereact/iconfield';
+import { InputIcon } from 'primereact/inputicon';
 
 export default function ShopPage() {
   const locale = useLocale();
@@ -178,18 +180,20 @@ export default function ShopPage() {
           <div className="flex flex-col md:flex-row md:flex-wrap gap-2 md:items-center text-sm">
             {/* Search */}
             <span className="p-input-icon-left flex-1 w-full md:min-w-[200px]">
-              <i className="pi pi-search" />
-              <InputText
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') {
-                    setPage(1); // Reset page on search
-                  }
-                }}
-                placeholder="Cerca..."
-                className="w-full p-inputtext-sm"
-              />
+              <IconField iconPosition="left">
+                  <InputIcon className="pi pi-search"> </InputIcon>
+                  <InputText
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        setPage(1); // Reset page on search
+                      }
+                    }}
+                    placeholder="Cerca..."
+                    className="w-full p-inputtext-sm"
+                  />
+              </IconField>
             </span>
 
             <div className="flex gap-2 items-center flex-wrap">
