@@ -19,67 +19,99 @@ export default function HeaderComponent() {
 
     const toggleLanguage = () => {
         const newLocale = locale === 'it' ? 'en' : 'it';
-        // Rimuovi il prefisso locale corrente dal pathname
         const currentPath = pathname.replace(`/${locale}`, '') || '';
-        // Hard reload per forzare il ricaricamento dei messaggi next-intl
         window.location.href = `/${newLocale}${currentPath}`;
     };
 
     return (
         <>
             {/* Navigation Bar - Sticky Header with Wood Texture */}
-            <header className="sticky top-0 z-50">
-                {/* Desktop Header */}
-                <div 
-                    className="hidden md:flex items-center justify-between px-6 py-4"
+            <header className="sticky top-0 z-50"
+                style={{ 
+                    marginTop: '0px', 
+                    marginLeft: '20px', 
+                    marginRight: '20px'
+                }}>
+            {/* Desktop Header */}
+            <div 
+                className="hidden md:flex items-center relative"
+                style={{
+                    marginTop: '0px',
+                    marginLeft: '0px',
+                    marginRight: '0px',
+                    paddingLeft: '50px',
+                    paddingRight: '50px',
+                    paddingTop: '16px',
+                    paddingBottom: '16px',
+                    backgroundImage: 'url(/assets/Vector.svg)',
+                    backgroundSize: '100% 100%',
+                    backgroundPosition: 'center',
+                    backgroundRepeat: 'no-repeat',
+                    minHeight: '112px',
+                    height: 'auto',
+                    overflow: 'visible',
+                    width: '100%',
+                    justifyContent: 'space-between'
+                }}
+            >
+                {/* Logo - responsive on the left */}
+                <div
+                    className="cursor-pointer flex-shrink-0" 
+                    onClick={() => handleNavigate('')}
                     style={{
-                        marginTop: '10px',
-                        backgroundImage: 'url(/assets/Vector.svg)',
-                        backgroundSize: 'cover',
-                        backgroundPosition: 'center',
-                        backgroundRepeat: 'no-repeat',
-                        minHeight: '70px',
-                        overflow: 'visible'
+                        position: 'relative',
+                        zIndex: 60,
+                        marginTop: '-50px',
+                        marginBottom: '-50px',
+                        marginLeft: 'clamp(-40px, -2vw, 0px)',
+                        maxWidth: 'min(700px, 40vw)',
+                        width: 'auto',
+                        height: 'auto'
                     }}
                 >
-                    {/* Logo - completely on the left */}
-                    <div
-                        className="cursor-pointer flex-shrink-0" 
-                        onClick={() => handleNavigate('')}
+                    <Image 
+                        src="/assets/LOGO_SITO-02 1.svg" 
+                        alt="Giorgio Privitera Lab" 
+                        width={700} 
+                        height={280}
+                        priority
                         style={{
-                            position: 'relative',
-                            zIndex: 60,
-                            marginTop: '-50px',
-                            marginBottom: '-50px',
-                            marginLeft: '-40px'
+                            width: '100%',
+                            height: 'auto',
+                            maxWidth: '700px',
+                            minWidth: '200px'
                         }}
-                    >
-                        <Image 
-                            src="/assets/LOGO_SITO-02 1.svg" 
-                            alt="Giorgio Privitera Lab" 
-                            width={700} 
-                            height={280}
-                            priority
-                        />
-                    </div>
+                    />
+                </div>
 
-                    {/* Navigation Buttons - completely on the right */}
-                    <div style={{
+                {/* Navigation Buttons - responsive on the right */}
+                <div
+                    className="flex-shrink-0"
+                    style={{
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'flex-end',
                         gap: '0px',
-                        height: '110px',
-                        marginBottom: '15px'
-                    }}>
+                        marginRight: '30px',
+                        padding: '0px',
+                        position: 'absolute',
+                        right: '0px',
+                        top: '50%',
+                        transform: 'translateY(-50%)',
+                        flexWrap: 'nowrap',
+                        width: 'auto',
+                        height: 'auto'
+                    }}
+                >
                         {/* Fumetti Button */}
                         <button
                             onClick={() => handleNavigate('/fumetti')}
-                            style={{ 
-                                height: '110px', 
-                                width: '220px',
-                                padding: 0,
-                                margin: 0,
+                            style={{
+                                height: 'clamp(45px, 5vw, 55px)',
+                                width: 'clamp(115px, 11.5vw, 130px)',
+                                padding: '0px',
+                                margin: '0px',
+                                marginRight: '-1px',
                                 border: 'none',
                                 background: 'transparent',
                                 cursor: 'pointer',
@@ -88,47 +120,50 @@ export default function HeaderComponent() {
                                 alignItems: 'center',
                                 justifyContent: 'center',
                                 lineHeight: 0,
-                                flexShrink: 0,
-                                flexBasis: '220px'
+                                flexShrink: 0
                             }}
-                            onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
-                            onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
-                        >
-                            <Image 
-                                src="/assets/pulsante_fumetti.svg" 
-                                alt="Fumetti" 
-                                width={220} 
-                                height={110}
-                                style={{ 
-                                    display: 'block',
-                                    width: '100%',
-                                    height: '100%',
-                                    objectFit: 'contain'
-                                }}
-                            />
-                        </button>
-
+                                onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
+                                onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+                            >
+                                <Image
+                                    src="/assets/pulsante_fumetti.svg"
+                                    alt="Fumetti"
+                                    width={130} 
+                                    height={55}
+                                    style={{
+                                        width: '100%',
+                                        height: '100%',
+                                        objectFit: 'fill',
+                                        display: 'block',
+                                        margin: '0px',
+                                        padding: '0px'
+                                    }}
+                                />
+                            </button>
                         {/* Animantra Button with Dropdown */}
-                        <div 
+                        <div
                             onMouseEnter={() => setIsAnimantraOpen(true)}
                             onMouseLeave={() => setIsAnimantraOpen(false)}
-                            style={{ 
+                            style={{
                                 position: 'relative',
-                                height: '110px',
-                                width: '220px',
+                                height: 'clamp(40px, 4.5vw, 50px)',
+                                width: 'clamp(105px, 10.5vw, 120px)',
                                 display: 'flex',
                                 alignItems: 'center',
                                 justifyContent: 'center',
                                 flexShrink: 0,
-                                flexBasis: '220px'
+                                margin: '0px',
+                                padding: '0px'
                             }}
                         >
                             <button
-                                style={{ 
-                                    height: '110px', 
-                                    width: '220px',
-                                    padding: 0,
-                                    margin: 0,
+                                style={{
+                                    height: 'clamp(40px, 4.5vw, 50px)',
+                                    width: 'clamp(105px, 10.5vw, 120px)',
+                                    padding: '0px',
+                                    margin: '0px',
+                                    marginLeft: '-1px',
+                                    marginRight: '-1px',
                                     border: 'none',
                                     background: 'transparent',
                                     cursor: 'pointer',
@@ -141,23 +176,25 @@ export default function HeaderComponent() {
                                 onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
                                 onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
                             >
-                                <Image 
-                                    src="/assets/pulsante_animantra.svg" 
-                                    alt="Animantra" 
-                                    width={220} 
-                                    height={110}
-                                    style={{ 
-                                        display: 'block',
+                                <Image
+                                    src="/assets/pulsante_animantra.svg"
+                                    alt="Animantra"
+                                    width={120}
+                                    height={50}
+                                    style={{
                                         width: '100%',
                                         height: '100%',
-                                        objectFit: 'contain'
+                                        objectFit: 'contain',
+                                        display: 'block',
+                                        margin: '0px',
+                                        padding: '0px'
                                     }}
                                 />
                             </button>
 
                             {/* Dropdown Menu */}
                             {isAnimantraOpen && (
-                                <div 
+                                <div
                                     style={{
                                         position: 'absolute',
                                         top: '100%',
@@ -166,7 +203,7 @@ export default function HeaderComponent() {
                                         border: '2px solid #6E4220',
                                         borderRadius: '6px',
                                         overflow: 'hidden',
-                                        minWidth: '160px',
+                                        minWidth: '130px',
                                         zIndex: 50,
                                         boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
                                         marginTop: '-2px'
@@ -177,7 +214,7 @@ export default function HeaderComponent() {
                                         style={{
                                             width: '100%',
                                             textAlign: 'left',
-                                            padding: '12px 16px',
+                                            padding: '10px 13px',
                                             backgroundColor: 'rgba(110, 66, 32, 0.3)',
                                             color: 'white',
                                             fontWeight: '600',
@@ -195,7 +232,7 @@ export default function HeaderComponent() {
                                         style={{
                                             width: '100%',
                                             textAlign: 'left',
-                                            padding: '12px 16px',
+                                            padding: '10px 13px',
                                             backgroundColor: 'rgba(110, 66, 32, 0.3)',
                                             color: 'white',
                                             fontWeight: '600',
@@ -212,15 +249,16 @@ export default function HeaderComponent() {
                                 </div>
                             )}
                         </div>
-
                         {/* Shop Button */}
                         <button
                             onClick={() => handleNavigate('/shop')}
-                            style={{ 
-                                height: '110px', 
-                                width: '220px',
-                                padding: 0,
-                                margin: 0,
+                            style={{
+                                height: 'clamp(32px, 3.5vw, 40px)',
+                                width: 'clamp(85px, 8.5vw, 100px)',
+                                padding: '0px',
+                                margin: '0px',
+                                marginLeft: '-1px',
+                                marginRight: '-1px',
                                 border: 'none',
                                 background: 'transparent',
                                 cursor: 'pointer',
@@ -229,35 +267,37 @@ export default function HeaderComponent() {
                                 alignItems: 'center',
                                 justifyContent: 'center',
                                 lineHeight: 0,
-                                flexShrink: 0,
-                                flexBasis: '220px'
+                                flexShrink: 0
                             }}
-                            onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
-                            onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
-                        >
-                            <Image 
-                                src="/assets/pulsante_shop.svg" 
-                                alt="Shop" 
-                                width={220} 
-                                height={110}
-                                style={{ 
-                                    display: 'block',
-                                    width: '100%',
-                                    height: '100%',
-                                    objectFit: 'contain'
-                                }}
-                            />
-                        </button>
-
+                                onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
+                                onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+                            >
+                                <Image
+                                    src="/assets/pulsante_shop.svg"
+                                    alt="Shop"
+                                    width={100}
+                                    height={40}
+                                    style={{
+                                        width: '100%',
+                                        height: '100%',
+                                        objectFit: 'contain',
+                                        display: 'block',
+                                        margin: '0px',
+                                        padding: '0px'
+                                    }}
+                                />
+                            </button>
+                        {/* Language Button */}
                         <button
                             onClick={toggleLanguage}
                             title={locale === 'it' ? 'Switch to English' : 'Passa all\'Italiano'}
                             style={{
                                 position: 'relative',
-                                width: '240px',
-                                height: '130px',
-                                padding: 0,
-                                margin: 0,
+                                width: 'clamp(85px, 8.5vw, 100px)',
+                                height: 'clamp(32px, 3.5vw, 40px)',
+                                padding: '0px',
+                                margin: '0px',
+                                marginLeft: '-1px',
                                 border: 'none',
                                 background: 'transparent',
                                 cursor: 'pointer',
@@ -266,59 +306,44 @@ export default function HeaderComponent() {
                                 alignItems: 'center',
                                 justifyContent: 'center',
                                 lineHeight: 0,
-                                flexShrink: 0,
-                                flexBasis: '220px'
+                                flexShrink: 0
                             }}
-                            onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
-                            onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
-                        >
-                            <Image 
-                                src="/assets/pulsante_lingua.svg" 
-                                alt="Language" 
-                                width={240} 
-                                height={130}
-                                style={{ 
-                                    position: 'absolute',
-                                    top: 0,
-                                    left: 0,
-                                    width: '100%',
-                                    height: '100%',
-                                    objectFit: 'fill',
-                                }}
-                            />
-                            <span
-                                style={{
-                                    position: 'absolute',
-                                    top: '50%',
-                                    left: '50%',
-                                    transform: 'translate(-50%, -50%)',
-                                    zIndex: 1,
-                                    color: '#6E4220',
-                                    fontWeight: '900',
-                                    fontSize: '24px',
-                                    pointerEvents: 'none',
-                                    lineHeight: 1,
-                                    letterSpacing: '2px',
-                                    marginTop: '28px',
-                                    marginRight: '5px',
-                                }}
+                                onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
+                                onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
                             >
-                                {locale.toUpperCase()}
-                            </span>
-                        </button>
-                    </div>
+                                <Image
+                                    src="/assets/pulsante_lingua.svg"
+                                    alt="Language"
+                                    width={100}
+                                    height={40}
+                                    style={{
+                                        width: '100%',
+                                        height: '100%',
+                                        objectFit: 'fill',
+                                        display: 'block',
+                                        margin: '0px',
+                                        padding: '0px'
+                                    }}
+                                />
+                            </button>
                 </div>
+            </div>
 
                 {/* Mobile Header */}
                 <div 
-                    className="md:hidden flex items-center justify-between px-4 py-3"
+                    className="md:hidden flex items-center justify-between py-3"
                     style={{
+                        marginLeft: '0px',
+                        marginRight: '0px',
+                        paddingLeft: '16px',
+                        paddingRight: '16px',
                         backgroundImage: 'url(/assets/Vector.svg)',
                         backgroundSize: 'cover',
                         backgroundPosition: 'center',
                         backgroundRepeat: 'no-repeat',
                         minHeight: '70px',
-                        overflow: 'visible'
+                        overflow: 'visible',
+                        width: '100%'
                     }}
                 >
                     {/* Logo - height = texture (112px) + 20px = 132px */}
@@ -383,7 +408,7 @@ export default function HeaderComponent() {
                     >
                         <button
                             onClick={() => handleNavigate('/fumetti')}
-                            className="w-full text-left px-6 py-4 transition-colors font-semibold text-lg"
+                            className="w-full text-left px-4 py-4 transition-colors font-semibold text-lg block"
                             style={{
                                 color: '#6E4220',
                                 borderBottom: '1px solid #D4A574'
@@ -398,7 +423,7 @@ export default function HeaderComponent() {
                         <div>
                             <button
                                 onClick={() => setIsAnimantraOpen(!isAnimantraOpen)}
-                                className="w-full text-left px-6 py-4 transition-colors font-semibold text-lg flex items-center justify-between"
+                                className="w-full text-left px-4 py-4 transition-colors font-semibold text-lg flex items-center justify-between block"
                                 style={{
                                     color: '#6E4220',
                                     borderBottom: '1px solid #D4A574'
@@ -424,10 +449,10 @@ export default function HeaderComponent() {
                             </button>
 
                             {isAnimantraOpen && (
-                                <div style={{ backgroundColor: '#8B6F47' }}>
+                                <div style={{ backgroundColor: '#8B6F47', borderRadius: '0 0 6px 6px' }}>
                                     <button
                                         onClick={() => handleNavigate('/brand')}
-                                        className="w-full text-left px-10 py-3 transition-colors font-medium text-white"
+                                        className="w-full text-left px-4 py-3 transition-colors font-medium text-white"
                                         onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(110, 66, 32, 0.5)'}
                                         onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                                     >
@@ -435,7 +460,7 @@ export default function HeaderComponent() {
                                     </button>
                                     <button
                                         onClick={() => handleNavigate('/personaggi')}
-                                        className="w-full text-left px-10 py-3 transition-colors font-medium text-white"
+                                        className="w-full text-left px-4 py-3 transition-colors font-medium text-white"
                                         style={{
                                             borderTop: '1px solid rgba(255, 255, 255, 0.2)'
                                         }}
@@ -450,7 +475,7 @@ export default function HeaderComponent() {
 
                         <button
                             onClick={() => handleNavigate('/shop')}
-                            className="w-full text-left px-6 py-4 transition-colors font-semibold text-lg"
+                            className="w-full text-left px-4 py-4 transition-colors font-semibold text-lg block"
                             style={{
                                 color: '#6E4220',
                                 borderBottom: '1px solid #D4A574'
@@ -463,7 +488,7 @@ export default function HeaderComponent() {
 
                         <button
                             onClick={toggleLanguage}
-                            className="w-full text-left px-6 py-4 transition-colors font-semibold text-lg"
+                            className="w-full text-left px-4 py-4 transition-colors font-semibold text-lg block"
                             style={{
                                 color: '#6E4220'
                             }}
