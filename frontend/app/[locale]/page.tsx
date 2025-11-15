@@ -1,116 +1,72 @@
 "use client";
 
-import Link from "next/link";
-import Image from "next/image";
 import { useLocale, useTranslations } from "next-intl";
+import Carousel from "@/components/Carousel";
+import ContentCard, { ContentCardButton } from "@/components/ContentCard";
+import YouTubeContainer from "@/components/YouTubeContainer";
 
 export default function Home() {
   const locale = useLocale();
-  const t = useTranslations('hero');
+  const tHero = useTranslations("hero");
+  const tCarousel = useTranslations("carousel");
+  const tVideo = useTranslations("video");
+
+  // Configurazione prima card del carosello
+  const card1Buttons: ContentCardButton[] = [
+    {
+      label: tHero("startShopping"),
+      href: `/${locale}/shop`,
+      imageSrc: "/assets/pulsante_shopping.svg",
+    },
+    {
+      label: tHero("discoverCharacters"),
+      href: `/${locale}/personaggi`,
+      imageSrc: "/assets/pulsante_personaggi.svg",
+    },
+  ];
+
+  // Configurazione seconda card del carosello
+  const card2Buttons: ContentCardButton[] = [
+    {
+      label: tHero("discoverCharacters"),
+      href: `/${locale}/brand`,
+      imageSrc: "/assets/pulsante_scopribrand.svg",
+    }
+  ];
+
+  // Elementi del carosello
+  const carouselItems = [
+    <ContentCard
+      key="card1"
+      title={tCarousel("card1.title")}
+      description={tCarousel("card1.description")}
+      buttons={[]}
+      imageSrc="/images/hero-character.png"
+      imageAlt="Giorgio Privitera Lab"
+    />,
+    <ContentCard
+      key="card2"
+      title={tCarousel("card2.title")}
+      description={tCarousel("card2.description")}
+      buttons={card2Buttons}
+      imageSrc="/images/hero-character.png"
+      imageAlt="AnimantrA World"
+    />,
+  ];
 
   return (
-    <div className="w-full overflow-x-hidden bg-white min-h-screen py-20">
-      {/* Two separate purple cards side by side */}
-      <div className="max-w-7xl mx-auto px-16">
-        <div className="grid md:grid-cols-[1.2fr_0.8fr] items-stretch" style={{ gap: '1px' }}>
-          
-          {/* Left Card - Text content */}
-          <div 
-            className="relative rounded-l-3xl shadow-2xl py-20 px-12"
-            style={{
-              background: 'linear-gradient(135deg, #6B46C1 0%, #7C3AED 50%, #8B5CF6 100%)'
-            }}
-          >
-            {/* Subtle overlay for depth */}
-            <div className="absolute inset-0 bg-black/10 rounded-l-3xl"></div>
-            
-            {/* Text content */}
-            <div className="relative z-10 text-left space-y-6">
-              {/* Title with JungleFever font */}
-              <h1 className="junglefever-title text-black">
-                {t('title')}
-              </h1>
-              
-              {/* Subtitle with JungleFever font */}
-              <h2 className="junglefever-subtitle text-black">
-                {t('subtitle')}
-              </h2>
-              
-              {/* Description text */}
-              <p className="text-black text-base md:text-lg leading-relaxed">
-                {t('description')}
-              </p>
-              
-              {/* CTA Buttons with wooden style */}
-              <div className="flex flex-col sm:flex-row gap-4 pt-6">
-                <Link 
-                  href={`/${locale}/shop`}
-                  className="inline-block"
-                >
-                  <Image
-                    src="/assets/pulsante_shopping.svg"
-                    alt={t('startShopping')}
-                    width={280}
-                    height={80}
-                    className="hover:scale-105 transition-transform duration-200"
-                  />
-                </Link>
-                
-                <Link 
-                  href={`/${locale}/personaggi`}
-                  className="inline-block"
-                >
-                  <Image
-                    src="/assets/pulsante_personaggi.svg"
-                    alt={t('discoverCharacters')}
-                    width={280}
-                    height={80}
-                    className="hover:scale-105 transition-transform duration-200"
-                  />
-                </Link>
-              </div>
-            </div>
-          </div>
-          
-          {/* Right Card - Character image */}
-          <div 
-            className="relative rounded-r-3xl shadow-2xl p-8 flex justify-center items-center"
-            style={{
-              background: 'linear-gradient(135deg, #6B46C1 0%, #7C3AED 50%, #8B5CF6 100%)'
-            }}
-          >
-            {/* Subtle overlay for depth */}
-            <div className="absolute inset-0 bg-black/10 rounded-r-3xl"></div>
-            
-            {/* Character image */}
-            <div className="relative z-10 w-full max-w-md">
-              {/* Placeholder for skull/character image */}
-              <div className="relative aspect-square bg-black/20 rounded-2xl border-4 border-black/30 flex items-center justify-center p-8">
-                <Image
-                  src="/images/hero-character.png"
-                  alt="Character"
-                  width={300}
-                  height={300}
-                  className="object-contain"
-                  priority
-                  onError={(e) => {
-                    // Fallback to placeholder if image doesn't exist
-                    const target = e.target as HTMLImageElement;
-                    target.style.display = 'none';
-                  }}
-                />
-                <div className="absolute inset-0 flex items-center justify-center text-white/50 text-center p-12">
-                  <div>
-                    <p className="text-xl font-bold mb-2">Character Image</p>
-                    <p className="text-sm">Place your skull/character image at:</p>
-                    <p className="text-xs font-mono mt-2">/frontend/public/images/hero-character.png</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          
-        </div>
+    <div className="w-full overflow-x-hidden bg-white min-h-screen py-8 sm:py-12 md:py-20">
+      {/* Carosello con ContentCards */}
+      <div className="max-w-7xl mx-auto px-2 sm:px-4 md:px-8 lg:px-16 mb-8 sm:mb-12 md:mb-20">
+        <Carousel items={carouselItems} autoPlay={false} />
+      </div>
+
+      {/* Contenitore YouTube */}
+      <div className="max-w-7xl mx-auto px-2 sm:px-4 md:px-8 lg:px-16 py-6 sm:py-8 md:py-12">
+        <YouTubeContainer
+          videoId="dQw4w9WgXcQ"
+          title={tVideo("title")}
+        />
       </div>
     </div>
   );

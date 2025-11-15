@@ -15,11 +15,25 @@
     "startShopping": "Start Shopping",
     "discoverCharacters": "Discover Characters"
   },
+  "carousel": {
+    "card1": {
+      "title": "Welcome to my creative lab!",
+      "description": "Here you can find all the works published by the crazy mind of Giorgio Privitera. Discover the comics, AnimantrA and the shop."
+    },
+    "card2": {
+      "title": "Discover the world of AnimantrA",
+      "description": "A fantastic universe populated by unique characters and captivating stories. Explore their adventures and bring home a piece of this magical world."
+    }
+  },
+  "video": {
+    "title": "Learn more"
+  },
   "brand": {
-    "title": "Animantra",
-    "subtitle": "Explore the universe of characters and discover exclusive products",
-    "discoverCharacters": "Discover Characters",
-    "visitShop": "Visit Shop"
+    "title": "ANIMANTRA",
+    "description1": "The craziest \"inner crew\" of the moment has arrived in town.",
+    "description2": "Come and discover its members, adventures and the merchandise dedicated to them, to take your favorite home with you.",
+    "charactersButton": "Characters",
+    "shopButton": "Shop"
   },
   "personaggi": {
     "title": "Characters",

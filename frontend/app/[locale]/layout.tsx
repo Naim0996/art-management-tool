@@ -17,6 +17,18 @@ const jungleFever = localFont({
   display: 'swap',
 });
 
+const kranji = localFont({
+  src: [
+    {
+      path: '../../public/fonts/Skranji-Regular.ttf',
+      weight: '400',
+      style: 'normal',
+    },
+  ],
+  variable: '--font-kranji',
+  display: 'swap',
+});
+
 export default async function LocaleLayout({
   children,
   params
@@ -32,7 +44,7 @@ export default async function LocaleLayout({
   const messages = await getMessages({locale});
  
   return (
-    <html lang={locale} className={`h-full ${jungleFever.variable}`}>
+    <html lang={locale} className={`h-full ${jungleFever.variable} ${kranji.variable}`}>
       <body className="antialiased h-full overflow-x-hidden">
         <NextIntlClientProvider locale={locale} messages={messages}>
           <PrimeReactProvider>
