@@ -51,46 +51,29 @@ export default function FumettoDetailPage() {
     return null;
   }
 
-  const formattedDate = fumetto.createdAt 
-    ? new Date(fumetto.createdAt).toLocaleDateString('it-IT', { 
-        month: 'long', 
-        year: 'numeric' 
-      })
-    : '';
-
   return (
     <div className="min-h-screen bg-white">
-      {/* Header fumetto - centered, Zerocalcare style */}
-      <div className="max-w-3xl mx-auto px-8 md:px-16 py-12 text-center">
-        <h1 className="text-4xl md:text-5xl font-bold text-black mb-4">{fumetto.title}</h1>
-      </div>
-
-      {/* Comic pages - vertical scroll, centered, molto padding laterale come Zerocalcare */}
-      <div className="max-w-xl mx-auto px-8 md:px-16 lg:px-24 pb-8">
-        <div className="space-y-0">
-          {fumetto.pages?.map((page, index) => (
-            <div key={index} className="relative">
-              <Image
-                src={page}
-                alt={`${fumetto.title} - Pagina ${index + 1}`}
-                width={0}
-                height={0}
-                sizes="100vw"
-                className="w-full h-auto"
-                style={{ width: '100%', height: 'auto' }}
-                priority={index === 0}
-                quality={100}
-              />
-            </div>
-          ))}
-        </div>
-
-        {/* Date at bottom */}
-        {formattedDate && (
-          <div className="mt-8 text-center">
-            <p className="text-base text-gray-700">{formattedDate}</p>
+      {/* Fumetto centrato con margini laterali ampi */}
+      <div className="flex justify-center px-8 md:px-16 lg:px-32 py-12">
+        <div className="w-full max-w-3xl">
+          <div className="space-y-0">
+            {fumetto.pages?.map((page, index) => (
+              <div key={index} className="relative px-8 md:px-12 lg:px-16">
+                <Image
+                  src={page}
+                  alt={`${fumetto.title} - Pagina ${index + 1}`}
+                  width={0}
+                  height={0}
+                  sizes="100vw"
+                  className="w-full h-auto"
+                  style={{ width: '100%', height: 'auto' }}
+                  priority={index === 0}
+                  quality={100}
+                />
+              </div>
+            ))}
           </div>
-        )}
+        </div>
       </div>
     </div>
   );

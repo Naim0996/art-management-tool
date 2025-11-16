@@ -15,11 +15,25 @@
     "startShopping": "Inizia Shopping",
     "discoverCharacters": "Scopri i Personaggi"
   },
+  "carousel": {
+    "card1": {
+      "title": "Benvenuti nel mio laboratorio creativo!",
+      "description": "Qui potrete trovare tutti i lavori pubblicati dalla mente folle di Giorgio Privitera. Scoprite i fumetti, AnimantrA e lo shop."
+    },
+    "card2": {
+      "title": "Scopri il mondo di AnimantrA",
+      "description": "Un universo fantastico popolato da personaggi unici e storie avvincenti. Esplora le loro avventure e porta a casa un pezzo di questo mondo magico."
+    }
+  },
+  "video": {
+    "title": "Scopri di più"
+  },
   "brand": {
-    "title": "Animantra",
-    "subtitle": "Esplora l'universo dei personaggi e scopri i prodotti esclusivi",
-    "discoverCharacters": "Scopri i Personaggi",
-    "visitShop": "Visita lo Shop"
+    "title": "ANIMANTRA",
+    "description1": "La \"ciurma interiore\" più pazza del momento è arrivata in città.",
+    "description2": "Vieni a scoprirne i componenti, le avventure e il merchandise a loro dedicato, per portare con te il tuo beniamino.",
+    "charactersButton": "Personaggi",
+    "shopButton": "Shop"
   },
   "personaggi": {
     "title": "Personaggi",

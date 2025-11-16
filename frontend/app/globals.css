@@ -164,13 +164,30 @@ html, body {
   }
 }
 
-/* JungleFever Font Classes */
-.junglefever-title {
-  font-family: var(--font-junglefever), sans-serif;
-  font-size: 61pt;
+/* SKranji */
+
+.skranji-title { 
+  font-family: var(--font-kranji), sans-serif;
+  font-size: 46px;
   line-height: 1.2;
   font-weight: normal;
 }
+
+.skranji-paragraph { 
+  font-family: var(--font-kranji), sans-serif;
+  font-size: 20px;
+  line-height: 1.2;
+  font-weight: normal;
+}
+
+/* JungleFever Font Classes */
+.junglefever-title {
+  font-family: var(--font-junglefever), sans-serif;
+  font-size: 46px;
+  line-height: 1.2;
+  font-weight: normal;
+}
+
 
 .junglefever-subtitle {
   font-family: var(--font-junglefever), sans-serif;
@@ -181,10 +198,10 @@ html, body {
 
 @media (max-width: 768px) {
   .junglefever-title {
-    font-size: 36pt;
+    font-size: 36px;
   }
   
   .junglefever-subtitle {
-    font-size: 20pt;
+    font-size: 20px;
   }
 }

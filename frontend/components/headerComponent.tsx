@@ -313,7 +313,7 @@ export default function HeaderComponent() {
                                 onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
                             >
                                 <Image
-                                    src="/assets/pulsante_lingua.svg"
+                                    src={locale === 'it' ? "/assets/pulsante_lingua_it.svg" : "/assets/pulsante_lingua_en.svg"}
                                     alt="Language"
                                     width={140}
                                     height={60}
