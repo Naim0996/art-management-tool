@@ -18,7 +18,7 @@ export interface CategoryListResponse {
   total: number;
 }
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || '';
 
 export class CategoryAPIService {
   private static getAuthHeaders(): HeadersInit {

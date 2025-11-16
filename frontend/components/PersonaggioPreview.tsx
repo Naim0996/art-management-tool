@@ -16,7 +16,7 @@ interface GalleriaImage {
 }
 
 export default function PersonaggioPreview({ personaggio }: PersonaggioPreviewProps) {
-  const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
+  const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || '';
   const [images, setImages] = useState<GalleriaImage[]>([]);
 
   const getImageUrl = (url: string | undefined) => {
