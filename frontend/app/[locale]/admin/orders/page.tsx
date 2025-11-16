@@ -38,7 +38,7 @@ export default function OrdersPage() {
   const fetchOrders = async () => {
     try {
       const token = localStorage.getItem('adminToken');
-      const response = await fetch('http://giorgiopriviteralab.com:8080/api/admin/orders', {
+      const response = await fetch('/api/admin/orders', {
         headers: {
           Authorization: `Bearer ${token}`,
         },

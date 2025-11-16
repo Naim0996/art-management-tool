@@ -93,7 +93,7 @@ export default function AdminDashboard() {
   const fetchDashboardStats = async () => {
     try {
       const token = localStorage.getItem('adminToken');
-      const response = await fetch('http://giorgiopriviteralab.com:8080/api/admin/stats', {
+      const response = await fetch('/api/admin/stats', {
         headers: {
           Authorization: `Bearer ${token}`,
         },

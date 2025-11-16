@@ -20,7 +20,7 @@ export interface FumettiListResponse {
   count: number;
 }
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://giorgiopriviteralab.com:8080';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || '';
 
 export class FumettiAPIService {
   private static getAuthHeaders(): HeadersInit {

@@ -36,7 +36,7 @@ export default function ImageUpload({
   const [urlInput, setUrlInput] = useState('');
   const [uploading, setUploading] = useState(false);
 
-  const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://giorgiopriviteralab.com:8080';
+  const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || '';
 
   // Gestione upload file locale (supporta multipli)
   const handleUpload = async (event: FileUploadHandlerEvent) => {
