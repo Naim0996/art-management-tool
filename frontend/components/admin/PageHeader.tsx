@@ -1,8 +1,9 @@
 import { InputText } from 'primereact/inputtext';
 import { Button } from 'primereact/button';
+import { ReactNode } from 'react';
 
 interface PageHeaderProps {
-  title: string;
+  title: string | ReactNode;
   subtitle?: string;
   searchValue?: string;
   onSearchChange?: (value: string) => void;
