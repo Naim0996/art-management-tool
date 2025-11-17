@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { DataTable } from 'primereact/datatable';
 import { Toast } from 'primereact/toast';
 import { ConfirmDialog, confirmDialog } from 'primereact/confirmdialog';
@@ -37,7 +37,6 @@ export default function AdminDiscountsPage() {
     page, 
     totalRecords, 
     first, 
-    setPage, 
     setTotalRecords, 
     onPageChange 
   } = usePagination({ initialPerPage: 20 });
@@ -46,23 +45,23 @@ export default function AdminDiscountsPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
-  const loadDiscounts = async () => {
+  const loadDiscounts = useCallback(async () => {
     setLoading(true);
     try {
       const response = await DiscountAPIService.getAllDiscounts(page, 20);
       setDiscounts(response.discounts);
       setTotalRecords(response.total);
-    } catch (error) {
+    } catch {
       showError('Error', 'Failed to load discounts');
     } finally {
       setLoading(false);
     }
-  };
+  }, [page, setTotalRecords, showError]);
 
   // Load discounts when page changes
   useEffect(() => {
     loadDiscounts();
-  }, [page]);
+  }, [loadDiscounts]);
 
   const handleCreate = () => {
     openDialog();
