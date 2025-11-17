@@ -1,6 +1,8 @@
 // API Service per la gestione dei personaggi
 // Gestisce tutte le chiamate HTTP al backend per le operazioni CRUD
 
+import { fetchWithAuth, uploadFile } from './apiUtils';
+
 export interface PersonaggioDTO {
   id?: number;
   name: string;
@@ -23,77 +25,38 @@ export interface PersonaggiListResponse {
   count: number;
 }
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || '';
-
 export class PersonaggiAPIService {
-  private static getAuthHeaders(): HeadersInit {
-    const token = typeof window !== 'undefined' ? localStorage.getItem('adminToken') : null;
-    return token ? { 'Authorization': `Bearer ${token}` } : {};
-  }
-
-  private static async fetchJSON<T>(url: string, options?: RequestInit, useAuth = false): Promise<T> {
-    const headers: HeadersInit = {
-      'Content-Type': 'application/json',
-      ...options?.headers,
-    };
-
-    if (useAuth) {
-      const authHeaders = this.getAuthHeaders();
-      Object.assign(headers, authHeaders);
-      console.log(`[PersonaggiAPI] Auth request to ${url}`, {
-        hasToken: !!(authHeaders as Record<string, string>).Authorization,
-      });
-    } else {
-      console.log(`[PersonaggiAPI] Public request to ${url}`);
-    }
-
-    const response = await fetch(`${API_BASE_URL}${url}`, {
-      ...options,
-      headers,
-    });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error(`[PersonaggiAPI] Error ${response.status} for ${url}:`, errorText);
-      throw new Error(`HTTP ${response.status}: ${errorText}`);
-    }
-
-    console.log(`[PersonaggiAPI] Success ${response.status} for ${url}`);
-    return response.json();
-  }
-
   // GET /api/personaggi - Ottieni tutti i personaggi attivi (public)
   static async getAllPersonaggi(): Promise<PersonaggioDTO[]> {
-    const response = await this.fetchJSON<PersonaggiListResponse>('/api/personaggi');
+    const response = await fetchWithAuth<PersonaggiListResponse>('/api/personaggi');
     return response.personaggi || (Array.isArray(response) ? response as PersonaggioDTO[] : []);
   }
 
   // GET /api/admin/personaggi - Ottieni tutti i personaggi attivi (admin)
   static async getAllPersonaggiAdmin(): Promise<PersonaggioDTO[]> {
-    const response = await this.fetchJSON<PersonaggiListResponse>('/api/admin/personaggi', {}, true);
+    const response = await fetchWithAuth<PersonaggiListResponse>('/api/admin/personaggi', {}, true);
     return response.personaggi || (Array.isArray(response) ? response as PersonaggioDTO[] : []);
   }
 
   // GET /api/personaggi/{id} - Ottieni un personaggio specifico (public)
   static async getPersonaggio(id: number): Promise<PersonaggioDTO> {
-    return this.fetchJSON<PersonaggioDTO>(`/api/personaggi/${id}`);
+    return fetchWithAuth<PersonaggioDTO>(`/api/personaggi/${id}`);
   }
 
   // GET /api/admin/personaggi/{id} - Ottieni un personaggio specifico (admin)
   static async getPersonaggioAdmin(id: number): Promise<PersonaggioDTO> {
-    return this.fetchJSON<PersonaggioDTO>(`/api/admin/personaggi/${id}`, {}, true);
+    return fetchWithAuth<PersonaggioDTO>(`/api/admin/personaggi/${id}`, {}, true);
   }
 
   // POST /api/admin/personaggi - Crea un nuovo personaggio
   static async createPersonaggio(data: Omit<PersonaggioDTO, 'id' | 'createdAt' | 'updatedAt' | 'deletedAt'>): Promise<PersonaggioDTO> {
-    // Validate before sending to backend
     const { validatePersonaggio } = await import('./validation');
     const validation = validatePersonaggio(data);
     if (validation.hasErrors()) {
       throw new Error(`Validation failed: ${validation.getErrorMessage()}`);
     }
     
-    return this.fetchJSON<PersonaggioDTO>('/api/admin/personaggi', {
+    return fetchWithAuth<PersonaggioDTO>('/api/admin/personaggi', {
       method: 'POST',
       body: JSON.stringify(data),
     }, true);
@@ -101,7 +64,6 @@ export class PersonaggiAPIService {
 
   // PUT /api/admin/personaggi/{id} - Aggiorna un personaggio esistente
   static async updatePersonaggio(id: number, data: Partial<PersonaggioDTO>): Promise<PersonaggioDTO> {
-    // Validate before sending to backend (only if we have required fields)
     if (data.name || data.images !== undefined) {
       const { validatePersonaggio } = await import('./validation');
       const fullData = {
@@ -121,7 +83,7 @@ export class PersonaggiAPIService {
       }
     }
     
-    return this.fetchJSON<PersonaggioDTO>(`/api/admin/personaggi/${id}`, {
+    return fetchWithAuth<PersonaggioDTO>(`/api/admin/personaggi/${id}`, {
       method: 'PUT',
       body: JSON.stringify(data),
     }, true);
@@ -129,21 +91,21 @@ export class PersonaggiAPIService {
 
   // DELETE /api/admin/personaggi/{id} - Soft delete di un personaggio
   static async deletePersonaggio(id: number): Promise<{ message: string; id: string }> {
-    return this.fetchJSON<{ message: string; id: string }>(`/api/admin/personaggi/${id}`, {
+    return fetchWithAuth<{ message: string; id: string }>(`/api/admin/personaggi/${id}`, {
       method: 'DELETE',
     }, true);
   }
 
   // POST /api/admin/personaggi/{id}/restore - Ripristina un personaggio cancellato
   static async restorePersonaggio(id: number): Promise<PersonaggioDTO> {
-    return this.fetchJSON<PersonaggioDTO>(`/api/admin/personaggi/${id}/restore`, {
+    return fetchWithAuth<PersonaggioDTO>(`/api/admin/personaggi/${id}/restore`, {
       method: 'POST',
     }, true);
   }
 
   // GET /api/admin/personaggi/deleted - Ottieni tutti i personaggi cancellati
   static async getDeletedPersonaggi(): Promise<PersonaggioDTO[]> {
-    const response = await this.fetchJSON<PersonaggiListResponse>('/api/admin/personaggi/deleted', {}, true);
+    const response = await fetchWithAuth<PersonaggiListResponse>('/api/admin/personaggi/deleted', {}, true);
     return response.personaggi || (Array.isArray(response) ? response as PersonaggioDTO[] : []);
   }
 
@@ -153,20 +115,7 @@ export class PersonaggiAPIService {
     formData.append('file', file);
     formData.append('type', type);
 
-    const token = typeof window !== 'undefined' ? localStorage.getItem('adminToken') : null;
-    const headers: HeadersInit = token ? { 'Authorization': `Bearer ${token}` } : {};
-
-    const response = await fetch(`${API_BASE_URL}/api/admin/personaggi/${id}/upload`, {
-      method: 'POST',
-      headers,
-      body: formData,
-    });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(`HTTP ${response.status}: ${errorText}`);
-    }
-
+    const response = await uploadFile(`/api/admin/personaggi/${id}/upload`, formData);
     return response.json();
   }
 
@@ -177,25 +126,9 @@ export class PersonaggiAPIService {
 
   // DELETE /api/admin/personaggi/{id}/images - Elimina un'immagine da un personaggio
   static async deleteImage(id: number, imageUrl: string, type: 'icon' | 'image'): Promise<{ message: string }> {
-    const token = typeof window !== 'undefined' ? localStorage.getItem('adminToken') : null;
-    const headers: HeadersInit = {
-      'Content-Type': 'application/json',
-    };
-    if (token) {
-      headers['Authorization'] = `Bearer ${token}`;
-    }
-
-    const response = await fetch(`${API_BASE_URL}/api/admin/personaggi/${id}/images`, {
+    return fetchWithAuth<{ message: string }>(`/api/admin/personaggi/${id}/images`, {
       method: 'DELETE',
-      headers,
       body: JSON.stringify({ imageUrl, type }),
-    });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(`HTTP ${response.status}: ${errorText}`);
-    }
-
-    return response.json();
+    }, true);
   }
 }
