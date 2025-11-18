@@ -1,114 +1,86 @@
 'use client';
 
-import { useEffect, useState, useRef, useCallback } from 'react';
+import { useState } from 'react';
 import { DataTable } from 'primereact/datatable';
-import { Column } from 'primereact/column';
 import { Button } from 'primereact/button';
 import { Dialog } from 'primereact/dialog';
 import { InputText } from 'primereact/inputtext';
-import { InputTextarea } from 'primereact/inputtextarea';
-import { InputNumber } from 'primereact/inputnumber';
-import { Dropdown } from 'primereact/dropdown';
-import { Toast } from 'primereact/toast';
 import { ConfirmDialog, confirmDialog } from 'primereact/confirmdialog';
-import { Tag } from 'primereact/tag';
-import { TabView, TabPanel } from 'primereact/tabview';
 import { adminShopAPI, Product } from '@/services/AdminShopAPIService';
-import ProductImageUpload from '@/components/ProductImageUpload';
+import ProductVariantManagement from '@/components/admin/ProductVariantManagement';
+import ShopProductForm from '@/components/admin/ShopProductForm';
+import PageHeader from '@/components/admin/PageHeader';
+import { getShopProductColumns } from '@/components/admin/ShopProductColumns';
+import { useToast } from '@/hooks/useToast';
+import { useFormDialog } from '@/hooks/useFormDialog';
+import { useDataTable } from '@/hooks/useDataTable';
+import { useShopProductManagement } from '@/hooks/useShopProductManagement';
+
+const initialFormData = {
+  slug: '',
+  title: '',
+  short_description: '',
+  long_description: '',
+  base_price: 0,
+  currency: 'EUR',
+  sku: '',
+  gtin: '',
+  character_value: '',
+  etsy_link: '',
+  status: 'draft' as 'published' | 'draft' | 'archived',
+};
 
 export default function ShopProductsManagement() {
-  const toast = useRef<Toast>(null);
-  const [products, setProducts] = useState<Product[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [showFormDialog, setShowFormDialog] = useState(false);
+  const { toast, showSuccess, showError } = useToast();
+  const { showDialog, formData, isEditing, openDialog, closeDialog, setFormData } = useFormDialog(initialFormData);
   const [showVariantDialog, setShowVariantDialog] = useState(false);
-  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
-  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
-  const [page, setPage] = useState(1);
-  const [totalRecords, setTotalRecords] = useState(0);
-  const [searchQuery, setSearchQuery] = useState('');
-  
-  const [formData, setFormData] = useState({
-    slug: '',
-    title: '',
-    short_description: '',
-    long_description: '',
-    base_price: 0,
-    currency: 'EUR',
-    sku: '',
-    gtin: '',
-    character_value: '',
-    etsy_link: '',
-    status: 'draft' as 'published' | 'draft' | 'archived',
-  });
 
-  const [variantData, setVariantData] = useState({
-    sku: '',
-    name: '',
-    attributes: '{}',
-    price_adjustment: 0,
-    stock: 0,
-  });
-
-  const statusOptions = [
-    { label: 'Published', value: 'published' },
-    { label: 'Draft', value: 'draft' },
-    { label: 'Archived', value: 'archived' },
-  ];
-
-  const currencyOptions = [
-    { label: 'EUR (€)', value: 'EUR' },
-    { label: 'USD ($)', value: 'USD' },
-  ];
-
-  const fetchProducts = useCallback(async () => {
-    setLoading(true);
-    try {
+  const {
+    items: products,
+    loading,
+    searchQuery,
+    setSearchQuery,
+    setItems: setProducts,
+    totalRecords,
+    first,
+    onPageChange,
+    refresh: refetch,
+  } = useDataTable<Product>({
+    fetchData: async ({ page, per_page, search }) => {
       const response = await adminShopAPI.listProducts({
-        search: searchQuery || undefined,
+        search,
         page,
-        per_page: 10,
+        per_page,
       });
-      setProducts(response.products || []);
-      setTotalRecords(response.total || 0);
-    } catch (error) {
-      console.error('Error fetching products:', error);
-      toast.current?.show({
-        severity: 'error',
-        summary: 'Error',
-        detail: 'Failed to load products',
-        life: 3000,
-      });
-    } finally {
-      setLoading(false);
-    }
-  }, [page, searchQuery]);
+      return {
+        items: response.products || [],
+        total: response.total || 0,
+      };
+    },
+    onError: () => showError('Failed to load products'),
+  });
 
-  useEffect(() => {
-    fetchProducts();
-  }, [fetchProducts]);
+  const {
+    selectedProduct,
+    variantData,
+    setVariantData,
+    handleManageVariants: openVariantDialog,
+    handleAddVariant,
+    handleUpdateInventory,
+    handleImagesChange,
+  } = useShopProductManagement({
+    onSuccess: showSuccess,
+    onError: showError,
+    refetch,
+    setProducts,
+  });
 
   const handleCreate = () => {
-    setEditingProduct(null);
-    setFormData({
-      slug: '',
-      title: '',
-      short_description: '',
-      long_description: '',
-      base_price: 0,
-      currency: 'EUR',
-      sku: '',
-      gtin: '',
-      character_value: '',
-      etsy_link: '',
-      status: 'draft',
-    });
-    setShowFormDialog(true);
+    openDialog(null);
   };
 
   const handleEdit = (product: Product) => {
-    setEditingProduct(product);
-    setFormData({
+    const productData = {
       slug: product.slug,
       title: product.title,
       short_description: product.short_description,
@@ -120,45 +92,31 @@ export default function ShopProductsManagement() {
       character_value: product.character_value || '',
       etsy_link: product.etsy_link || '',
       status: product.status,
-    });
-    setShowFormDialog(true);
+    };
+    setFormData(productData);
+    openDialog(product);
   };
 
   const handleSave = async () => {
     if (!formData.title || !formData.slug || !formData.sku) {
-      toast.current?.show({
-        severity: 'warn',
-        summary: 'Validation',
-        detail: 'Title, Slug, and SKU are required',
-        life: 3000,
-      });
+      showError('Title, Slug, and SKU are required', 'Validation');
       return;
     }
 
     try {
+      const editingProduct = isEditing as Product | null;
       if (editingProduct) {
         await adminShopAPI.updateProduct(editingProduct.id, formData);
+        showSuccess(`Product updated successfully`);
       } else {
         await adminShopAPI.createProduct(formData);
+        showSuccess(`Product created successfully`);
       }
-      
-      toast.current?.show({
-        severity: 'success',
-        summary: 'Success',
-        detail: `Product ${editingProduct ? 'updated' : 'created'} successfully`,
-        life: 3000,
-      });
-      setShowFormDialog(false);
-      fetchProducts();
+      closeDialog();
+      refetch();
     } catch (error: unknown) {
-      console.error('Error saving product:', error);
       const message = error instanceof Error ? error.message : 'Failed to save product';
-      toast.current?.show({
-        severity: 'error',
-        summary: 'Error',
-        detail: message,
-        life: 3000,
-      });
+      showError(message);
     }
   };
 
@@ -170,209 +128,45 @@ export default function ShopProductsManagement() {
       accept: async () => {
         try {
           await adminShopAPI.deleteProduct(product.id);
-          toast.current?.show({
-            severity: 'success',
-            summary: 'Success',
-            detail: 'Product deleted successfully',
-            life: 3000,
-          });
-          fetchProducts();
+          showSuccess('Product deleted successfully');
+          refetch();
         } catch (error) {
-          console.error('Error deleting product:', error);
-          toast.current?.show({
-            severity: 'error',
-            summary: 'Error',
-            detail: 'Failed to delete product',
-            life: 3000,
-          });
+          showError('Failed to delete product');
         }
       },
     });
   };
 
   const handleManageVariants = async (product: Product) => {
-    try {
-      const fullProduct = await adminShopAPI.getProduct(product.id);
-      setSelectedProduct(fullProduct);
-      setVariantData({
-        sku: '',
-        name: '',
-        attributes: '{}',
-        price_adjustment: 0,
-        stock: 0,
-      });
+    const result = await openVariantDialog(product);
+    if (result) {
       setShowVariantDialog(true);
-    } catch {
-      toast.current?.show({
-        severity: 'error',
-        summary: 'Error',
-        detail: 'Failed to load product details',
-        life: 3000,
-      });
     }
   };
 
-  const handleAddVariant = async () => {
-    if (!selectedProduct || !variantData.name || !variantData.sku) {
-      toast.current?.show({
-        severity: 'warn',
-        summary: 'Validation',
-        detail: 'Name and SKU are required',
-        life: 3000,
-      });
-      return;
-    }
-
-    try {
-      await adminShopAPI.addVariant(selectedProduct.id, variantData);
-      toast.current?.show({
-        severity: 'success',
-        summary: 'Success',
-        detail: 'Variant added successfully',
-        life: 3000,
-      });
-      
-      const updated = await adminShopAPI.getProduct(selectedProduct.id);
-      setSelectedProduct(updated);
-      
-      // AGGIORNAMENTO TEMPO REALE: Aggiorna anche la lista principale
-      setProducts(prevProducts => 
-        prevProducts.map(p => 
-          p.id === updated.id ? updated : p
-        )
-      );
-      
-      setVariantData({
-        sku: '',
-        name: '',
-        attributes: '{}',
-        price_adjustment: 0,
-        stock: 0,
-      });
-    } catch (error: unknown) {
-      console.error('Error adding variant:', error);
-      const message = error instanceof Error ? error.message : 'Failed to add variant';
-      toast.current?.show({
-        severity: 'error',
-        summary: 'Error',
-        detail: message,
-        life: 3000,
-      });
-    }
-  };
-
-  const handleUpdateInventory = async (variantId: number, quantity: number, operation: 'set' | 'add' | 'subtract') => {
-    try {
-      await adminShopAPI.adjustInventory({ variant_id: variantId, quantity, operation });
-      toast.current?.show({
-        severity: 'success',
-        summary: 'Success',
-        detail: 'Inventory updated successfully',
-        life: 2000,
-      });
-      
-      // Aggiorna il prodotto selezionato nella dialog
-      if (selectedProduct) {
-        const updated = await adminShopAPI.getProduct(selectedProduct.id);
-        setSelectedProduct(updated);
-        
-        // AGGIORNAMENTO TEMPO REALE: Aggiorna anche la lista principale
-        setProducts(prevProducts => 
-          prevProducts.map(p => 
-            p.id === updated.id ? updated : p
-          )
-        );
-      }
-    } catch (error: unknown) {
-      console.error('Error updating inventory:', error);
-      const message = error instanceof Error ? error.message : 'Failed to update inventory';
-      toast.current?.show({
-        severity: 'error',
-        summary: 'Error',
-        detail: message,
-        life: 3000,
-      });
-    }
-  };
-
-  const statusBodyTemplate = (rowData: Product) => {
-    const severity = rowData.status === 'published' ? 'success' : rowData.status === 'draft' ? 'warning' : 'danger';
-    return <Tag value={rowData.status} severity={severity} />;
-  };
-
-  const priceBodyTemplate = (rowData: Product) => {
-    return `${rowData.currency === 'EUR' ? '€' : '$'}${rowData.base_price.toFixed(2)}`;
-  };
-
-  const stockBodyTemplate = (rowData: Product) => {
-    const totalStock = rowData.variants?.reduce((sum, v) => sum + v.stock, 0) || 0;
-    const severity = totalStock > 10 ? 'success' : totalStock > 0 ? 'warning' : 'danger';
-    return <Tag value={`${totalStock} units`} severity={severity} />;
-  };
-
-  const imagesBodyTemplate = (rowData: Product) => {
-    const imageCount = rowData.images?.length || 0;
-    const severity = imageCount > 0 ? 'success' : 'warning';
-    return (
-      <div className="flex items-center gap-2">
-        <Tag value={`${imageCount} ${imageCount === 1 ? 'image' : 'images'}`} severity={severity} />
-        {imageCount === 0 && (
-          <i className="pi pi-exclamation-triangle text-orange-500" title="No images uploaded"></i>
-        )}
-      </div>
-    );
-  };
-
-  const actionBodyTemplate = (rowData: Product) => {
-    return (
-      <div className="flex gap-2">
-        <Button
-          icon="pi pi-pencil"
-          rounded
-          outlined
-          severity="info"
-          onClick={() => handleEdit(rowData)}
-          tooltip="Edit"
-        />
-        <Button
-          icon="pi pi-images"
-          rounded
-          outlined
-          severity="success"
-          onClick={() => handleManageVariants(rowData)}
-          tooltip="Manage Images & Variants"
-        />
-        <Button
-          icon="pi pi-trash"
-          rounded
-          outlined
-          severity="danger"
-          onClick={() => handleDelete(rowData)}
-          tooltip="Delete"
-        />
-      </div>
-    );
-  };
+  const columns = getShopProductColumns({
+    onEdit: handleEdit,
+    onDelete: handleDelete,
+    onManageVariants: handleManageVariants,
+  });
 
   return (
     <div className="p-6 space-y-6">
-      <Toast ref={toast} />
+      {toast}
       <ConfirmDialog />
 
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-3xl font-bold text-black">Shop Products Management</h1>
-          <p className="text-gray-600 mt-1">Manage products, variants, inventory and images</p>
-        </div>
-        <div className="flex gap-2">
+      <PageHeader
+        title="Shop Products Management"
+        subtitle="Manage products, variants, inventory and images"
+        actions={
           <Button
             label="Create New Product"
             icon="pi pi-plus"
             onClick={handleCreate}
             severity="success"
           />
-        </div>
-      </div>
+        }
+      />
 
       <div className="flex gap-4">
         <span className="p-input-icon-left flex-1">
@@ -386,7 +180,6 @@ export default function ShopProductsManagement() {
         </span>
       </div>
 
-      {/* Info Banner */}
       <div className="bg-purple-50 border-l-4 border-purple-500 p-4 rounded">
         <div className="flex items-start">
           <i className="pi pi-info-circle text-purple-600 text-xl mr-3 mt-1"></i>
@@ -407,184 +200,28 @@ export default function ShopProductsManagement() {
         rows={10}
         totalRecords={totalRecords}
         lazy
-        first={(page - 1) * 10}
-        onPage={(e) => setPage((e.page || 0) + 1)}
+        first={first}
+        onPage={onPageChange}
         rowsPerPageOptions={[10, 20, 50]}
         tableStyle={{ minWidth: '60rem' }}
         emptyMessage="No products found"
       >
-        <Column field="id" header="ID" sortable style={{ width: '5%' }} />
-        <Column field="title" header="Title" sortable style={{ width: '20%' }} />
-        <Column field="sku" header="SKU" style={{ width: '10%' }} />
-        <Column
-          field="short_description"
-          header="Description"
-          style={{ width: '20%' }}
-          body={(rowData) => (
-            <div className="max-w-xs truncate">{rowData.short_description}</div>
-          )}
-        />
-        <Column
-          field="base_price"
-          header="Base Price"
-          sortable
-          style={{ width: '10%' }}
-          body={priceBodyTemplate}
-        />
-        <Column
-          field="status"
-          header="Status"
-          sortable
-          style={{ width: '10%' }}
-          body={statusBodyTemplate}
-        />
-        <Column
-          header="Stock"
-          style={{ width: '8%' }}
-          body={stockBodyTemplate}
-        />
-        <Column
-          header="Images"
-          style={{ width: '10%' }}
-          body={imagesBodyTemplate}
-        />
-        <Column
-          header="Actions"
-          style={{ width: '15%' }}
-          body={actionBodyTemplate}
-        />
+        {columns}
       </DataTable>
 
       <Dialog
-        header={editingProduct ? 'Edit Product' : 'Create New Product'}
-        visible={showFormDialog}
+        header={isEditing ? 'Edit Product' : 'Create New Product'}
+        visible={showDialog}
         style={{ width: '50vw' }}
-        onHide={() => setShowFormDialog(false)}
+        onHide={closeDialog}
         footer={
           <div>
-            <Button label="Cancel" icon="pi pi-times" onClick={() => setShowFormDialog(false)} text />
+            <Button label="Cancel" icon="pi pi-times" onClick={closeDialog} text />
             <Button label="Save" icon="pi pi-check" onClick={handleSave} />
           </div>
         }
       >
-        <div className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium mb-2">
-                Title <span className="text-red-500">*</span>
-              </label>
-              <InputText
-                value={formData.title}
-                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                className="w-full"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-2">
-                Slug <span className="text-red-500">*</span>
-              </label>
-              <InputText
-                value={formData.slug}
-                onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
-                className="w-full"
-              />
-            </div>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium mb-2">Short Description</label>
-            <InputTextarea
-              value={formData.short_description}
-              onChange={(e) => setFormData({ ...formData, short_description: e.target.value })}
-              rows={2}
-              className="w-full"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium mb-2">Long Description (Markdown)</label>
-            <InputTextarea
-              value={formData.long_description}
-              onChange={(e) => setFormData({ ...formData, long_description: e.target.value })}
-              rows={4}
-              className="w-full"
-            />
-          </div>
-
-          <div className="grid grid-cols-3 gap-4">
-            <div>
-              <label className="block text-sm font-medium mb-2">
-                SKU <span className="text-red-500">*</span>
-              </label>
-              <InputText
-                value={formData.sku}
-                onChange={(e) => setFormData({ ...formData, sku: e.target.value })}
-                className="w-full"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-2">GTIN</label>
-              <InputText
-                value={formData.gtin}
-                onChange={(e) => setFormData({ ...formData, gtin: e.target.value })}
-                className="w-full"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-2">Currency</label>
-              <Dropdown
-                value={formData.currency}
-                options={currencyOptions}
-                onChange={(e) => setFormData({ ...formData, currency: e.value })}
-                className="w-full"
-              />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium mb-2">Base Price</label>
-              <InputNumber
-                value={formData.base_price}
-                onValueChange={(e) => setFormData({ ...formData, base_price: e.value || 0 })}
-                mode="decimal"
-                minFractionDigits={2}
-                maxFractionDigits={2}
-                className="w-full"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-2">Status</label>
-              <Dropdown
-                value={formData.status}
-                options={statusOptions}
-                onChange={(e) => setFormData({ ...formData, status: e.value })}
-                className="w-full"
-              />
-            </div>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium mb-2">Character Value</label>
-            <InputText
-              value={formData.character_value}
-              onChange={(e) => setFormData({ ...formData, character_value: e.target.value })}
-              placeholder="Nome del personaggio (es: Leon, Il Giullare)"
-              className="w-full"
-            />
-            <small className="text-gray-500">Usato per filtrare i prodotti per personaggio</small>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium mb-2">Etsy Link</label>
-            <InputText
-              value={formData.etsy_link}
-              onChange={(e) => setFormData({ ...formData, etsy_link: e.target.value })}
-              placeholder="https://www.etsy.com/listing/..."
-              className="w-full"
-            />
-          </div>
-        </div>
+        <ShopProductForm formData={formData} onChange={setFormData} />
       </Dialog>
 
       <Dialog
@@ -594,165 +231,16 @@ export default function ShopProductsManagement() {
         onHide={() => setShowVariantDialog(false)}
         className="overflow-auto"
       >
-        <TabView>
-          <TabPanel header={
-            <span className="flex items-center gap-2">
-              <i className="pi pi-images"></i>
-              Product Images
-              {selectedProduct?.images && selectedProduct.images.length > 0 && (
-                <Tag value={selectedProduct.images.length} severity="success" />
-              )}
-            </span>
-          }>
-            {selectedProduct && (
-              <div className="py-4">
-                <div className="mb-4 p-4 bg-blue-50 border-l-4 border-blue-500 rounded">
-                  <div className="flex items-start">
-                    <i className="pi pi-info-circle text-blue-500 text-xl mr-3 mt-1"></i>
-                    <div>
-                      <h4 className="font-semibold text-blue-900 mb-1">Upload Product Images</h4>
-                      <p className="text-blue-800 text-sm">
-                        Upload images from your computer or add image URLs. 
-                        You can reorder images, add alt text for SEO, and set the display order.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-                <ProductImageUpload
-                  productId={selectedProduct.id}
-                  images={selectedProduct.images || []}
-                  onImagesChange={(updatedImages) => {
-                    setSelectedProduct({ ...selectedProduct, images: updatedImages });
-                    // Aggiorna anche la lista principale
-                    setProducts(prevProducts =>
-                      prevProducts.map(p =>
-                        p.id === selectedProduct.id ? { ...p, images: updatedImages } : p
-                      )
-                    );
-                  }}
-                />
-              </div>
-            )}
-          </TabPanel>
-
-          <TabPanel header={
-            <span className="flex items-center gap-2">
-              <i className="pi pi-box"></i>
-              Variants & Inventory
-              {selectedProduct?.variants && selectedProduct.variants.length > 0 && (
-                <Tag value={selectedProduct.variants.length} severity="info" />
-              )}
-            </span>
-          }>
-            <div className="mb-4">
-              <h3 className="text-lg font-semibold mb-2">Existing Variants</h3>
-              {selectedProduct?.variants && selectedProduct.variants.length > 0 ? (
-                <DataTable value={selectedProduct.variants} className="mb-4">
-                  <Column field="name" header="Name" />
-                  <Column field="sku" header="SKU" />
-                  <Column
-                    field="price_adjustment"
-                    header="Price Adjustment"
-                    body={(rowData) => `${rowData.price_adjustment > 0 ? '+' : ''}${rowData.price_adjustment.toFixed(2)}`}
-                  />
-                  <Column field="stock" header="Stock" />
-                  <Column
-                    header="Actions"
-                    body={(rowData) => (
-                      <div className="flex gap-2">
-                        <Button
-                          icon="pi pi-plus"
-                          label="Add 10"
-                          size="small"
-                          onClick={() => handleUpdateInventory(rowData.id, 10, 'add')}
-                        />
-                        <Button
-                          icon="pi pi-minus"
-                          label="Remove 10"
-                          size="small"
-                          severity="warning"
-                          onClick={() => handleUpdateInventory(rowData.id, 10, 'subtract')}
-                        />
-                      </div>
-                    )}
-                  />
-                </DataTable>
-              ) : (
-                <p className="text-gray-500">No variants added yet</p>
-              )}
-            </div>
-          </TabPanel>
-
-          <TabPanel header="Add New Variant">
-            <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium mb-2">
-                    Variant Name <span className="text-red-500">*</span>
-                  </label>
-                  <InputText
-                    value={variantData.name}
-                    onChange={(e) => setVariantData({ ...variantData, name: e.target.value })}
-                    placeholder="e.g., Medium, Blue, etc."
-                    className="w-full"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium mb-2">
-                    SKU <span className="text-red-500">*</span>
-                  </label>
-                  <InputText
-                    value={variantData.sku}
-                    onChange={(e) => setVariantData({ ...variantData, sku: e.target.value })}
-                    className="w-full"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium mb-2">
-                  Attributes (JSON)
-                </label>
-                <InputTextarea
-                  value={variantData.attributes}
-                  onChange={(e) => setVariantData({ ...variantData, attributes: e.target.value })}
-                  placeholder='{"size": "M", "color": "Blue"}'
-                  rows={3}
-                  className="w-full"
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium mb-2">Price Adjustment</label>
-                  <InputNumber
-                    value={variantData.price_adjustment}
-                    onValueChange={(e) => setVariantData({ ...variantData, price_adjustment: e.value || 0 })}
-                    mode="decimal"
-                    minFractionDigits={2}
-                    maxFractionDigits={2}
-                    className="w-full"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium mb-2">Initial Stock</label>
-                  <InputNumber
-                    value={variantData.stock}
-                    onValueChange={(e) => setVariantData({ ...variantData, stock: e.value || 0 })}
-                    className="w-full"
-                  />
-                </div>
-              </div>
-
-              <Button
-                label="Add Variant"
-                icon="pi pi-plus"
-                onClick={handleAddVariant}
-                className="w-full"
-              />
-            </div>
-          </TabPanel>
-        </TabView>
+        {selectedProduct && (
+          <ProductVariantManagement
+            product={selectedProduct}
+            variantData={variantData}
+            onVariantDataChange={setVariantData}
+            onAddVariant={handleAddVariant}
+            onUpdateInventory={handleUpdateInventory}
+            onImagesChange={handleImagesChange}
+          />
+        )}
       </Dialog>
     </div>
   );
