@@ -37,12 +37,14 @@ export default function BrandPage() {
       label: t('shopButton'),
       href: `/${locale}/shop`,
       imageSrc: "/assets/pulsante_shop.svg",
+      height: 40,
+      width: 100,
     },
   ];
   
   return (
     <div className="w-full overflow-x-hidden bg-white min-h-screen py-8 sm:py-12 md:py-20">
-      <div className="max-w-7xl mx-auto px-2 sm:px-4 md:px-8 lg:px-16">
+      <div className="max-w-7xl mx-auto px-8 sm:px-12 md:px-16 lg:px-24 xl:px-32">
         <ContentCard
           title={t('title')}
           description={`${t('description1')} ${t('description2')}`}
