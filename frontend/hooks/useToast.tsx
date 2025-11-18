@@ -18,6 +18,7 @@ export interface UseToastReturn {
   showError: (summary: string, detail?: string, life?: number) => void;
   showInfo: (summary: string, detail?: string, life?: number) => void;
   showWarning: (summary: string, detail?: string, life?: number) => void;
+  showWarn: (summary: string, detail?: string, life?: number) => void;
 }
 
 export function useToast(): UseToastReturn {
@@ -61,5 +62,6 @@ export function useToast(): UseToastReturn {
     showError,
     showInfo,
     showWarning,
+    showWarn: showWarning, // Alias for consistency
   };
 }
