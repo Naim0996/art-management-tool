@@ -1,15 +1,16 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useLocale } from 'next-intl';
 import { shopAPI, CartResponse } from '@/services/ShopAPIService';
 import { Button } from 'primereact/button';
-import { InputNumber } from 'primereact/inputnumber';
 import { Toast } from 'primereact/toast';
-import { useRef } from 'react';
 import { Card } from 'primereact/card';
+import CartItem from '@/components/cart/CartItem';
+import CartSummary from '@/components/cart/CartSummary';
+import EmptyCartState from '@/components/cart/EmptyCartState';
 
 export default function CartPage() {
   const locale = useLocale();
@@ -19,10 +20,6 @@ export default function CartPage() {
   const [updating, setUpdating] = useState<number | null>(null);
   const [clearingCart, setClearingCart] = useState(false);
   const [apiError, setApiError] = useState<string | null>(null);
-  
-  // Debug flag - set to false to disable optimistic updates (currently disabled)
-  // const ENABLE_OPTIMISTIC_UPDATES = false;
-  
   const router = useRouter();
 
   // Helper function to calculate cart totals
@@ -386,91 +383,15 @@ export default function CartPage() {
             <div className="lg:col-span-2 space-y-4">
               {cartData.cart.items.map((item) => {
                 try {
-                  const product = item.product;
-                  const variant = item.variant;
-                  
-                  // Safety check - if product is null, skip this item
-                  if (!product) {
-                    console.warn('🛒 [RENDER] Cart item missing product data:', item);
-                    return null;
-                  }
-
-                  // Calculate price with variant adjustment
-                  const basePrice = product.base_price || 0;
-                  const priceAdjustment = variant?.price_adjustment || 0;
-                  const finalPrice = basePrice + priceAdjustment;
-                  const total = finalPrice * item.quantity;
-
-                  console.log(`🛒 [RENDER] Rendering item ${item.id}:`, { basePrice, priceAdjustment, finalPrice, total });
-
                   return (
-                  <Card key={item.id} className="border border-gray-200">
-                    <div className="flex gap-4">
-                      <div className="w-24 h-24 bg-gray-100 rounded-lg flex-shrink-0 overflow-hidden flex items-center justify-center">
-                        {product.images && product.images.length > 0 ? (
-                          <img
-                            src={product.images.find(img => img.is_primary)?.url || product.images[0].url}
-                            alt={product.title}
-                            className="max-w-full max-h-full object-contain"
-                          />
-                        ) : (
-                          <div className="flex items-center justify-center h-full">
-                            <i className="pi pi-image text-3xl text-gray-400"></i>
-                          </div>
-                        )}
-                      </div>
-
-                      <div className="flex-1">
-                        <h3 className="text-lg font-semibold text-black">
-                          {product.title}
-                        </h3>
-                        {variant && (
-                          <p className="text-sm text-gray-600 mt-1">
-                            Variant: {variant.name}
-                          </p>
-                        )}
-                        <p className="text-sm text-gray-500 mt-1">
-                          SKU: {variant?.sku || product.sku}
-                        </p>
-                        <div className="flex items-center gap-4 mt-3">
-                          <div className="flex items-center gap-2">
-                            <label className="text-sm text-gray-600">Qty:</label>
-                            <InputNumber
-                              value={item.quantity}
-                              onValueChange={(e) => updateQuantity(item.id, e.value)}
-                              showButtons
-                              min={1}
-                              max={variant?.stock || 99}
-                              disabled={updating === item.id}
-                              className="w-32"
-                              useGrouping={false}
-                            />
-                          </div>
-                          <div className="flex-1 text-right">
-                            <p className="text-lg font-bold text-black">
-                              {product.currency === 'EUR' ? '€' : '$'}{total.toFixed(2)}
-                            </p>
-                            <p className="text-sm text-gray-500">
-                              {product.currency === 'EUR' ? '€' : '$'}{finalPrice.toFixed(2)} cad.
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div>
-                        <Button
-                          icon="pi pi-trash"
-                          severity="danger"
-                          text
-                          rounded
-                          onClick={() => removeFromCart(item.id)}
-                          disabled={updating === item.id}
-                          loading={updating === item.id}
-                        />
-                      </div>
-                    </div>
-                  </Card>
-                );
+                    <CartItem
+                      key={item.id}
+                      item={item}
+                      updating={updating === item.id}
+                      onUpdateQuantity={(quantity) => updateQuantity(item.id, quantity)}
+                      onRemove={() => removeFromCart(item.id)}
+                    />
+                  );
                 } catch (renderError) {
                   console.error(`🛒 [RENDER] Error rendering item ${item.id}:`, renderError);
                   return (
@@ -487,96 +408,19 @@ export default function CartPage() {
 
             {/* Order Summary */}
             <div className="lg:col-span-1">
-              <Card title="Riepilogo Ordine" className="border-2 border-gray-200 sticky top-24">
-                <div className="space-y-3">
-                  <div className="flex justify-between text-gray-700">
-                    <span>Subtotal:</span>
-                    <span className="font-semibold">
-                      {cartData.cart.items[0]?.product?.currency === 'EUR' ? '€' : '$'}
-                      {cartData.subtotal.toFixed(2)}
-                    </span>
-                  </div>
-                  
-                  {cartData.discount > 0 && (
-                    <div className="flex justify-between text-green-600">
-                      <span>Discount:</span>
-                      <span className="font-semibold">
-                        -{cartData.cart.items[0]?.product?.currency === 'EUR' ? '€' : '$'}
-                        {cartData.discount.toFixed(2)}
-                      </span>
-                    </div>
-                  )}
-                  
-                  {cartData.tax > 0 && (
-                    <div className="flex justify-between text-gray-700">
-                      <span>Tax:</span>
-                      <span className="font-semibold">
-                        {cartData.cart.items[0]?.product?.currency === 'EUR' ? '€' : '$'}
-                        {cartData.tax.toFixed(2)}
-                      </span>
-                    </div>
-                  )}
-                  
-                  <div className="border-t pt-3 flex justify-between text-lg font-bold text-black">
-                    <span>Totale:</span>
-                    <span className="text-black">
-                      {cartData.cart.items[0]?.product?.currency === 'EUR' ? '€' : '$'}
-                      {cartData.total.toFixed(2)}
-                    </span>
-                  </div>
-
-                  <Button
-                    label="Vai al Checkout"
-                    icon="pi pi-arrow-right"
-                    iconPos="right"
-                    className="w-full mt-4"
-                    size="large"
-                    onClick={proceedToCheckout}
-                    style={{
-                      backgroundColor: '#0066CC',
-                      borderColor: '#0066CC',
-                      fontWeight: '600'
-                    }}
-                  />
-
-                  <Link href={`/${locale}/shop`}>
-                    <Button
-                      label="Continua Shopping"
-                      icon="pi pi-shopping-bag"
-                      outlined
-                      className="w-full"
-                      style={{
-                        borderColor: '#0066CC',
-                        color: '#0066CC',
-                        fontWeight: '600'
-                      }}
-                    />
-                  </Link>
-                </div>
-              </Card>
+              <CartSummary
+                subtotal={cartData.subtotal}
+                discount={cartData.discount}
+                tax={cartData.tax}
+                total={cartData.total}
+                currency={cartData.cart.items[0]?.product?.currency || 'EUR'}
+                locale={locale}
+                onCheckout={proceedToCheckout}
+              />
             </div>
           </div>
         ) : (
-          <Card className="text-center py-16 bg-white border-2 border-gray-200">
-            <div className="space-y-4">
-              <i className="pi pi-shopping-cart text-6xl text-gray-400"></i>
-              <h2 className="text-2xl font-semibold text-gray-800">Il tuo carrello è vuoto</h2>
-              <p className="text-gray-600">Inizia a fare shopping per aggiungere prodotti</p>
-              <Link href={`/${locale}/shop`}>
-                <Button
-                  label="Vai allo Shop"
-                  icon="pi pi-shopping-bag"
-                  size="large"
-                  className="mt-4"
-                  style={{
-                    backgroundColor: '#0066CC',
-                    borderColor: '#0066CC',
-                    fontWeight: '600'
-                  }}
-                />
-              </Link>
-            </div>
-          </Card>
+          <EmptyCartState locale={locale} />
         )}
       </main>
     </div>
