@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import { DataTable } from 'primereact/datatable';
 import { Button } from 'primereact/button';
 import { ConfirmDialog, confirmDialog } from 'primereact/confirmdialog';
@@ -30,8 +31,9 @@ const initialFormData = {
 
 export default function ProductsManagement() {
   const { toast, showSuccess, showError } = useToast();
-  const { showDialog, formData, isEditing, openDialog, closeDialog, setFormData } = 
+  const { showDialog, formData, isEditing, editingItem, openDialog, closeDialog, setFormData } = 
     useFormDialog<typeof initialFormData>(initialFormData);
+  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   
   const { items: products, loading, refresh } = useDataTable<Product>({
     fetchData: async () => {
@@ -45,17 +47,19 @@ export default function ProductsManagement() {
   });
 
   const handleCreate = () => {
+    setEditingProduct(null);
     openDialog(initialFormData);
   };
 
   const handleEdit = (product: Product) => {
+    setEditingProduct(product);
     openDialog({
       name: product.name,
       description: product.description,
       price: product.price,
       image_url: product.image_url,
       stock: product.stock,
-    }, product);
+    } as any);
   };
 
   const handleSave = async () => {
@@ -66,12 +70,12 @@ export default function ProductsManagement() {
 
     const token = localStorage.getItem('adminToken');
     try {
-      const url = isEditing
-        ? `/api/admin/products/${(isEditing as any).id}`
+      const url = editingProduct
+        ? `/api/admin/products/${editingProduct.id}`
         : '/api/admin/products';
       
       const response = await fetch(url, {
-        method: isEditing ? 'PUT' : 'POST',
+        method: editingProduct ? 'PUT' : 'POST',
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,

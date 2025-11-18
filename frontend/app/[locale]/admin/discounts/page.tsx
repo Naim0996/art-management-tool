@@ -135,7 +135,7 @@ export default function AdminDiscountsPage() {
 
   return (
     <div className="p-6">
-      <Toast ref={toast} />
+      {toast}
       <ConfirmDialog />
 
       <PageHeader

@@ -86,7 +86,7 @@ export default function AdminPersonaggiPage() {
 
       <PageHeader
         title="Gestione Personaggi"
-        description="Manage characters and their properties"
+        subtitle="Manage characters and their properties"
         actions={[{
           label: "Create New Personaggio",
           icon: "pi pi-plus",
