@@ -45,7 +45,7 @@ export default function ProductDetailPage() {
     return (
       <div className="min-h-screen p-8">
         <div className="max-w-7xl mx-auto">
-          <Toast ref={toast} />
+          {toast}
           <LoadingSpinner />
         </div>
       </div>
@@ -56,7 +56,7 @@ export default function ProductDetailPage() {
     return (
       <div className="min-h-screen p-8">
         <div className="max-w-7xl mx-auto">
-          <Toast ref={toast} />
+          {toast}
           <div className="text-center py-16">
             <i className="pi pi-exclamation-triangle text-6xl text-gray-400 mb-4"></i>
             <h2 className="text-2xl font-semibold text-gray-700 mb-4">Product Not Found</h2>
@@ -74,7 +74,7 @@ export default function ProductDetailPage() {
 
   return (
     <div className="min-h-screen bg-white">
-      <Toast ref={toast} />
+      {toast}
 
       <main className="max-w-7xl mx-auto px-2 sm:px-4 md:px-6 lg:px-8 py-6 md:py-8">
         {/* Breadcrumb */}

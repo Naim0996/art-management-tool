@@ -2,7 +2,6 @@
 
 import { useState, useCallback, useEffect, useMemo } from 'react';
 import { DataTable } from 'primereact/datatable';
-import { Toast } from 'primereact/toast';
 import { ConfirmDialog, confirmDialog } from 'primereact/confirmdialog';
 import { CategoryDTO, CategoryAPIService } from '@/services/CategoryAPIService';
 import { useToast, useFormDialog } from '@/hooks';
@@ -123,7 +122,7 @@ export default function AdminCategoriesPage() {
 
   return (
     <div className="p-6">
-      <Toast ref={toast} />
+      {toast}
       <ConfirmDialog />
 
       <PageHeader

@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useState, useEffect } from "react";
 import { useTranslations } from 'next-intl';
 import PersonaggioModal from "@/components/PersonaggioModal";
+import PersonaggioCard from "@/components/personaggi/PersonaggioCard";
 import { PersonaggiAPIService, type PersonaggioDTO } from "@/services/PersonaggiAPIService";
 
 export default function PersonaggiPage() {
@@ -102,117 +103,31 @@ export default function PersonaggiPage() {
         {/* Desktop: scroll orizzontale centrato */}
         <div className="hidden md:flex justify-center overflow-x-auto scrollbar-hide pb-4">
           <div className="flex gap-6">
-            {personaggi.map((personaggio) => {
-              // Genera lo stile del background in base al tipo
-              const getBackgroundStyle = () => {
-                if (personaggio.backgroundType === 'gradient' && personaggio.gradientFrom && personaggio.gradientTo) {
-                  return {
-                    background: `linear-gradient(to bottom right, ${personaggio.gradientFrom}, ${personaggio.gradientTo})`
-                  };
-                }
-                return {
-                  backgroundColor: personaggio.backgroundColor || '#E0E7FF'
-                };
-              };
-
-              return (
-                <div 
-                  key={personaggio.id}
-                  className="flex-shrink-0 rounded-lg p-5 cursor-pointer border-2 border-transparent hover:border-blue-500 transition-all duration-150 w-80"
-                  style={getBackgroundStyle()}
-                  onClick={() => {
-                    setSelectedPersonaggio(personaggio);
-                    setModalVisible(true);
-                  }}
-                >
-                  <div className="relative w-full aspect-square mb-4">
-                    {personaggio.icon ? (
-                      <Image
-                        src={personaggio.icon}
-                        alt={`${personaggio.name} Icon`}
-                        fill
-                        className="object-contain rounded-lg"
-                        sizes="320px"
-                      />
-                    ) : personaggio.images && personaggio.images[0] ? (
-                      <Image
-                        src={personaggio.images[0]}
-                        alt={personaggio.name}
-                        fill
-                        className="object-contain rounded-lg"
-                        sizes="320px"
-                      />
-                    ) : (
-                      <div className="w-full h-full bg-gray-200 rounded-lg flex items-center justify-center">
-                        <span className="text-gray-500">No Image</span>
-                      </div>
-                    )}
-                  </div>
-                  
-                  <h3 className="text-lg font-semibold text-center text-gray-800">
-                    {personaggio.name}
-                  </h3>
-                </div>
-              );
-            })}
+            {personaggi.map((personaggio) => (
+              <PersonaggioCard
+                key={personaggio.id}
+                personaggio={personaggio}
+                onClick={() => {
+                  setSelectedPersonaggio(personaggio);
+                  setModalVisible(true);
+                }}
+              />
+            ))}
           </div>
         </div>
 
         {/* Mobile: scroll verticale */}
         <div className="md:hidden grid grid-cols-1 gap-6">
-          {personaggi.map((personaggio) => {
-            // Genera lo stile del background in base al tipo
-            const getBackgroundStyle = () => {
-              if (personaggio.backgroundType === 'gradient' && personaggio.gradientFrom && personaggio.gradientTo) {
-                return {
-                  background: `linear-gradient(to bottom right, ${personaggio.gradientFrom}, ${personaggio.gradientTo})`
-                };
-              }
-              return {
-                backgroundColor: personaggio.backgroundColor || '#E0E7FF'
-              };
-            };
-
-            return (
-              <div 
-                key={personaggio.id}
-                className="rounded-lg p-4 cursor-pointer border-2 border-transparent hover:border-blue-500 transition-all duration-150"
-                style={getBackgroundStyle()}
-                onClick={() => {
-                  setSelectedPersonaggio(personaggio);
-                  setModalVisible(true);
-                }}
-              >
-                <div className="relative w-full aspect-square mb-4">
-                  {personaggio.icon ? (
-                    <Image
-                      src={personaggio.icon}
-                      alt={`${personaggio.name} Icon`}
-                      fill
-                      className="object-contain rounded-lg"
-                      sizes="100vw"
-                    />
-                  ) : personaggio.images && personaggio.images[0] ? (
-                    <Image
-                      src={personaggio.images[0]}
-                      alt={personaggio.name}
-                      fill
-                      className="object-contain rounded-lg"
-                      sizes="100vw"
-                    />
-                  ) : (
-                    <div className="w-full h-full bg-gray-200 rounded-lg flex items-center justify-center">
-                      <span className="text-gray-500">No Image</span>
-                    </div>
-                  )}
-                </div>
-                
-                <h3 className="text-lg font-semibold text-center text-gray-800">
-                  {personaggio.name}
-                </h3>
-              </div>
-            );
-          })}
+          {personaggi.map((personaggio) => (
+            <PersonaggioCard
+              key={personaggio.id}
+              personaggio={personaggio}
+              onClick={() => {
+                setSelectedPersonaggio(personaggio);
+                setModalVisible(true);
+              }}
+            />
+          ))}
         </div>
 
         {/* Messaggio se non ci sono personaggi */}

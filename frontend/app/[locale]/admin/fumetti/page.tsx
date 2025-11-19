@@ -50,7 +50,13 @@ export default function AdminFumettiPage() {
   }, [loadFumetti]);
 
   const handleCreate = () => {
-    openDialog(null);
+    openDialog({
+      title: '',
+      description: '',
+      coverImage: '',
+      pages: [],
+      order: 0,
+    });
     setEditingFumetto(null);
   };
 
@@ -115,14 +121,14 @@ export default function AdminFumettiPage() {
       <PageHeader
         title="Gestione Fumetti"
         subtitle="Manage comics and their pages"
-        actions={
-          <Button
-            label="Create New Fumetto"
-            icon="pi pi-plus"
-            onClick={handleCreate}
-            className="p-button-success"
-          />
-        }
+        actions={[
+          {
+            label: 'Create New Fumetto',
+            icon: 'pi pi-plus',
+            onClick: handleCreate,
+            severity: 'success',
+          },
+        ]}
       />
 
       <TabView activeIndex={activeTab} onTabChange={(e) => setActiveTab(e.index)}>

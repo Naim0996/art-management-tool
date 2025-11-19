@@ -38,7 +38,7 @@ export const imagesBodyTemplate = (rowData: Product) => {
 };
 
 export const createActionBodyTemplate = ({ onEdit, onDelete, onManageVariants }: ShopProductColumnsProps) => {
-  return (rowData: Product) => (
+  const ActionBodyTemplate = (rowData: Product) => (
     <div className="flex gap-2">
       <Button
         icon="pi pi-pencil"
@@ -66,6 +66,8 @@ export const createActionBodyTemplate = ({ onEdit, onDelete, onManageVariants }:
       />
     </div>
   );
+  
+  return ActionBodyTemplate;
 };
 
 export function getShopProductColumns(props: ShopProductColumnsProps) {

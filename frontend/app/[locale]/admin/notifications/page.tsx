@@ -102,7 +102,7 @@ export default function NotificationsPage() {
 
   return (
     <div className="p-6 space-y-6">
-      <Toast ref={toast} />
+      {toast}
       <ConfirmDialog />
 
       <PageHeader
