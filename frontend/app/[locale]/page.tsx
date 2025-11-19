@@ -61,12 +61,50 @@ export default function Home() {
         <Carousel items={carouselItems} autoPlay={false} />
       </div>
 
-      {/* Contenitore YouTube */}
+      {/* Sezione YouTube con testo */}
       <div className="max-w-7xl mx-auto px-2 sm:px-4 md:px-8 lg:px-16 py-6 sm:py-8 md:py-12">
-        <YouTubeContainer
-          videoId="dQw4w9WgXcQ"
-          title={tVideo("title")}
-        />
+        <div className="grid grid-cols-[1fr_1fr] gap-4 sm:gap-6 md:gap-8 items-center">
+          {/* Sezione sinistra - Testo */}
+          <div className="flex flex-col justify-center text-right">
+            <h2 
+              className="junglefever-title text-black mb-4 md:mb-6"
+              style={{
+                fontSize: 'clamp(20px, 5vw, 48px)',
+                lineHeight: '1.2',
+                fontWeight: 'bold'
+              }}
+            >
+              É USCITO IL
+              <br />
+              TRAILER SU
+              <br />
+              YOUTUBE!
+            </h2>
+            <p 
+              className="skranji-paragraph text-black"
+              style={{
+                fontSize: 'clamp(12px, 3vw, 24px)',
+                lineHeight: '1.4'
+              }}
+            >
+              ANIMANTRA è
+              <br />
+              anche su Youtube,
+              <br />
+              ecco il nuovo
+              <br />
+              trailer!
+            </p>
+          </div>
+
+          {/* Sezione destra - YouTube Container */}
+          <div className="w-full">
+            <YouTubeContainer
+              videoId="dQw4w9WgXcQ"
+              title={tVideo("title")}
+            />
+          </div>
+        </div>
       </div>
     </div>
   );
