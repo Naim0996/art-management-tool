@@ -99,10 +99,10 @@ export default function PersonaggiPage() {
       </div>
 
       {/* Lista personaggi scrollabile */}
-      <div className="container mx-auto px-4 py-6 md:py-8">
+      <div className="w-full py-6 md:py-8">
         {/* Desktop: scroll orizzontale centrato */}
-        <div className="hidden md:flex justify-center overflow-x-auto scrollbar-hide pb-4">
-          <div className="flex gap-6">
+        <div className="hidden md:flex justify-center items-center overflow-x-auto scrollbar-hide pb-4">
+          <div className="flex gap-6 items-center justify-center">
             {personaggi.map((personaggio) => (
               <PersonaggioCard
                 key={personaggio.id}
@@ -117,7 +117,7 @@ export default function PersonaggiPage() {
         </div>
 
         {/* Mobile: scroll verticale */}
-        <div className="md:hidden grid grid-cols-1 gap-6">
+        <div className="md:hidden flex flex-col items-center gap-6">
           {personaggi.map((personaggio) => (
             <PersonaggioCard
               key={personaggio.id}

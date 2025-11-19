@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Art Management Tool",
-  description: "Art gallery management system with customer and admin interfaces",
+  title: "Giorgio Privitera Lab",
+  description: "Giorgio Privitera Lab is a laboratory for the creation of art and design.",
 };
 
 export default function RootLayout({
