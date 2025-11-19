@@ -13,6 +13,7 @@ import { Card } from 'primereact/card';
 import { Toast } from 'primereact/toast';
 import { IconField } from 'primereact/iconfield';
 import { InputIcon } from 'primereact/inputicon';
+import ProdottoModal from '@/components/ProdottoModal';
 
 export default function ShopPage() {
   const locale = useLocale();
@@ -28,6 +29,8 @@ export default function ShopPage() {
   const [page, setPage] = useState(1);
   const [totalProducts, setTotalProducts] = useState(0);
   const [apiError, setApiError] = useState<string | null>(null);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const perPage = 12;
   
   useEffect(() => {
@@ -254,7 +257,8 @@ export default function ShopPage() {
                     className="bg-white border border-gray-200 rounded cursor-pointer hover:border-gray-400 transition-all group"
                     onClick={(e) => {
                       e.preventDefault();
-                      window.location.href = `/${locale}/shop/${product.slug}`;
+                      setSelectedProduct(product);
+                      setModalVisible(true);
                     }}
                   >
                     {/* Immagine */}
@@ -328,6 +332,16 @@ export default function ShopPage() {
           </div>
         )}
       </main>
+
+      {/* Modal Prodotto */}
+      <ProdottoModal 
+        visible={modalVisible} 
+        onHide={() => {
+          setModalVisible(false);
+          setSelectedProduct(null);
+        }}
+        prodotto={selectedProduct}
+      />
     </div>
   );
 }

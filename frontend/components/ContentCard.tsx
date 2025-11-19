@@ -39,12 +39,12 @@ export default function ContentCard({
   return (
     <div className="w-full h-full">
       <div
-        className="grid md:grid-cols-[2fr_3fr] items-stretch rounded-2xl md:rounded-3xl overflow-hidden min-h-[500px] md:min-h-[600px] lg:min-h-[650px]"
-        style={{ gap: "1px" }}
+        className="grid items-stretch overflow-hidden min-h-[300px] sm:min-h-[400px] md:min-h-[600px] lg:min-h-[650px]"
+        style={{ gap: "1px", borderRadius: "40px", gridTemplateColumns: "1fr 3fr" }}
       >
         {/* Left Card - Text content */}
         <div
-          className="relative py-6 px-6 sm:py-10 sm:px-10 md:py-16 md:px-16 h-full"
+          className="relative py-4 px-4 sm:py-6 sm:px-6 md:py-10 md:px-10 lg:py-16 lg:px-16 h-full"
           style={{
             background:
               "linear-gradient(135deg, #D1D5DB 0%, #E5E7EB 50%, #F3F4F6 100%)",
@@ -54,12 +54,17 @@ export default function ContentCard({
           <div className="absolute inset-0 bg-black/5"></div>
 
           {/* Text content */}
-          <div className="relative z-10 text-left h-full flex flex-col justify-center">
+          <div className="relative z-10 text-right h-full flex flex-col justify-center">
             {/* Spacer above */}
             <div className="flex-1"></div>
             
             {/* Title */}
-            <h2 className="junglefever-title text-black text-2xl sm:text-3xl md:text-4xl lg:text-5xl leading-tight text-center">
+            <h2 
+              className="junglefever-title text-black leading-tight text-right"
+              style={{
+                fontSize: 'clamp(10px, 4vw, 48px)'
+              }}
+            >
               {title}
             </h2>
 
@@ -67,7 +72,12 @@ export default function ContentCard({
             <div className="flex-1"></div>
 
             {/* Description */}
-            <p className="skranji-paragraph text-black text-sm sm:text-base md:text-lg leading-relaxed text-left">
+            <p 
+              className="skranji-paragraph text-black leading-relaxed text-right"
+              style={{
+                fontSize: 'clamp(8px, 2.5vw, 18px)'
+              }}
+            >
               {description}
             </p>
 
@@ -76,11 +86,18 @@ export default function ContentCard({
 
             {/* Buttons */}
             {buttons.length > 0 && (
-              <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 md:gap-5 items-start justify-center mx-auto">
+              <div className="flex flex-row gap-2 sm:gap-3 md:gap-4 lg:gap-5 items-center justify-center mx-auto flex-wrap">
                 {buttons.map((button, index) => {
                   const buttonStyle: React.CSSProperties = button.width && button.height
-                    ? { width: `${button.width}px`, height: `${button.height}px` }
-                    : { aspectRatio: '3.5/1', minWidth: '180px' };
+                    ? { 
+                        width: `clamp(${Math.round(button.width * 0.5)}px, ${Math.round(button.width * 0.75)}px, ${button.width}px)`,
+                        height: `clamp(${Math.round(button.height * 0.5)}px, ${Math.round(button.height * 0.75)}px, ${button.height}px)`
+                      }
+                    : { 
+                        aspectRatio: '3.5/1',
+                        width: 'clamp(120px, 25vw, 180px)',
+                        height: 'clamp(34px, 7vw, 51px)'
+                      };
                   
                   return (
                     <Link
@@ -88,7 +105,7 @@ export default function ContentCard({
                       href={button.href}
                       className="block flex-shrink-0"
                     >
-                      <div className={`relative ${!button.width || !button.height ? buttonSizeClasses[buttonSize] : ''}`} style={buttonStyle}>
+                      <div className="relative" style={buttonStyle}>
                         <Image
                           src={button.imageSrc}
                           alt={button.label}
@@ -109,12 +126,12 @@ export default function ContentCard({
 
         {/* Right Card - Image */}
         <div
-          className="relative p-4 sm:p-6 md:p-8 flex justify-center items-center h-full min-h-[200px] md:min-h-[300px] bg-black"
+          className="relative p-3 sm:p-4 md:p-6 lg:p-8 flex justify-center items-center h-full min-h-[150px] sm:min-h-[200px] md:min-h-[300px] bg-black"
         >
 
           {/* Image */}
           <div className="relative z-10 w-full h-full flex items-center justify-center">
-            <div className="relative w-full h-full min-h-[180px] sm:min-h-[250px] md:min-h-[300px]">
+            <div className="relative w-full h-full min-h-[120px] sm:min-h-[180px] md:min-h-[250px] lg:min-h-[300px]">
               <Image
                 src={imageSrc}
                 alt={imageAlt}
