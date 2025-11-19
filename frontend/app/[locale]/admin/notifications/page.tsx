@@ -1,110 +1,85 @@
 'use client';
 
-import { useEffect, useState, useRef, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import { DataTable } from 'primereact/datatable';
-import { Column } from 'primereact/column';
 import { Button } from 'primereact/button';
-import { Tag } from 'primereact/tag';
 import { Toast } from 'primereact/toast';
 import { ConfirmDialog, confirmDialog } from 'primereact/confirmdialog';
 import { Dropdown } from 'primereact/dropdown';
 import { Badge } from 'primereact/badge';
+import { InputSwitch } from 'primereact/inputswitch';
 import { adminShopAPI, Notification } from '@/services/AdminShopAPIService';
+import { useToast, useDataTable } from '@/hooks';
+import PageHeader from '@/components/admin/PageHeader';
+import { getNotificationColumns, getRowClassName } from '@/components/admin/NotificationColumns';
+
+const typeOptions = [
+  { label: 'All Types', value: '' },
+  { label: 'Low Stock', value: 'low_stock' },
+  { label: 'Payment Failed', value: 'payment_failed' },
+  { label: 'Order Created', value: 'order_created' },
+  { label: 'Order Paid', value: 'order_paid' },
+];
+
+const severityOptions = [
+  { label: 'All Severities', value: '' },
+  { label: 'Info', value: 'info' },
+  { label: 'Warning', value: 'warning' },
+  { label: 'Error', value: 'error' },
+  { label: 'Critical', value: 'critical' },
+];
 
 export default function NotificationsPage() {
-  const toast = useRef<Toast>(null);
-  const [notifications, setNotifications] = useState<Notification[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [page, setPage] = useState(1);
-  const [totalRecords, setTotalRecords] = useState(0);
-  const [unreadCount, setUnreadCount] = useState(0);
+  const { toast, showSuccess, showError } = useToast();
   const [filterType, setFilterType] = useState('');
   const [filterSeverity, setFilterSeverity] = useState('');
   const [showUnreadOnly, setShowUnreadOnly] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
 
-  const typeOptions = [
-    { label: 'All Types', value: '' },
-    { label: 'Low Stock', value: 'low_stock' },
-    { label: 'Payment Failed', value: 'payment_failed' },
-    { label: 'Order Created', value: 'order_created' },
-    { label: 'Order Paid', value: 'order_paid' },
-  ];
-
-  const severityOptions = [
-    { label: 'All Severities', value: '' },
-    { label: 'Info', value: 'info' },
-    { label: 'Warning', value: 'warning' },
-    { label: 'Error', value: 'error' },
-    { label: 'Critical', value: 'critical' },
-  ];
-
-  const fetchNotifications = useCallback(async () => {
-    setLoading(true);
-    try {
-      const response = await adminShopAPI.listNotifications({
-        type: filterType || undefined,
-        severity: filterSeverity || undefined,
-        unread: showUnreadOnly || undefined,
-        page,
-        per_page: 20,
-      });
-      setNotifications(response.notifications || []);
-      setTotalRecords(response.total || 0);
-      setUnreadCount(response.unread_count || 0);
-    } catch (error) {
-      console.error('Error fetching notifications:', error);
-      toast.current?.show({
-        severity: 'error',
-        summary: 'Error',
-        detail: 'Failed to load notifications',
-        life: 3000,
-      });
-    } finally {
-      setLoading(false);
-    }
-  }, [page, filterType, filterSeverity, showUnreadOnly]);
-
-  useEffect(() => {
-    fetchNotifications();
-  }, [fetchNotifications]);
+  const {
+    items: notifications,
+    loading,
+    totalRecords,
+    first,
+    onPageChange,
+    refresh,
+  } = useDataTable<Notification>({
+    fetchData: useCallback(
+      async (params) => {
+        const response = await adminShopAPI.listNotifications({
+          type: filterType || undefined,
+          severity: filterSeverity || undefined,
+          unread: showUnreadOnly || undefined,
+          page: params.page,
+          per_page: params.per_page,
+        });
+        setUnreadCount(response.unread_count || 0);
+        return {
+          items: response.notifications || [],
+          total: response.total || 0,
+        };
+      },
+      [filterType, filterSeverity, showUnreadOnly]
+    ),
+  });
 
   const handleMarkAsRead = async (id: number) => {
     try {
       await adminShopAPI.markAsRead(id);
-      toast.current?.show({
-        severity: 'success',
-        summary: 'Success',
-        detail: 'Notification marked as read',
-        life: 2000,
-      });
-      fetchNotifications();
+      showSuccess('Success', 'Notification marked as read');
+      refresh();
     } catch {
-      toast.current?.show({
-        severity: 'error',
-        summary: 'Error',
-        detail: 'Failed to mark notification as read',
-        life: 3000,
-      });
+      showError('Error', 'Failed to mark notification as read');
     }
   };
 
   const handleMarkAllAsRead = async () => {
     try {
       await adminShopAPI.markAllAsRead();
-      toast.current?.show({
-        severity: 'success',
-        summary: 'Success',
-        detail: 'All notifications marked as read',
-        life: 2000,
-      });
-      fetchNotifications();
+      showSuccess('Success', 'All notifications marked as read');
+      refresh();
     } catch {
-      toast.current?.show({
-        severity: 'error',
-        summary: 'Error',
-        detail: 'Failed to mark all as read',
-        life: 3000,
-      });
+      showError('Error', 'Failed to mark all as read');
     }
   };
 
@@ -116,205 +91,74 @@ export default function NotificationsPage() {
       accept: async () => {
         try {
           await adminShopAPI.deleteNotification(notification.id);
-          toast.current?.show({
-            severity: 'success',
-            summary: 'Success',
-            detail: 'Notification deleted successfully',
-            life: 2000,
-          });
-          fetchNotifications();
-        } catch (error) {
-          console.error('Error deleting notification:', error);
-          toast.current?.show({
-            severity: 'error',
-            summary: 'Error',
-            detail: 'Failed to delete notification',
-            life: 3000,
-          });
+          showSuccess('Success', 'Notification deleted successfully');
+          refresh();
+        } catch {
+          showError('Error', 'Failed to delete notification');
         }
       },
     });
   };
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleString();
-  };
-
-  const typeBodyTemplate = (rowData: Notification) => {
-    const label = rowData.type.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
-    return <span className="font-medium">{label}</span>;
-  };
-
-  const severityBodyTemplate = (rowData: Notification) => {
-    const severityMap: Record<string, 'success' | 'info' | 'warning' | 'danger'> = {
-      info: 'info',
-      warning: 'warning',
-      error: 'danger',
-      critical: 'danger',
-    };
-    return <Tag value={rowData.severity} severity={severityMap[rowData.severity]} />;
-  };
-
-  const statusBodyTemplate = (rowData: Notification) => {
-    return rowData.read_at ? (
-      <Tag value="Read" severity="success" icon="pi pi-check" />
-    ) : (
-      <Tag value="Unread" severity="warning" icon="pi pi-exclamation-circle" />
-    );
-  };
-
-  const dateBodyTemplate = (rowData: Notification) => {
-    return formatDate(rowData.created_at);
-  };
-
-  const actionBodyTemplate = (rowData: Notification) => {
-    return (
-      <div className="flex gap-2">
-        {!rowData.read_at && (
-          <Button
-            icon="pi pi-check"
-            rounded
-            outlined
-            severity="success"
-            onClick={() => handleMarkAsRead(rowData.id)}
-            tooltip="Mark as Read"
-          />
-        )}
-        <Button
-          icon="pi pi-trash"
-          rounded
-          outlined
-          severity="danger"
-          onClick={() => handleDelete(rowData)}
-          tooltip="Delete"
-        />
-      </div>
-    );
-  };
-
-  const rowClassName = (rowData: Notification) => {
-    return rowData.read_at ? '' : 'bg-blue-50';
-  };
-
   return (
     <div className="p-6 space-y-6">
-      <Toast ref={toast} />
+      {toast}
       <ConfirmDialog />
 
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-3xl font-bold text-black flex items-center gap-3">
-            Notifications
-            {unreadCount > 0 && (
-              <Badge value={unreadCount} severity="warning" />
-            )}
-          </h1>
-          <p className="text-gray-600 mt-1">System notifications and alerts</p>
-        </div>
-        {unreadCount > 0 && (
-          <Button
-            label="Mark All as Read"
-            icon="pi pi-check-circle"
-            onClick={handleMarkAllAsRead}
-            outlined
-          />
-        )}
-      </div>
+      <PageHeader
+        title={
+          <div className="flex items-center gap-3">
+            <span>Notifications</span>
+            {unreadCount > 0 && <Badge value={unreadCount} severity="warning" />}
+          </div>
+        }
+        subtitle="System notifications and alerts"
+        actions={[
+          {
+            label: 'Mark All as Read',
+            icon: 'pi pi-check-circle',
+            onClick: handleMarkAllAsRead,
+            severity: 'info',
+          },
+        ]}
+      />
 
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div>
-          <label className="block text-sm font-medium mb-2">Type</label>
-          <Dropdown
-            value={filterType}
-            options={typeOptions}
-            onChange={(e) => setFilterType(e.value)}
-            className="w-full"
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium mb-2">Severity</label>
-          <Dropdown
-            value={filterSeverity}
-            options={severityOptions}
-            onChange={(e) => setFilterSeverity(e.value)}
-            className="w-full"
-          />
-        </div>
-        <div className="flex items-end">
-          <Button
-            label={showUnreadOnly ? 'Show All' : 'Show Unread Only'}
-            icon={showUnreadOnly ? 'pi pi-inbox' : 'pi pi-filter'}
-            onClick={() => setShowUnreadOnly(!showUnreadOnly)}
-            outlined={!showUnreadOnly}
-            className="w-full"
-          />
+      <div className="flex gap-4 items-center flex-wrap bg-white p-4 rounded-lg shadow">
+        <Dropdown
+          value={filterType}
+          options={typeOptions}
+          onChange={(e) => setFilterType(e.value)}
+          placeholder="Filter by Type"
+          className="w-48"
+        />
+        <Dropdown
+          value={filterSeverity}
+          options={severityOptions}
+          onChange={(e) => setFilterSeverity(e.value)}
+          placeholder="Filter by Severity"
+          className="w-48"
+        />
+        <div className="flex items-center gap-2">
+          <InputSwitch checked={showUnreadOnly} onChange={(e) => setShowUnreadOnly(e.value)} />
+          <label className="text-sm font-medium">Show Unread Only</label>
         </div>
       </div>
 
       <DataTable
         value={notifications}
         loading={loading}
+        lazy
         paginator
         rows={20}
         totalRecords={totalRecords}
-        lazy
-        first={(page - 1) * 20}
-        onPage={(e) => setPage((e.page || 0) + 1)}
-        rowsPerPageOptions={[20, 50, 100]}
-        tableStyle={{ minWidth: '60rem' }}
+        onPage={onPageChange}
+        first={first}
+        rowClassName={getRowClassName}
         emptyMessage="No notifications found"
-        rowClassName={rowClassName}
+        className="shadow-lg"
       >
-        <Column
-          field="type"
-          header="Type"
-          sortable
-          style={{ width: '15%' }}
-          body={typeBodyTemplate}
-        />
-        <Column
-          field="severity"
-          header="Severity"
-          sortable
-          style={{ width: '10%' }}
-          body={severityBodyTemplate}
-        />
-        <Column field="title" header="Title" style={{ width: '25%' }} />
-        <Column
-          field="message"
-          header="Message"
-          style={{ width: '30%' }}
-          body={(rowData) => (
-            <div className="max-w-md truncate">{rowData.message}</div>
-          )}
-        />
-        <Column
-          field="read_at"
-          header="Status"
-          style={{ width: '8%' }}
-          body={statusBodyTemplate}
-        />
-        <Column
-          field="created_at"
-          header="Date"
-          sortable
-          style={{ width: '15%' }}
-          body={dateBodyTemplate}
-        />
-        <Column
-          header="Actions"
-          style={{ width: '10%' }}
-          body={actionBodyTemplate}
-        />
+        {getNotificationColumns(handleMarkAsRead, handleDelete)}
       </DataTable>
-
-      {notifications.length === 0 && !loading && (
-        <div className="text-center py-16 bg-white rounded-lg shadow-sm">
-          <i className="pi pi-bell-slash text-6xl text-gray-400 mb-4"></i>
-          <h3 className="text-xl font-semibold text-gray-800 mb-2">No Notifications</h3>
-          <p className="text-gray-600">You&apos;re all caught up! No notifications to display.</p>
-        </div>
-      )}
     </div>
   );
 }
