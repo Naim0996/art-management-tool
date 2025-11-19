@@ -9,7 +9,7 @@ import type { Product, ProductImage } from '@/services/ShopAPIService';
 interface ProdottoModalProps {
     visible: boolean;
     onHide: () => void;
-    prodotto: Product | null;
+    prodotto: Product | undefined;
 }
 
 export default function ProdottoModal({ visible, onHide, prodotto }: ProdottoModalProps) {

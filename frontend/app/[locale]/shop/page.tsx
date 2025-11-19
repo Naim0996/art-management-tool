@@ -30,7 +30,7 @@ export default function ShopPage() {
   const [totalProducts, setTotalProducts] = useState(0);
   const [apiError, setApiError] = useState<string | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
-  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [selectedProduct, setSelectedProduct] = useState<Product | undefined>(undefined);
   const perPage = 12;
   
   useEffect(() => {
@@ -338,7 +338,7 @@ export default function ShopPage() {
         visible={modalVisible} 
         onHide={() => {
           setModalVisible(false);
-          setSelectedProduct(null);
+          setSelectedProduct(undefined);
         }}
         prodotto={selectedProduct}
       />
