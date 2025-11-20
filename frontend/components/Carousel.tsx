@@ -70,24 +70,19 @@ export default function Carousel({
           {/* Background frame */}
           <div className="absolute inset-0 z-10 pointer-events-none ">
             <Image
-              src="/assets/lasso-selection.png"
+              src="/assets/cornice_homepage_banner.svg"
               alt="Carousel frame"
               fill
-              className="hidden md:block"
+              className="hidden sm:block"
             />
-            <Image
-              src="/assets/lasso-selection.png"
-              alt="Carousel frame"
-              fill
-              className="block md:hidden"
-            />
+            
           </div>
 
           {/* Carousel items - behind the frame */}
           <div className="absolute inset-0 flex items-center justify-center">
             <div className="relative overflow-hidden w-full bottom-10 p-4">
               <div
-                className="flex transition-transform duration-500 ease-in-out h-full"
+                className="flex transition-transform duration-1 ease-in-out h-full"
                 style={{ transform: `translateX(-${currentIndex * 100}%)` }}
               >
                 {items.map((item, index) => (

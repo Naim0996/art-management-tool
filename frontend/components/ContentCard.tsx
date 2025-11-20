@@ -37,14 +37,13 @@ export default function ContentCard({
     large: 'h-16 sm:h-20 md:h-24',
   };
   return (
-    <div className="w-10/12 h-full">
-      <div
-        className="grid md:grid-cols-[4fr_5fr] grid-cols-1 items-stretch rounded-2xl overflow-hidden min-h-[70vh] "
+    <div className="w-8/12">
+      <div className="grid md:grid-cols-[4fr_3fr] grid-cols-1 items-stretch rounded-2xl overflow-hidden min-h-[70vh] "
         style={{ gap: "1px" }}
       >
         {/* Right Card - Image (shown first on mobile) */}
         <div
-          className="relative p-4 sm:p-6 md:p-8 flex justify-center items-center h-full min-h-[200px] md:min-h-[300px] bg-black md:order-2"
+          className="relative p-8 flex justify-center items-center h-full min-h-[200px] md:min-h-[300px] md:order-2"
         >
 
           {/* Image */}
@@ -69,7 +68,7 @@ export default function ContentCard({
           className="relative py-6 px-6 sm:py-10 sm:px-10 md:py-16 md:px-16 h-min md:order-1"
         >
           {/* Subtle overlay for depth */}
-          <div className="absolute inset-0 bg-black/5"></div>
+          <div className="absolute inset-0"></div>
 
           {/* Text content */}
           <div className="relative z-10 text-right h-full flex flex-col justify-center">
