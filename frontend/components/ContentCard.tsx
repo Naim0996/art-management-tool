@@ -39,12 +39,34 @@ export default function ContentCard({
   return (
     <div className="w-10/12 h-full">
       <div
-        className="grid md:grid-cols-[4fr_5fr] items-stretch rounded-2xl overflow-hidden min-h-[70vh] "
+        className="grid md:grid-cols-[4fr_5fr] grid-cols-1 items-stretch rounded-2xl overflow-hidden min-h-[70vh] "
         style={{ gap: "1px" }}
       >
-        {/* Left Card - Text content */}
+        {/* Right Card - Image (shown first on mobile) */}
         <div
-          className="relative py-6 px-6 sm:py-10 sm:px-10 md:py-16 md:px-16 h-full"
+          className="relative p-4 sm:p-6 md:p-8 flex justify-center items-center h-full min-h-[200px] md:min-h-[300px] bg-black md:order-2"
+        >
+
+          {/* Image */}
+          <div className="relative z-10 w-full h-full flex items-center justify-center">
+            <div className="relative w-full h-full min-h-[180px] sm:min-h-[250px] md:min-h-[300px]">
+              <Image
+                src={imageSrc}
+                alt={imageAlt}
+                fill
+                className="object-contain"
+                onError={(e) => {
+                  const target = e.target as HTMLImageElement;
+                  target.style.display = "none";
+                }}
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Left Card - Text content (shown second on mobile) */}
+        <div
+          className="relative py-6 px-6 sm:py-10 sm:px-10 md:py-16 md:px-16 h-min md:order-1"
         >
           {/* Subtle overlay for depth */}
           <div className="absolute inset-0 bg-black/5"></div>
@@ -100,28 +122,6 @@ export default function ContentCard({
             
             {/* Spacer below */}
             <div className="flex-1"></div>
-          </div>
-        </div>
-
-        {/* Right Card - Image */}
-        <div
-          className="relative p-4 sm:p-6 md:p-8 flex justify-center items-center h-full min-h-[200px] md:min-h-[300px] bg-black"
-        >
-
-          {/* Image */}
-          <div className="relative z-10 w-full h-full flex items-center justify-center">
-            <div className="relative w-full h-full min-h-[180px] sm:min-h-[250px] md:min-h-[300px]">
-              <Image
-                src={imageSrc}
-                alt={imageAlt}
-                fill
-                className="object-contain"
-                onError={(e) => {
-                  const target = e.target as HTMLImageElement;
-                  target.style.display = "none";
-                }}
-              />
-            </div>
           </div>
         </div>
       </div>
