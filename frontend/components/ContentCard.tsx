@@ -72,12 +72,17 @@ export default function ContentCard({
           <div className="absolute inset-0 bg-black/5"></div>
 
           {/* Text content */}
-          <div className="relative z-10 text-left h-full flex flex-col justify-center">
+          <div className="relative z-10 text-right h-full flex flex-col justify-center">
             {/* Spacer above */}
             <div className="flex-1"></div>
             
             {/* Title */}
-            <h2 className="junglefever-title text-black text-2xl sm:text-3xl md:text-4xl lg:text-5xl leading-tight text-center">
+            <h2 
+              className="junglefever-title text-black leading-tight text-right"
+              style={{
+                fontSize: 'clamp(10px, 4vw, 48px)'
+              }}
+            >
               {title}
             </h2>
 
@@ -85,7 +90,12 @@ export default function ContentCard({
             <div className="flex-1"></div>
 
             {/* Description */}
-            <p className="skranji-paragraph text-black text-sm sm:text-base md:text-lg leading-relaxed text-left">
+            <p 
+              className="skranji-paragraph text-black leading-relaxed text-right"
+              style={{
+                fontSize: 'clamp(8px, 2.5vw, 18px)'
+              }}
+            >
               {description}
             </p>
 
@@ -94,11 +104,18 @@ export default function ContentCard({
 
             {/* Buttons */}
             {buttons.length > 0 && (
-              <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 md:gap-5 items-start justify-center mx-auto">
+              <div className="flex flex-row gap-2 sm:gap-3 md:gap-4 lg:gap-5 items-center justify-center mx-auto flex-wrap">
                 {buttons.map((button, index) => {
                   const buttonStyle: React.CSSProperties = button.width && button.height
-                    ? { width: `${button.width}px`, height: `${button.height}px` }
-                    : { aspectRatio: '3.5/1', minWidth: '180px' };
+                    ? { 
+                        width: `clamp(${Math.round(button.width * 0.5)}px, ${Math.round(button.width * 0.75)}px, ${button.width}px)`,
+                        height: `clamp(${Math.round(button.height * 0.5)}px, ${Math.round(button.height * 0.75)}px, ${button.height}px)`
+                      }
+                    : { 
+                        aspectRatio: '3.5/1',
+                        width: 'clamp(120px, 25vw, 180px)',
+                        height: 'clamp(34px, 7vw, 51px)'
+                      };
                   
                   return (
                     <Link
@@ -106,7 +123,7 @@ export default function ContentCard({
                       href={button.href}
                       className="block flex-shrink-0"
                     >
-                      <div className={`relative ${!button.width || !button.height ? buttonSizeClasses[buttonSize] : ''}`} style={buttonStyle}>
+                      <div className="relative" style={buttonStyle}>
                         <Image
                           src={button.imageSrc}
                           alt={button.label}

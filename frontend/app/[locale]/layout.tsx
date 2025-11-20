@@ -4,6 +4,12 @@ import { PrimeReactProvider } from 'primereact/api';
 import HeaderComponent from "@/components/headerComponent";
 import FooterComponent from "@/components/footerComponent";
 import localFont from 'next/font/local';
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: "Giorgio Privitera Lab",
+  description: "Art gallery management system with customer and admin interfaces",
+};
 
 const jungleFever = localFont({
   src: [

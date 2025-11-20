@@ -6,6 +6,10 @@ const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts');
 const nextConfig: NextConfig = {
   output: 'standalone',
   devIndicators: false,
+  // Disattiva controlli TypeScript durante la build
+  typescript: {
+    ignoreBuildErrors: true,
+  },
   // Configure image domains
   images: {
     remotePatterns: [

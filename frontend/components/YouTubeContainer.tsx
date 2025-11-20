@@ -19,11 +19,11 @@ export default function YouTubeContainer({
   };
 
   return (
-    <div className="relative w-full max-w-4xl mx-auto">
+    <div className="relative w-full max-w-xs mx-auto">
       {/* Container with YouTube background */}
       <div className="relative rounded-3xl overflow-hidden shadow-2xl">
-        {/* Background SVG */}
-        <div className="relative w-full" style={{ paddingBottom: "56.25%" }}>
+        {/* Background SVG - Aspect ratio telefono verticale (9:16) */}
+        <div className="relative w-full" style={{ paddingBottom: "177.78%" }}>
           {!isPlaying ? (
             <>
               {/* YouTube thumbnail and play button */}
@@ -47,8 +47,8 @@ export default function YouTubeContainer({
                   <Image
                     src="/assets/youtube_playbutton.svg"
                     alt="Play"
-                    width={100}
-                    height={100}
+                    width={80}
+                    height={80}
                     className="drop-shadow-2xl"
                   />
                 </button>
