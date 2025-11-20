@@ -41,7 +41,7 @@ export default function Home() {
       title={tCarousel("card1.title")}
       description={tCarousel("card1.description")}
       buttons={[]}
-      imageSrc="/images/hero-character.png"
+      imageSrc="/personaggi/ribelle/Ribelle_pigro_pinsata.jpeg"
       imageAlt="Giorgio Privitera Lab"
     />,
     <ContentCard
@@ -49,20 +49,20 @@ export default function Home() {
       title={tCarousel("card2.title")}
       description={tCarousel("card2.description")}
       buttons={card2Buttons}
-      imageSrc="/images/hero-character.png"
+      imageSrc="/personaggi/leon/Leon_lingua.jpeg"
       imageAlt="AnimantrA World"
     />,
   ];
 
   return (
-    <div className="w-full overflow-x-hidden bg-white min-h-screen py-8 sm:py-12 md:py-20">
+    <div className="w-full overflow-x-hidden bg-white min-h-screen">
       {/* Carosello con ContentCards */}
-      <div className="max-w-7xl mx-auto px-2 sm:px-4 md:px-8 lg:px-16 mb-8 sm:mb-12 md:mb-20">
+      <div className="max-w-7xl mx-auto px-2 mb-8 sm:mb-12 md:mb-20">
         <Carousel items={carouselItems} autoPlay={false} />
       </div>
 
       {/* Contenitore YouTube */}
-      <div className="max-w-7xl mx-auto px-2 sm:px-4 md:px-8 lg:px-16 py-6 sm:py-8 md:py-12">
+      <div className="max-w-7xl mx-auto px-2 sm:px-4 md:px-8 lg:px-16 sm:py-8 md:py-12">
         <YouTubeContainer
           videoId="dQw4w9WgXcQ"
           title={tVideo("title")}

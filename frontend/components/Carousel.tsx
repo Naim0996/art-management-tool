@@ -47,7 +47,7 @@ export default function Carousel({
           onMouseEnter={() => setIsHoveringPrev(true)}
           onMouseLeave={() => setIsHoveringPrev(false)}
           disabled={currentIndex === 0}
-          className="flex-shrink-0 transition-transform hover:scale-110 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="flex-shrink-0 transition-transform hover:scale-110 disabled:opacity-50 disabled:cursor-not-allowed z-20"
           aria-label="Previous slide"
         >
           <Image
@@ -65,17 +65,38 @@ export default function Carousel({
           />
         </button>
 
-        {/* Carousel items */}
-        <div className="relative overflow-hidden flex-1">
-          <div
-            className="flex transition-transform duration-500 ease-in-out"
-            style={{ transform: `translateX(-${currentIndex * 100}%)` }}
-          >
-            {items.map((item, index) => (
-              <div key={index} className="min-w-full">
-                {item}
+        {/* Carousel container with frame background */}
+        <div className="relative w-full h-screen">
+          {/* Background frame */}
+          <div className="absolute inset-0 z-10 pointer-events-none ">
+            <Image
+              src="/assets/lasso-selection.png"
+              alt="Carousel frame"
+              fill
+              className="hidden md:block"
+            />
+            <Image
+              src="/assets/lasso-selection.png"
+              alt="Carousel frame"
+              fill
+              className="block md:hidden"
+            />
+          </div>
+
+          {/* Carousel items - behind the frame */}
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="relative overflow-hidden w-full bottom-10 p-4">
+              <div
+                className="flex transition-transform duration-500 ease-in-out h-full"
+                style={{ transform: `translateX(-${currentIndex * 100}%)` }}
+              >
+                {items.map((item, index) => (
+                  <div key={index} className="min-w-full h-1/2 flex items-center justify-center">
+                    {item}
+                  </div>
+                ))}
               </div>
-            ))}
+            </div>
           </div>
         </div>
 
@@ -85,7 +106,7 @@ export default function Carousel({
           onMouseEnter={() => setIsHoveringNext(true)}
           onMouseLeave={() => setIsHoveringNext(false)}
           disabled={currentIndex === items.length - 1}
-          className="flex-shrink-0 transition-transform hover:scale-110 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="flex-shrink-0 transition-transform hover:scale-110 disabled:opacity-50 disabled:cursor-not-allowed z-20"
           aria-label="Next slide"
         >
           <Image

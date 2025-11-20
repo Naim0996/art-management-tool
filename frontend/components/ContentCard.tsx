@@ -37,18 +37,14 @@ export default function ContentCard({
     large: 'h-16 sm:h-20 md:h-24',
   };
   return (
-    <div className="w-full h-full">
+    <div className="w-10/12 h-full">
       <div
-        className="grid md:grid-cols-[2fr_3fr] items-stretch rounded-2xl md:rounded-3xl overflow-hidden min-h-[500px] md:min-h-[600px] lg:min-h-[650px]"
+        className="grid md:grid-cols-[4fr_5fr] items-stretch rounded-2xl overflow-hidden min-h-[70vh] "
         style={{ gap: "1px" }}
       >
         {/* Left Card - Text content */}
         <div
           className="relative py-6 px-6 sm:py-10 sm:px-10 md:py-16 md:px-16 h-full"
-          style={{
-            background:
-              "linear-gradient(135deg, #D1D5DB 0%, #E5E7EB 50%, #F3F4F6 100%)",
-          }}
         >
           {/* Subtle overlay for depth */}
           <div className="absolute inset-0 bg-black/5"></div>
