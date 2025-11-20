@@ -37,18 +37,36 @@ export default function ContentCard({
     large: 'h-16 sm:h-20 md:h-24',
   };
   return (
-    <div className="w-full h-full">
+    <div className="w-10/12 h-full">
       <div
-        className="grid items-stretch overflow-hidden min-h-[300px] sm:min-h-[400px] md:min-h-[600px] lg:min-h-[650px]"
-        style={{ gap: "1px", borderRadius: "40px", gridTemplateColumns: "1fr 3fr" }}
+        className="grid md:grid-cols-[4fr_5fr] grid-cols-1 items-stretch rounded-2xl overflow-hidden min-h-[70vh] "
+        style={{ gap: "1px" }}
       >
-        {/* Left Card - Text content */}
+        {/* Right Card - Image (shown first on mobile) */}
         <div
-          className="relative py-4 px-4 sm:py-6 sm:px-6 md:py-10 md:px-10 lg:py-16 lg:px-16 h-full"
-          style={{
-            background:
-              "linear-gradient(135deg, #D1D5DB 0%, #E5E7EB 50%, #F3F4F6 100%)",
-          }}
+          className="relative p-4 sm:p-6 md:p-8 flex justify-center items-center h-full min-h-[200px] md:min-h-[300px] bg-black md:order-2"
+        >
+
+          {/* Image */}
+          <div className="relative z-10 w-full h-full flex items-center justify-center">
+            <div className="relative w-full h-full min-h-[180px] sm:min-h-[250px] md:min-h-[300px]">
+              <Image
+                src={imageSrc}
+                alt={imageAlt}
+                fill
+                className="object-contain"
+                onError={(e) => {
+                  const target = e.target as HTMLImageElement;
+                  target.style.display = "none";
+                }}
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Left Card - Text content (shown second on mobile) */}
+        <div
+          className="relative py-6 px-6 sm:py-10 sm:px-10 md:py-16 md:px-16 h-min md:order-1"
         >
           {/* Subtle overlay for depth */}
           <div className="absolute inset-0 bg-black/5"></div>
@@ -121,28 +139,6 @@ export default function ContentCard({
             
             {/* Spacer below */}
             <div className="flex-1"></div>
-          </div>
-        </div>
-
-        {/* Right Card - Image */}
-        <div
-          className="relative p-3 sm:p-4 md:p-6 lg:p-8 flex justify-center items-center h-full min-h-[150px] sm:min-h-[200px] md:min-h-[300px] bg-black"
-        >
-
-          {/* Image */}
-          <div className="relative z-10 w-full h-full flex items-center justify-center">
-            <div className="relative w-full h-full min-h-[120px] sm:min-h-[180px] md:min-h-[250px] lg:min-h-[300px]">
-              <Image
-                src={imageSrc}
-                alt={imageAlt}
-                fill
-                className="object-contain"
-                onError={(e) => {
-                  const target = e.target as HTMLImageElement;
-                  target.style.display = "none";
-                }}
-              />
-            </div>
           </div>
         </div>
       </div>
