@@ -19,15 +19,14 @@ export default function YouTubeContainer({
   };
 
   return (
-    <div className="relative w-full max-w-xs mx-auto">
-      {/* Container with YouTube background */}
-      <div className="relative rounded-3xl overflow-hidden shadow-2xl">
-        {/* Background SVG - Aspect ratio telefono verticale (9:16) */}
-        <div className="relative w-full" style={{ paddingBottom: "177.78%" }}>
+    <div className="relative w-full max-w-[531px] h-auto mx-auto" style={{ aspectRatio: '531/763', maxHeight: '763px' }}>
+      {/* Content Container - positioned behind the frame */}
+      <div className="absolute top-[15%] left-[9.5%] right-[9.5%] bottom-[15%] flex justify-center items-center">
+        <div className="relative w-full h-full flex justify-center items-center">
           {!isPlaying ? (
             <>
               {/* YouTube thumbnail and play button */}
-              <div className="absolute inset-0 bg-black/90 flex items-center justify-center">
+              <div className="absolute inset-0 bg-black/90 flex items-center justify-center rounded-2xl overflow-hidden">
                 {/* YouTube Background SVG */}
                 <div className="absolute inset-0 opacity-20">
                   <Image
@@ -57,7 +56,7 @@ export default function YouTubeContainer({
           ) : (
             /* YouTube iframe when playing */
             <iframe
-              className="absolute inset-0 w-full h-full"
+              className="absolute inset-0 w-full h-full rounded-2xl"
               src={`https://youtube.com/shorts/ixQ289VcOqk?si=8yM3blQgSdf9-XE5`}
               title={title}
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
@@ -66,6 +65,17 @@ export default function YouTubeContainer({
           )}
         </div>
       </div>
+
+      {/* Background Image - on top of content */}
+      <div 
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          backgroundImage: 'url(/assets/homepage_youtube.svg)',
+          backgroundSize: 'contain',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat'
+        }}
+      />
     </div>
   );
 }
