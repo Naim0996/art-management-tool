@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 
 export interface UseDataTableOptions<T> {
   fetchData: (params: { page: number; per_page: number; search?: string }) => Promise<{
@@ -20,10 +20,20 @@ export function useDataTable<T>(options: UseDataTableOptions<T>) {
   const [totalRecords, setTotalRecords] = useState(0);
   const [searchQuery, setSearchQuery] = useState('');
 
+  // Use refs to store the latest functions without causing re-renders
+  const fetchDataRef = useRef(fetchData);
+  const onErrorRef = useRef(onError);
+
+  // Update refs when functions change
+  useEffect(() => {
+    fetchDataRef.current = fetchData;
+    onErrorRef.current = onError;
+  }, [fetchData, onError]);
+
   const loadData = useCallback(async () => {
     setLoading(true);
     try {
-      const response = await fetchData({
+      const response = await fetchDataRef.current({
         page,
         per_page: perPage,
         search: searchQuery || undefined,
@@ -33,13 +43,13 @@ export function useDataTable<T>(options: UseDataTableOptions<T>) {
     } catch (error) {
       const err = error instanceof Error ? error : new Error('Failed to load data');
       console.error('Error fetching data:', err);
-      if (onError) {
-        onError(err);
+      if (onErrorRef.current) {
+        onErrorRef.current(err);
       }
     } finally {
       setLoading(false);
     }
-  }, [page, perPage, searchQuery, fetchData, onError]);
+  }, [page, perPage, searchQuery]);
 
   useEffect(() => {
     loadData();

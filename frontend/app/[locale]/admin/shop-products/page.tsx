@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { DataTable } from 'primereact/datatable';
 import { Button } from 'primereact/button';
 import { Dialog } from 'primereact/dialog';
@@ -35,6 +35,22 @@ export default function ShopProductsManagement() {
   const { showDialog, formData, isEditing, editingItem, openDialog, closeDialog, setFormData } = useFormDialog(initialFormData);
   const [showVariantDialog, setShowVariantDialog] = useState(false);
 
+  const fetchProducts = useCallback(async ({ page, per_page, search }: { page: number; per_page: number; search?: string }) => {
+    const response = await adminShopAPI.listProducts({
+      search,
+      page,
+      per_page,
+    });
+    return {
+      items: response.products || [],
+      total: response.total || 0,
+    };
+  }, []);
+
+  const handleFetchError = useCallback(() => {
+    showError('Failed to load products');
+  }, [showError]);
+
   const {
     items: products,
     loading,
@@ -46,18 +62,8 @@ export default function ShopProductsManagement() {
     onPageChange,
     refresh: refetch,
   } = useDataTable<Product>({
-    fetchData: async ({ page, per_page, search }) => {
-      const response = await adminShopAPI.listProducts({
-        search,
-        page,
-        per_page,
-      });
-      return {
-        items: response.products || [],
-        total: response.total || 0,
-      };
-    },
-    onError: () => showError('Failed to load products'),
+    fetchData: fetchProducts,
+    onError: handleFetchError,
   });
 
   const {

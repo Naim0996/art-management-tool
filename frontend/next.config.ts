@@ -34,8 +34,14 @@ const nextConfig: NextConfig = {
   
   // Proxy API requests to backend to avoid CORS issues
   async rewrites() {
-    // Use 'backend' service name when running in Docker, localhost otherwise
-    const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://giorgiopriviteralab.com:8080';
+    // Use BACKEND_URL for server-side rewrites (available in Docker as 'http://backend:8080')
+    // Fallback to localhost for local development, or production URL if specified
+    const backendUrl = 
+      process.env.BACKEND_URL || 
+      process.env.NEXT_PUBLIC_API_URL || 
+      (process.env.NODE_ENV === 'production' 
+        ? 'http://giorgiopriviteralab.com:8080' 
+        : 'http://localhost:8080');
     
     return [
       {
