@@ -32,7 +32,7 @@ const initialFormData = {
 
 export default function ShopProductsManagement() {
   const { toast, showSuccess, showError } = useToast();
-  const { showDialog, formData, isEditing, openDialog, closeDialog, setFormData } = useFormDialog(initialFormData);
+  const { showDialog, formData, isEditing, editingItem, openDialog, closeDialog, setFormData } = useFormDialog(initialFormData);
   const [showVariantDialog, setShowVariantDialog] = useState(false);
 
   const {
@@ -76,7 +76,7 @@ export default function ShopProductsManagement() {
   });
 
   const handleCreate = () => {
-    openDialog(null);
+    openDialog();
   };
 
   const handleEdit = (product: Product) => {
@@ -104,8 +104,8 @@ export default function ShopProductsManagement() {
     }
 
     try {
-      const editingProduct = isEditing as Product | null;
-      if (editingProduct) {
+      const editingProduct = editingItem as Product | null;
+      if (editingProduct && editingProduct.id) {
         await adminShopAPI.updateProduct(editingProduct.id, formData);
         showSuccess(`Product updated successfully`);
       } else {
@@ -158,14 +158,14 @@ export default function ShopProductsManagement() {
       <PageHeader
         title="Shop Products Management"
         subtitle="Manage products, variants, inventory and images"
-        actions={
-          <Button
-            label="Create New Product"
-            icon="pi pi-plus"
-            onClick={handleCreate}
-            severity="success"
-          />
-        }
+        actions={[
+          {
+            label: 'Create New Product',
+            icon: 'pi pi-plus',
+            onClick: handleCreate,
+            severity: 'success',
+          },
+        ]}
       />
 
       <div className="flex gap-4">

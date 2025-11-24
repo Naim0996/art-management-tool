@@ -38,11 +38,21 @@ export default function ProductsManagement() {
   const { items: products, loading, refresh } = useDataTable<Product>({
     fetchData: async () => {
       const token = localStorage.getItem('adminToken');
-      const response = await fetch('/api/admin/products', {
+      const response = await fetch('/api/admin/shop/products', {
         headers: { Authorization: `Bearer ${token}` },
       });
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Failed to fetch products: ${errorText || response.statusText}`);
+      }
+      
       const data = await response.json();
-      return { items: data || [], total: data?.length || 0 };
+      // Backend returns { products: [...], total: ..., page: ..., per_page: ... }
+      return { 
+        items: data?.products || [], 
+        total: data?.total || 0 
+      };
     },
   });
 
@@ -71,11 +81,11 @@ export default function ProductsManagement() {
     const token = localStorage.getItem('adminToken');
     try {
       const url = editingProduct
-        ? `/api/admin/products/${editingProduct.id}`
-        : '/api/admin/products';
+        ? `/api/admin/shop/products/${editingProduct.id}`
+        : '/api/admin/shop/products';
       
       const response = await fetch(url, {
-        method: editingProduct ? 'PUT' : 'POST',
+        method: editingProduct ? 'PATCH' : 'POST',
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
@@ -104,10 +114,15 @@ export default function ProductsManagement() {
       accept: async () => {
         const token = localStorage.getItem('adminToken');
         try {
-          await fetch(`/api/admin/products/${product.id}`, {
+          const response = await fetch(`/api/admin/shop/products/${product.id}`, {
             method: 'DELETE',
             headers: { Authorization: `Bearer ${token}` },
           });
+          
+          if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(`Failed to delete product: ${errorText || response.statusText}`);
+          }
           showSuccess('Product deleted successfully');
           refresh();
         } catch (error) {
