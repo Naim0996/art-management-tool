@@ -21,7 +21,7 @@ export default function PersonaggioCard({ personaggio, onClick }: PersonaggioCar
 
   return (
     <div 
-      className="flex-shrink-0 rounded-lg p-5 cursor-pointer border-2 border-transparent hover:border-blue-500 transition-all duration-150 w-80"
+      className="w-full rounded-lg p-5 cursor-pointer border-2 border-transparent hover:border-blue-500 transition-all duration-150"
       style={getBackgroundStyle()}
       onClick={onClick}
     >
@@ -32,7 +32,7 @@ export default function PersonaggioCard({ personaggio, onClick }: PersonaggioCar
             alt={`${personaggio.name} Icon`}
             fill
             className="object-contain rounded-lg"
-            sizes="320px"
+            sizes="(min-width: 1280px) 25vw, (min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
           />
         ) : personaggio.images && personaggio.images[0] ? (
           <Image
@@ -40,7 +40,7 @@ export default function PersonaggioCard({ personaggio, onClick }: PersonaggioCar
             alt={personaggio.name}
             fill
             className="object-contain rounded-lg"
-            sizes="320px"
+            sizes="(min-width: 1280px) 25vw, (min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
           />
         ) : (
           <div className="w-full h-full bg-gray-200 rounded-lg flex items-center justify-center">

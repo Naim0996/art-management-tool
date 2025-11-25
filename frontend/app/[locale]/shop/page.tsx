@@ -180,7 +180,7 @@ export default function ShopPage() {
       <div className="bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <h1 className="text-3xl font-bold text-black mb-6">Shop</h1>
-          <div className="flex flex-col md:flex-row md:flex-wrap gap-2 md:items-center text-sm">
+          <div className="flex flex-col md:flex-row md:flex-wrap gap-2 md:items-center text-sm mx-12">
             {/* Search */}
             <span className="p-input-icon-left flex-1 w-full md:min-w-[200px]">
               <IconField iconPosition="left">
@@ -243,7 +243,7 @@ export default function ShopPage() {
       </div>
 
       {/* Products Grid */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 bg-white">
+      <main className="max-w-7xl mx-auto md:px-42 bg-white">
         {products.length > 0 ? (
           <>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-8">

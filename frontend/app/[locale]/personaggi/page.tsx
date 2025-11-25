@@ -98,11 +98,10 @@ export default function PersonaggiPage() {
           </div>
       </div>
 
-      {/* Lista personaggi scrollabile */}
-      <div className="w-full py-6 md:py-8">
-        {/* Desktop: scroll orizzontale centrato */}
-        <div className="hidden md:flex justify-center items-center overflow-x-auto scrollbar-hide pb-4">
-          <div className="flex gap-6 items-center justify-center">
+      {/* Grid personaggi */}
+      <div className="w-full md:px-36">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {personaggi.map((personaggio) => (
               <PersonaggioCard
                 key={personaggio.id}
@@ -114,28 +113,14 @@ export default function PersonaggiPage() {
               />
             ))}
           </div>
-        </div>
 
-        {/* Mobile: scroll verticale */}
-        <div className="md:hidden flex flex-col items-center gap-6">
-          {personaggi.map((personaggio) => (
-            <PersonaggioCard
-              key={personaggio.id}
-              personaggio={personaggio}
-              onClick={() => {
-                setSelectedPersonaggio(personaggio);
-                setModalVisible(true);
-              }}
-            />
-          ))}
+          {/* Messaggio se non ci sono personaggi */}
+          {personaggi.length === 0 && !loading && (
+            <div className="text-center py-12">
+              <p className="text-gray-500 text-lg">Nessun personaggio disponibile al momento.</p>
+            </div>
+          )}
         </div>
-
-        {/* Messaggio se non ci sono personaggi */}
-        {personaggi.length === 0 && !loading && (
-          <div className="text-center py-12">
-            <p className="text-gray-500 text-lg">Nessun personaggio disponibile al momento.</p>
-          </div>
-        )}
       </div>
 
       {/* Modal con la galleria */}
