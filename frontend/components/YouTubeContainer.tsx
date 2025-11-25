@@ -19,7 +19,7 @@ export default function YouTubeContainer({
   };
 
   return (
-    <div className="relative w-full max-w-[531px] h-auto mx-auto" style={{ aspectRatio: '531/763', maxHeight: '763px' }}>
+    <div className="relative w-full max-w-[531px] h-auto mx-auto" style={{ aspectRatio: '9/16' }}>
       {/* Content Container - positioned behind the frame */}
       <div className="absolute top-[15%] left-[9.5%] right-[9.5%] bottom-[15%] flex justify-center items-center">
         <div className="relative w-full h-full flex justify-center items-center">

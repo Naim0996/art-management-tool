@@ -33,13 +33,16 @@ export default function BrandPage() {
       label: t('charactersButton'),
       href: `/${locale}/personaggi`,
       imageSrc: "/assets/pulsante_personaggi.svg",
+      height: 150,
+      width: 200
     },
     {
       label: t('shopButton'),
       href: `/${locale}/shop`,
       imageSrc: "/assets/pulsante_shop.svg",
-      height: 40,
+      height: 90,
       width: 100,
+      marginBottom: 10,
     },
   ];
 

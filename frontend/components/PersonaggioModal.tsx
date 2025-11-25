@@ -99,7 +99,7 @@ export default function PersonaggioModal({ visible, onHide, personaggio }: Perso
 
                 <div className="flex flex-col md:flex-row h-full">
                     {/* Sezione sinistra - Carousel */}
-                    <div className="w-full md:w-[42%] bg-white flex items-center justify-center p-4 md:p-8">
+                    <div className="w-full md:w-2/3 bg-white flex items-center justify-center p-4 md:p-8">
                         {images && images.length > 0 ? (
                             <div className="w-full h-full flex flex-col justify-center">
                                 {/* Immagine principale */}
@@ -190,42 +190,40 @@ export default function PersonaggioModal({ visible, onHide, personaggio }: Perso
                     </div>
                     
                     {/* Sezione destra - Contenuto su sfondo bianco */}
-                    <div className="w-full md:w-[58%] bg-white p-6 md:p-8 flex flex-col justify-between" style={{ minHeight: '600px' }}>
-                        <div className="flex-1">
-                            {/* Titolo con effetto outlined */}
-                            <div className="mb-6">
-                                <h2 
-                                    className="text-3xl md:text-4xl font-bold leading-tight"
-                                    style={{
-                                        fontFamily: 'var(--font-junglefever), sans-serif',
-                                        color: 'black',
-                                        textShadow: '-2px -2px 0 white, 2px -2px 0 white, -2px 2px 0 white, 2px 2px 0 white, 0 0 0 white',
-                                        WebkitTextStroke: '2px white',
-                                        WebkitTextFillColor: 'black',
-                                    }}
-                                >
-                                    {titleLines[0] && (
-                                        <div>{titleLines[0]}</div>
-                                    )}
-                                    {titleLines[1] && (
-                                        <div>{titleLines[1]}</div>
-                                    )}
-                                </h2>
-                            </div>
-                            
-                            {/* Descrizione */}
-                            {personaggio?.description && (
-                                <div className="mb-6">
-                                    <p className="text-base md:text-lg leading-relaxed text-black">
-                                        {personaggio.description}
-                                    </p>
-                                </div>
-                            )}
+                    <div className="w-full md:w-1/3 bg-white p-6 md:p-8 flex flex-col h-full" style={{ minHeight: '600px' }}>
+                        {/* Titolo con effetto outlined */}
+                        <div className="mb-4 md:mb-6 flex-shrink-0">
+                            <h2 
+                                className="text-3xl md:text-4xl font-bold leading-tight"
+                                style={{
+                                    fontFamily: 'var(--font-junglefever), sans-serif',
+                                    color: 'black',
+                                    textShadow: '-2px -2px 0 white, 2px -2px 0 white, -2px 2px 0 white, 2px 2px 0 white, 0 0 0 white',
+                                    WebkitTextStroke: '2px white',
+                                    WebkitTextFillColor: 'black',
+                                }}
+                            >
+                                {titleLines[0] && (
+                                    <div>{titleLines[0]}</div>
+                                )}
+                                {titleLines[1] && (
+                                    <div>{titleLines[1]}</div>
+                                )}
+                            </h2>
                         </div>
+                        
+                        {/* Descrizione scrollabile */}
+                        {personaggio?.description && (
+                            <div className="flex-1 overflow-y-auto mb-4 md:mb-6 min-h-0">
+                                <p className="text-base md:text-lg leading-relaxed text-black">
+                                    {personaggio.description}
+                                </p>
+                            </div>
+                        )}
                         
                         {/* Pulsante Shop centrato in basso */}
                         {personaggio && personaggio.id && (
-                            <div className="flex justify-center mt-6">
+                            <div className="flex justify-center mt-auto flex-shrink-0">
                                 <button
                                     onClick={() => {
                                         router.push(`/${locale}/shop?character=${personaggio.id}`);

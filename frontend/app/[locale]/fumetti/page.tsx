@@ -53,7 +53,7 @@ export default function FumettiPage() {
       </div>
 
       {/* Griglia fumetti: 2 colonne con fumetti più piccoli */}
-      <div className="w-full max-w-4xl mx-auto px-12 py-8">
+      <div className="w-full max-w-4xl mx-auto px-[72px] py-8">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-16 gap-y-12">
           {fumetti.map((fumetto) => {
             const year = fumetto.createdAt 

@@ -90,7 +90,7 @@ export default function ProdottoModal({ visible, onHide, prodotto }: ProdottoMod
             }}
             closable={false}
         >
-            <div className="relative bg-white rounded-2xl overflow-hidden">
+            <div className="relative bg-white rounded-2xl overflow-hidden" style={{ minHeight: '600px' }}>
                 {/* Pulsante chiusura X in alto a destra */}
                 <button
                     onClick={onHide}
@@ -102,9 +102,9 @@ export default function ProdottoModal({ visible, onHide, prodotto }: ProdottoMod
                     </svg>
                 </button>
 
-                <div className="flex flex-col md:flex-row">
+                <div className="flex flex-col md:flex-row h-full">
                     {/* Sezione sinistra - Carousel */}
-                    <div className="w-full md:w-[42%] bg-white flex items-center justify-center p-4 md:p-8">
+                    <div className="w-full md:w-2/3 bg-white flex items-center justify-center p-4 md:p-8">
                         {images && images.length > 0 ? (
                             <div className="w-full flex flex-col">
                                 {/* Immagine principale */}
@@ -195,9 +195,9 @@ export default function ProdottoModal({ visible, onHide, prodotto }: ProdottoMod
                     </div>
                     
                     {/* Sezione destra - Contenuto su sfondo bianco */}
-                    <div className="w-full md:w-[58%] bg-white p-6 md:p-8 flex flex-col">
+                    <div className="w-full md:w-1/3 bg-white p-6 md:p-8 flex flex-col h-full">
                         {/* Titolo con effetto outlined */}
-                        <div className="mb-4 md:mb-6">
+                        <div className="mb-4 md:mb-6 flex-shrink-0">
                             <h2 
                                 className="text-3xl md:text-4xl font-bold leading-tight"
                                 style={{
@@ -217,37 +217,9 @@ export default function ProdottoModal({ visible, onHide, prodotto }: ProdottoMod
                             </h2>
                         </div>
                         
-                        {/* Descrizione breve */}
-                        {prodotto?.short_description && (
-                            <div className="mb-3 md:mb-4">
-                                <p 
-                                    className="text-base md:text-lg leading-relaxed text-black"
-                                    style={{
-                                        fontFamily: 'var(--font-kranji), sans-serif',
-                                    }}
-                                >
-                                    {prodotto.short_description}
-                                </p>
-                            </div>
-                        )}
-                        
-                        {/* Descrizione lunga */}
-                        {prodotto?.long_description && (
-                            <div className="mb-4 md:mb-6">
-                                <p 
-                                    className="text-sm md:text-base leading-relaxed text-black whitespace-pre-wrap"
-                                    style={{
-                                        fontFamily: 'var(--font-kranji), sans-serif',
-                                    }}
-                                >
-                                    {prodotto.long_description}
-                                </p>
-                            </div>
-                        )}
-
                         {/* Prezzo */}
                         {prodotto && (
-                            <div className="mb-4 md:mb-6">
+                            <div className="mb-3 md:mb-4 flex-shrink-0">
                                 <span 
                                     className="text-3xl md:text-4xl font-bold"
                                     style={{
@@ -260,8 +232,39 @@ export default function ProdottoModal({ visible, onHide, prodotto }: ProdottoMod
                             </div>
                         )}
                         
+                        {/* Descrizioni scrollabili */}
+                        <div className="flex-1 overflow-y-auto mb-4 md:mb-6 min-h-0">
+                            {/* Descrizione breve */}
+                            {prodotto?.short_description && (
+                                <div className="mb-3 md:mb-4">
+                                    <p 
+                                        className="text-base md:text-lg leading-relaxed text-black"
+                                        style={{
+                                            fontFamily: 'var(--font-kranji), sans-serif',
+                                        }}
+                                    >
+                                        {prodotto.short_description}
+                                    </p>
+                                </div>
+                            )}
+                            
+                            {/* Descrizione lunga */}
+                            {prodotto?.long_description && (
+                                <div className="mb-4 md:mb-6">
+                                    <p 
+                                        className="text-sm md:text-base leading-relaxed text-black whitespace-pre-wrap"
+                                        style={{
+                                            fontFamily: 'var(--font-kranji), sans-serif',
+                                        }}
+                                    >
+                                        {prodotto.long_description}
+                                    </p>
+                                </div>
+                            )}
+                        </div>
+                        
                         {/* Pulsanti in basso */}
-                        <div className="flex flex-col gap-3 md:gap-4 mt-auto">
+                        <div className="flex flex-col gap-3 md:gap-4 mt-auto flex-shrink-0">
                             {/* Pulsante Etsy */}
                             {prodotto?.etsy_link && (
                                 <a 

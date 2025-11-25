@@ -9,6 +9,7 @@ export interface ContentCardButton {
   imageSrc: string;
   width?: number;
   height?: number;
+  marginBottom?: number;
 }
 
 export type ButtonSize = 'small' | 'medium' | 'large';
@@ -37,47 +38,43 @@ export default function ContentCard({
     large: 'h-16 sm:h-20 md:h-24',
   };
   return (
-    <div className="w-8/12">
-      <div className="grid md:grid-cols-[4fr_3fr] grid-cols-1 items-stretch rounded-2xl overflow-hidden min-h-[70vh] "
-        style={{ gap: "1px" }}
+    <div className="w-full h-full">
+      <div
+        className="flex flex-col md:grid md:items-stretch overflow-hidden min-h-[300px] sm:min-h-[400px] md:min-h-[600px] lg:min-h-[650px]"
+        style={{ gap: "1px", borderRadius: "40px", gridTemplateColumns: "1fr 3fr" }}
       >
-        {/* Right Card - Image (shown first on mobile) */}
+        {/* Image - First on mobile, second on desktop */}
         <div
-          className="relative p-8 flex justify-center items-center h-full min-h-[200px] md:min-h-[300px] md:order-2"
+          className="relative w-full h-full min-h-[200px] sm:min-h-[250px] md:min-h-[300px] bg-black order-1 md:order-2 overflow-hidden"
         >
-
-          {/* Image */}
-          <div className="relative z-10 w-full h-full flex items-center justify-center">
-            <div className="relative w-full h-full min-h-[180px] sm:min-h-[250px] md:min-h-[300px]">
-              <Image
-                src={imageSrc}
-                alt={imageAlt}
-                fill
-                className="object-contain"
-                onError={(e) => {
-                  const target = e.target as HTMLImageElement;
-                  target.style.display = "none";
-                }}
-              />
-            </div>
-          </div>
+          <Image
+            src={imageSrc}
+            alt={imageAlt}
+            fill
+            className="object-cover"
+            onError={(e) => {
+              const target = e.target as HTMLImageElement;
+              target.style.display = "none";
+            }}
+          />
         </div>
 
-        {/* Left Card - Text content (shown second on mobile) */}
+        {/* Text content - Second on mobile, first on desktop */}
         <div
-          className="relative py-6 px-6 sm:py-10 sm:px-10 md:py-16 md:px-16 h-min md:order-1"
+          className="relative py-4 px-4 sm:py-6 sm:px-6 md:py-10 md:px-10 lg:py-16 lg:px-16 h-full order-2 md:order-1"
+          style={{
+            background:
+              "linear-gradient(135deg, #D1D5DB 0%, #E5E7EB 50%, #F3F4F6 100%)",
+          }}
         >
           {/* Subtle overlay for depth */}
-          <div className="absolute inset-0"></div>
+          <div className="absolute inset-0 bg-black/5"></div>
 
           {/* Text content */}
-          <div className="relative z-10 text-right h-full flex flex-col justify-center">
-            {/* Spacer above */}
-            <div className="flex-1"></div>
-            
+          <div className="relative z-10 text-center md:text-right h-full flex flex-col justify-center md:justify-center">
             {/* Title */}
             <h2 
-              className="junglefever-title text-black leading-tight text-right"
+              className="junglefever-title text-black leading-tight text-center md:text-right mb-3 md:mb-0"
               style={{
                 fontSize: 'clamp(10px, 4vw, 48px)'
               }}
@@ -85,12 +82,12 @@ export default function ContentCard({
               {title}
             </h2>
 
-            {/* Spacer between title and description */}
-            <div className="flex-1"></div>
+            {/* Spacer between title and description - only on desktop */}
+            <div className="hidden md:block flex-1"></div>
 
             {/* Description */}
             <p 
-              className="skranji-paragraph text-black leading-relaxed text-right"
+              className="skranji-paragraph text-black leading-relaxed text-center md:text-right mb-4 md:mb-0"
               style={{
                 fontSize: 'clamp(8px, 2.5vw, 18px)'
               }}
@@ -98,8 +95,8 @@ export default function ContentCard({
               {description}
             </p>
 
-            {/* Spacer between description and buttons */}
-            <div className="flex-1"></div>
+            {/* Spacer between description and buttons - only on desktop */}
+            <div className="hidden md:block flex-1"></div>
 
             {/* Buttons */}
             {buttons.length > 0 && (
@@ -108,12 +105,14 @@ export default function ContentCard({
                   const buttonStyle: React.CSSProperties = button.width && button.height
                     ? { 
                         width: `clamp(${Math.round(button.width * 0.5)}px, ${Math.round(button.width * 0.75)}px, ${button.width}px)`,
-                        height: `clamp(${Math.round(button.height * 0.5)}px, ${Math.round(button.height * 0.75)}px, ${button.height}px)`
+                        height: `clamp(${Math.round(button.height * 0.5)}px, ${Math.round(button.height * 0.75)}px, ${button.height}px)`,
+                        marginBottom: button.marginBottom ? `${button.marginBottom}px` : '0px'
                       }
                     : { 
                         aspectRatio: '3.5/1',
                         width: 'clamp(120px, 25vw, 180px)',
-                        height: 'clamp(34px, 7vw, 51px)'
+                        height: 'clamp(34px, 7vw, 51px)',
+                        marginBottom: button.marginBottom ? `${button.marginBottom}px` : '0px'
                       };
                   
                   return (
@@ -135,13 +134,9 @@ export default function ContentCard({
                 })}
               </div>
             )}
-            
-            {/* Spacer below */}
-            <div className="flex-1"></div>
           </div>
         </div>
       </div>
     </div>
   );
 }
-

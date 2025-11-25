@@ -67,22 +67,11 @@ export default function Carousel({
 
         {/* Carousel container with frame background */}
         <div className="relative w-full h-screen">
-          {/* Background frame */}
-          <div className="absolute inset-0 z-10 pointer-events-none ">
-            <Image
-              src="/assets/cornice_homepage_banner.svg"
-              alt="Carousel frame"
-              fill
-              className="hidden sm:block"
-            />
-            
-          </div>
-
           {/* Carousel items - behind the frame */}
           <div className="absolute inset-0 flex items-center justify-center">
             <div className="relative overflow-hidden w-full bottom-10 p-4">
               <div
-                className="flex transition-transform duration-1 ease-in-out h-full"
+                className="flex transition-transform duration-1 ease-in-out h-full gap-[10px]"
                 style={{ transform: `translateX(-${currentIndex * 100}%)` }}
               >
                 {items.map((item, index) => (
