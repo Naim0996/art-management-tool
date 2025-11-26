@@ -51,7 +51,7 @@ export default function Home() {
       title={tCarousel("card2.title")}
       description={tCarousel("card2.description")}
       buttons={card2Buttons}
-      imageSrc="/personaggi/leon/Leon_lingua.jpeg"
+      imageSrc="/assets/AnimantraLogo.svg"
       imageAlt="AnimantrA World"
     />,
   ];
