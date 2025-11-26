@@ -151,13 +151,13 @@ export default function ShopPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen">
       <Toast ref={toast} />
       
       {/* Filters - Minimale */}
-      <div className="bg-white">
+      <div>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <h1 className="text-3xl font-bold text-black mb-6 mx-12">Shop</h1>
+          <h1 className="text-3xl font-bold mb-6 mx-12" style={{ color: "#EFE0C4" }}>Shop</h1>
           <div className="flex flex-col md:flex-row md:flex-wrap gap-2 md:items-center text-sm mx-12">
             {/* Search */}
             <span className="p-input-icon-left flex-1 w-full md:min-w-[200px]">
@@ -213,7 +213,7 @@ export default function ShopPage() {
             </div>
 
             {/* Results */}
-            <span className="text-gray-500 w-full md:w-auto md:ml-auto text-right md:text-left">
+            <span className="w-full md:w-auto md:ml-auto text-right md:text-left" style={{ color: "#EFE0C4" }}>
               {totalProducts} prodotti
             </span>
           </div>
@@ -221,7 +221,7 @@ export default function ShopPage() {
       </div>
 
       {/* Products Grid */}
-      <main className="max-w-7xl mx-auto md:px-42 bg-white">
+      <main className="max-w-7xl mx-auto md:px-42">
         {products.length > 0 ? (
           <>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-8">
