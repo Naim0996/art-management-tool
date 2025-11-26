@@ -198,8 +198,6 @@ export default function PersonaggioModal({ visible, onHide, personaggio }: Perso
                                 style={{
                                     fontFamily: 'var(--font-junglefever), sans-serif',
                                     color: 'black',
-                                    textShadow: '-2px -2px 0 white, 2px -2px 0 white, -2px 2px 0 white, 2px 2px 0 white, 0 0 0 white',
-                                    WebkitTextStroke: '2px white',
                                     WebkitTextFillColor: 'black',
                                 }}
                             >

@@ -46,9 +46,9 @@ export default function FumettiPage() {
   }
   
   return (
-    <div className="w-full bg-white min-h-screen">
+    <div className="w-full min-h-screen">
       {/* Titolo centrato con sfondo bianco */}
-      <div className="w-full bg-white py-20 px-4">
+      <div className="w-full py-20 px-4">
         <h1 className="junglefever-title text-black text-center">{t('title')}</h1>
       </div>
 
@@ -69,7 +69,7 @@ export default function FumettiPage() {
                 }}
               >
                 {/* Immagine più piccola */}
-                <div className="relative w-48 h-64 bg-white overflow-hidden mb-3">
+                <div className="relative w-48 h-64 overflow-hidden mb-3">
                   {fumetto.coverImage ? (
                     <Image
                       src={fumetto.coverImage}
@@ -94,7 +94,7 @@ export default function FumettiPage() {
                 </div>
 
                 {/* Titolo con anno */}
-                <p className="text-sm font-semibold text-black text-center group-hover:underline">
+                <p className="text-sm font-semibold text-black text-center group-hover:underline" style={{ color: "#EFE0C4" }}>
                   {fumetto.title} {year && `(${year})`}
                 </p>
               </div>

@@ -73,7 +73,7 @@ export default function ProductDetailPage() {
   const productImages = product.images || [];
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen">
       {toast}
 
       <main className="max-w-7xl mx-auto px-2 sm:px-4 md:px-6 lg:px-8 py-6 md:py-8">

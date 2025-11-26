@@ -46,7 +46,7 @@ export default function PersonaggiPage() {
       <div
         className="w-full py-2 md:py-3"
         style={{
-           marginLeft: '30px',
+          marginLeft: '30px',
           marginRight: '30px',
           marginTop: '30px',
           marginBottom: '30px',
@@ -76,7 +76,8 @@ export default function PersonaggiPage() {
                   fontFamily: 'var(--font-junglefever), sans-serif',
                   fontSize: 'clamp(35px, 2.5vw, 44px)',
                   lineHeight: '1.2',
-                  fontWeight: 'normal'
+                  fontWeight: 'normal',
+                  color: "#EFE0C4"
                 }}
               >
                 I PERSONAGGI DELLA CIURMA
@@ -87,7 +88,8 @@ export default function PersonaggiPage() {
                   fontFamily: 'var(--font-kranji), sans-serif',
                   fontSize: 'clamp(16px, 2.5vw, 25px)',
                   lineHeight: '1.3',
-                  fontWeight: 'normal'
+                  fontWeight: 'normal',
+                  color: "#EFE0C4"
                 }}
               >
                 Scopri i personaggi della ciurma di <strong>ANIMANTRA</strong>: <br />

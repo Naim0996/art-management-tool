@@ -86,7 +86,17 @@
     }
   },
   "footer": {
-    "copyright": "© 2025 Art Management Tool. All rights reserved."
+    "labName": "Giorgio Privitera Lab",
+    "contact": {
+      "title": "Contacts",
+      "emailLabel": "Email",
+      "email1": "animantra.universe.studio@gmail.com",
+      "email2": "giorgiopriviterart@gmail.com"
+    },
+    "social": {
+      "title": "Social"
+    },
+    "copyright": "© 2025 Giorgio Privitera Lab. © 2025 Animantra All rights reserved."
   },
   "language": {
     "switch": "Switch language",

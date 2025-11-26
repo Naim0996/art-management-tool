@@ -65,7 +65,7 @@ export default function ContentCard({
           className="relative py-4 px-4 sm:py-6 sm:px-6 md:py-10 md:px-10 lg:py-16 lg:px-16 h-full order-2 md:order-1"
           style={{
             background:
-              "linear-gradient(135deg, #D1D5DB 0%, #E5E7EB 50%, #F3F4F6 100%)",
+              "#EFE0C4",
           }}
         >
           {/* Subtle overlay for depth */}
@@ -77,7 +77,8 @@ export default function ContentCard({
             <h2 
               className="junglefever-title text-black leading-tight text-center md:text-right mb-3 md:mb-0"
               style={{
-                fontSize: 'clamp(10px, 4vw, 48px)'
+                // Font più grande su mobile mantenendo invariato il max su desktop
+                fontSize: 'clamp(20px, 5.5vw, 48px)'
               }}
             >
               {title}
@@ -90,7 +91,8 @@ export default function ContentCard({
             <p 
               className="skranji-paragraph text-black leading-relaxed text-center md:text-right mb-4 md:mb-0"
               style={{
-                fontSize: 'clamp(8px, 2.5vw, 18px)'
+                // Aumenta la leggibilità su mobile, senza ingrandire il desktop
+                fontSize: 'clamp(16px, 4vw, 20px)'
               }}
             >
               {description}
