@@ -54,7 +54,7 @@ export default function FumettoDetailPage() {
   return (
     <div className="min-h-screen bg-white">
       {/* Fumetto centrato con margini laterali ampi */}
-      <div className="flex justify-center px-8 md:px-16 lg:px-32 py-12">
+      <div className="flex justify-center px-8 md:px-16 lg:px-48 py-12">
         <div className="w-full max-w-3xl">
           <div className="space-y-0">
             {fumetto.pages?.map((page, index) => (

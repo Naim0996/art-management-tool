@@ -46,8 +46,7 @@ export default function PersonaggiPage() {
       <div
         className="w-full py-2 md:py-3"
         style={{
-          background: "linear-gradient(135deg, #D1D5DB 0%, #E5E7EB 50%, #F3F4F6 100%)",
-          marginLeft: '30px',
+           marginLeft: '30px',
           marginRight: '30px',
           marginTop: '30px',
           marginBottom: '30px',

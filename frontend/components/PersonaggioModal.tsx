@@ -97,7 +97,7 @@ export default function PersonaggioModal({ visible, onHide, personaggio }: Perso
                     </svg>
                 </button>
 
-                <div className="flex flex-col md:flex-row h-full">
+                <div className="flex flex-col md:flex-row h-full md:overflow-hidden">
                     {/* Sezione sinistra - Carousel */}
                     <div className="w-full md:w-2/3 bg-white flex items-center justify-center p-4 md:p-8">
                         {images && images.length > 0 ? (
@@ -190,7 +190,7 @@ export default function PersonaggioModal({ visible, onHide, personaggio }: Perso
                     </div>
                     
                     {/* Sezione destra - Contenuto su sfondo bianco */}
-                    <div className="w-full md:w-1/3 bg-white p-6 md:p-8 flex flex-col h-full" style={{ minHeight: '600px' }}>
+                    <div className="w-full md:w-1/3 bg-white p-6 md:p-8 flex flex-col h-full md:overflow-hidden" style={{ minHeight: '600px' }}>
                         {/* Titolo con effetto outlined */}
                         <div className="mb-4 md:mb-6 flex-shrink-0">
                             <h2 
@@ -212,9 +212,9 @@ export default function PersonaggioModal({ visible, onHide, personaggio }: Perso
                             </h2>
                         </div>
                         
-                        {/* Descrizione scrollabile */}
+                        {/* Descrizione scrollabile - solo su desktop */}
                         {personaggio?.description && (
-                            <div className="flex-1 overflow-y-auto mb-4 md:mb-6 min-h-0">
+                            <div className="flex-1 overflow-y-auto md:overflow-y-auto mb-4 md:mb-6 md:max-h-[300px] md:min-h-0">
                                 <p className="text-base md:text-lg leading-relaxed text-black">
                                     {personaggio.description}
                                 </p>
