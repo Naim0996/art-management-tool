@@ -154,32 +154,10 @@ export default function ShopPage() {
     <div className="min-h-screen bg-gray-50">
       <Toast ref={toast} />
       
-      {/* Debug Banner - Remove in production */}
-      {apiError && (
-        <div className="bg-red-50 border-l-4 border-red-500 p-4">
-          <div className="max-w-7xl mx-auto">
-            <div className="flex items-start">
-              <i className="pi pi-exclamation-triangle text-red-500 text-xl mr-3 mt-1"></i>
-              <div className="flex-1">
-                <h3 className="text-red-800 font-semibold">API Connection Error</h3>
-                <p className="text-red-700 text-sm mt-1">{apiError}</p>
-                <p className="text-red-600 text-xs mt-2">
-                  Mode: Next.js Proxy → http://giorgiopriviteralab.com:8080 • 
-                  Testing page: <Link href={`/${locale}/api-test`} className="underline">Click here</Link>
-                </p>
-              </div>
-              <button onClick={fetchProducts} className="text-red-600 hover:text-red-800">
-                <i className="pi pi-refresh text-xl"></i>
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-      
       {/* Filters - Minimale */}
       <div className="bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <h1 className="text-3xl font-bold text-black mb-6">Shop</h1>
+          <h1 className="text-3xl font-bold text-black mb-6 mx-12">Shop</h1>
           <div className="flex flex-col md:flex-row md:flex-wrap gap-2 md:items-center text-sm mx-12">
             {/* Search */}
             <span className="p-input-icon-left flex-1 w-full md:min-w-[200px]">

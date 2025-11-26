@@ -26,7 +26,13 @@
     }
   },
   "video": {
-    "title": "Learn more"
+    "title": "Learn more",
+    "trailerTitle": "THE TRAILER IS OUT ON YOUTUBE!",
+    "trailerDescription": "ANIMANTRA is also on Youtube, here's the new trailer!"
+  },
+  "social": {
+    "title": "FOLLOW THE LAB UPDATES!",
+    "description": "To not miss the latest news on published content, thank you for your support!"
   },
   "brand": {
     "title": "ANIMANTRA",

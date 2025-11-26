@@ -40,18 +40,19 @@ export default function ContentCard({
   return (
     <div className="w-full h-full">
       <div
-        className="flex flex-col md:grid md:items-stretch overflow-hidden min-h-[300px] sm:min-h-[400px] md:min-h-[600px] lg:min-h-[650px]"
+        className="flex flex-col md:grid md:items-stretch overflow-hidden min-h-[500px] sm:min-h-[550px] md:min-h-[600px] lg:min-h-[650px]"
         style={{ gap: "1px", borderRadius: "40px", gridTemplateColumns: "1fr 3fr" }}
       >
         {/* Image - First on mobile, second on desktop */}
         <div
-          className="relative w-full h-full min-h-[200px] sm:min-h-[250px] md:min-h-[300px] bg-black order-1 md:order-2 overflow-hidden"
+          className="relative w-full h-full min-h-[350px] sm:min-h-[400px] md:min-h-[300px] bg-black order-1 md:order-2 overflow-hidden"
         >
           <Image
             src={imageSrc}
             alt={imageAlt}
             fill
-            className="object-cover"
+            className="object-cover md:object-cover"
+            style={{ objectPosition: 'center' }}
             onError={(e) => {
               const target = e.target as HTMLImageElement;
               target.style.display = "none";

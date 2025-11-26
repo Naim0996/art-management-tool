@@ -61,7 +61,7 @@ export default function Carousel({
             alt="Previous"
             width={40}
             height={40}
-            className="transform rotate-360 w-8 h-8 sm:w-10 sm:h-10 md:w-[60px] md:h-[60px]"
+            className="transform rotate-360 w-6 h-6 sm:w-8 sm:h-8 md:w-[60px] md:h-[60px]"
           />
         </button>
 
@@ -69,13 +69,13 @@ export default function Carousel({
         <div className="relative w-full h-screen">
           {/* Carousel items - behind the frame */}
           <div className="absolute inset-0 flex items-center justify-center">
-            <div className="relative overflow-hidden w-full bottom-10 p-4">
+            <div className="relative w-full bottom-10 p-4 overflow-hidden">
               <div
-                className="flex transition-transform duration-1 ease-in-out h-full gap-[10px]"
-                style={{ transform: `translateX(-${currentIndex * 100}%)` }}
+                className="flex transition-transform duration-1 ease-in-out h-full"
+                style={{ transform: `translateX(calc(-${currentIndex * 100}% - ${currentIndex * 32}px))` }}
               >
                 {items.map((item, index) => (
-                  <div key={index} className="min-w-full h-1/2 flex items-center justify-center">
+                  <div key={index} className="h-1/2 flex items-center justify-center" style={{ flexShrink: 0, width: 'calc(100% - 32px)', marginLeft: '16px', marginRight: '16px' }}>
                     {item}
                   </div>
                 ))}
@@ -104,7 +104,7 @@ export default function Carousel({
             alt="Next"
             width={40}
             height={40}
-            className="transform rotate-180 w-8 h-8 sm:w-10 sm:h-10 md:w-[60px] md:h-[60px]"
+            className="transform rotate-180 w-6 h-6 sm:w-8 sm:h-8 md:w-[60px] md:h-[60px]"
           />
         </button>
       </div>

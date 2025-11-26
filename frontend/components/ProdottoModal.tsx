@@ -102,7 +102,7 @@ export default function ProdottoModal({ visible, onHide, prodotto }: ProdottoMod
                     </svg>
                 </button>
 
-                <div className="flex flex-col md:flex-row h-full">
+                <div className="flex flex-col md:flex-row h-full md:overflow-hidden">
                     {/* Sezione sinistra - Carousel */}
                     <div className="w-full md:w-2/3 bg-white flex items-center justify-center p-4 md:p-8">
                         {images && images.length > 0 ? (
@@ -195,7 +195,7 @@ export default function ProdottoModal({ visible, onHide, prodotto }: ProdottoMod
                     </div>
                     
                     {/* Sezione destra - Contenuto su sfondo bianco */}
-                    <div className="w-full md:w-1/3 bg-white p-6 md:p-8 flex flex-col h-full">
+                    <div className="w-full md:w-1/3 bg-white p-6 md:p-8 flex flex-col h-full md:overflow-hidden">
                         {/* Titolo con effetto outlined */}
                         <div className="mb-4 md:mb-6 flex-shrink-0">
                             <h2 
@@ -232,8 +232,8 @@ export default function ProdottoModal({ visible, onHide, prodotto }: ProdottoMod
                             </div>
                         )}
                         
-                        {/* Descrizioni scrollabili */}
-                        <div className="flex-1 overflow-y-auto mb-4 md:mb-6 min-h-0">
+                        {/* Descrizioni scrollabili - solo su desktop */}
+                        <div className="flex-1 overflow-y-auto md:overflow-y-auto mb-4 md:mb-6 md:max-h-[300px] md:min-h-0">
                             {/* Descrizione breve */}
                             {prodotto?.short_description && (
                                 <div className="mb-3 md:mb-4">
