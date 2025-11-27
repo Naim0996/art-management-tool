@@ -43,7 +43,7 @@ export default function Home() {
       title={tCarousel("card1.title")}
       description={tCarousel("card1.description")}
       buttons={[]}
-      imageSrc="/personaggi/ribelle/Ribelle_pigro_pinsata.jpeg"
+      imageSrc="/assets/Logo_skull.svg"
       imageAlt="Giorgio Privitera Lab"
     />,
     <ContentCard

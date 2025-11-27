@@ -49,9 +49,9 @@ export default function ContentCard({
         >
           <Image
             src={imageSrc}
-            alt={imageAlt}
+            alt={imageAlt}            
             fill
-            className="object-cover md:object-cover"
+            className=""
             style={{ objectPosition: 'center' }}
             onError={(e) => {
               const target = e.target as HTMLImageElement;
@@ -105,16 +105,17 @@ export default function ContentCard({
             {buttons.length > 0 && (
               <div className="flex flex-row gap-2 sm:gap-3 md:gap-4 lg:gap-5 items-center justify-center mx-auto flex-wrap">
                 {buttons.map((button, index) => {
-                  const buttonStyle: React.CSSProperties = button.width && button.height
-                    ? { 
-                        width: `clamp(${Math.round(button.width * 0.5)}px, ${Math.round(button.width * 0.75)}px, ${button.width}px)`,
-                        height: `clamp(${Math.round(button.height * 0.5)}px, ${Math.round(button.height * 0.75)}px, ${button.height}px)`,
-                        marginBottom: button.marginBottom ? `${button.marginBottom}px` : '0px'
-                      }
-                    : { 
-                        aspectRatio: '3.5/1',
-                        width: 'clamp(120px, 25vw, 180px)',
-                        height: 'clamp(34px, 7vw, 51px)',
+                  const buttonStyle: React.CSSProperties =
+                   // button.width && button.height                   ? 
+                    // { 
+                    //     width: `clamp(${Math.round(button.width! * 0.5)}px, ${Math.round(button.width! * 0.75)}px, ${button.width!}px)`,
+                    //     height: `clamp(${Math.round(button.height! * 0.5)}px, ${Math.round(button.height! * 0.75)}px, ${button.height!}px)`,
+                    //     marginBottom: button.marginBottom ? `${button.marginBottom}px` : '0px'
+                    //   };
+                    // : 
+                    { 
+                        aspectRatio: '2.5/1',
+                        width: 'clamp(220px, 25vw, 280px)',
                         marginBottom: button.marginBottom ? `${button.marginBottom}px` : '0px'
                       };
                   
