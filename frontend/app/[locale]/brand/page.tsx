@@ -31,16 +31,16 @@ export default function BrandPage() {
     {
       label: t('charactersButton'),
       href: `/${locale}/personaggi`,
-      imageSrc: "/assets/pulsante_personaggi.svg",
-      height: 'clamp(110px, 1vw, 140px)',
-      width: 'clamp(220px, 25vw, 280px)',
+      imageSrc: "/assets/pulsante_personaggi_2.svg",
+      height: 'clamp(45px, 5vw, 70px)',
+      width: 'clamp(210px, 25vw, 280px)',
     },
     {
       label: t('shopButton'),
       href: `/${locale}/shop`,
       imageSrc: "/assets/pulsante_shop.svg",
-      height: 'clamp(55px, 5vw, 70px)',
-      width: 'clamp(220px, 10vw, 280px)',
+      height: 'clamp(45px, 5vw, 70px)',
+      width: 'clamp(210px, 10vw, 280px)',
       marginBottom: 10,
     },
   ];

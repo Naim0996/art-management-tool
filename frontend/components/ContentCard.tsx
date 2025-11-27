@@ -103,7 +103,7 @@ export default function ContentCard({
 
             {/* Buttons */}
             {buttons.length > 0 && (
-              <div className="flex flex-row items-center justify-center mx-auto flex-wrap">
+              <div className="flex flex-row items-center justify-center mx-auto flex-wrap md:gap-8 gap-4">
                 {buttons.map((button, index) => {
                   const buttonStyle: React.CSSProperties =
                    // button.width && button.height                   ? 
