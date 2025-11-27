@@ -51,7 +51,7 @@ export default function ContentCard({
             src={imageSrc}
             alt={imageAlt}            
             fill
-            className=""
+            className="md:px-72 p-4"
             style={{ objectPosition: 'center' }}
             onError={(e) => {
               const target = e.target as HTMLImageElement;
@@ -78,7 +78,7 @@ export default function ContentCard({
               className="junglefever-title text-black leading-tight text-center md:text-right mb-3 md:mb-0"
               style={{
                 // Font più grande su mobile mantenendo invariato il max su desktop
-                fontSize: 'clamp(20px, 5.5vw, 48px)'
+                fontSize: 'clamp(30px, 5.5vw, 48px)'
               }}
             >
               {title}

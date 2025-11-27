@@ -69,12 +69,12 @@ export default function PersonaggiPage() {
             </div>
 
             {/* Titolo e descrizione */}
-            <div className="flex-1 text-center md:text-left flex flex-col justify-center">
+            <div className="flex-1 text-center md:gap-0 gap-4 md:text-left flex flex-col justify-center">
               <h1 
-                className="text-black mb-3 md:mb-4 text-center md:text-left"
+                className="text-black mb-3 md:mb-4 text-left md:text-left"
                 style={{
                   fontFamily: 'var(--font-junglefever), sans-serif',
-                  fontSize: 'clamp(35px, 2.5vw, 44px)',
+                  fontSize: 'clamp(28px, 2.5vw, 44px)',
                   lineHeight: '1.2',
                   fontWeight: 'normal',
                   color: "#EFE0C4"
@@ -86,7 +86,7 @@ export default function PersonaggiPage() {
                 className="text-black text-center md:text-left"
                 style={{
                   fontFamily: 'var(--font-kranji), sans-serif',
-                  fontSize: 'clamp(16px, 2.5vw, 25px)',
+                  fontSize: 'clamp(18px, 2.5vw, 25px)',
                   lineHeight: '1.3',
                   fontWeight: 'normal',
                   color: "#EFE0C4"
@@ -100,7 +100,7 @@ export default function PersonaggiPage() {
       </div>
 
       {/* Grid personaggi */}
-      <div className="w-full md:px-36">
+      <div className="w-full md:px-36 mb-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {personaggi.map((personaggio) => (

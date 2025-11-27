@@ -52,7 +52,7 @@ export default function BrandPage() {
           title={t('title')}
           description={`${t('description1')} ${t('description2')}`}
           buttons={buttons}
-          imageSrc="/assets/animantra_brand_landing.gif"
+          imageSrc="/assets/Sequence01_2.gif"
           imageAlt="AnimantrA"
         />
       </div>
