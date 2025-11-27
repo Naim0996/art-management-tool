@@ -32,15 +32,15 @@ export default function BrandPage() {
       label: t('charactersButton'),
       href: `/${locale}/personaggi`,
       imageSrc: "/assets/pulsante_personaggi.svg",
-      height: 140,
-      width: 250,
+      height: 'clamp(110px, 1vw, 140px)',
+      width: 'clamp(220px, 25vw, 280px)',
     },
     {
       label: t('shopButton'),
       href: `/${locale}/shop`,
       imageSrc: "/assets/pulsante_shop.svg",
-      height: 90,
-      width: 150,
+      height: 'clamp(55px, 5vw, 70px)',
+      width: 'clamp(220px, 10vw, 280px)',
       marginBottom: 10,
     },
   ];
@@ -52,7 +52,7 @@ export default function BrandPage() {
           title={t('title')}
           description={`${t('description1')} ${t('description2')}`}
           buttons={buttons}
-          imageSrc="/assets/AnimantraLogo.svg"
+          imageSrc="/assets/animantra_brand_landing.gif"
           imageAlt="AnimantrA"
         />
       </div>

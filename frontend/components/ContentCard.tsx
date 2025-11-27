@@ -7,8 +7,8 @@ export interface ContentCardButton {
   label: string;
   href: string;
   imageSrc: string;
-  width?: number;
-  height?: number;
+  width?: number | string;
+  height?: number | string;
   marginBottom?: number;
 }
 
@@ -103,7 +103,7 @@ export default function ContentCard({
 
             {/* Buttons */}
             {buttons.length > 0 && (
-              <div className="flex flex-row gap-2 sm:gap-3 md:gap-4 lg:gap-5 items-center justify-center mx-auto flex-wrap">
+              <div className="flex flex-row items-center justify-center mx-auto flex-wrap">
                 {buttons.map((button, index) => {
                   const buttonStyle: React.CSSProperties =
                    // button.width && button.height                   ? 
@@ -115,7 +115,8 @@ export default function ContentCard({
                     // : 
                     { 
                         aspectRatio: '2.5/1',
-                        width: 'clamp(220px, 25vw, 280px)',
+                        width: button.width ?? 'clamp(220px, 25vw, 280px)',
+                        height: button.height ?? undefined,
                         marginBottom: button.marginBottom ? `${button.marginBottom}px` : '0px'
                       };
                   
