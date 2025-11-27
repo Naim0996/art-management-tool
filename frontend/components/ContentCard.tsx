@@ -38,7 +38,7 @@ export default function ContentCard({
     large: 'h-16 sm:h-20 md:h-24',
   };
   return (
-    <div className="w-full h-full">
+    <div className="w-full h-full align-content-center" style={{ alignContent: "center" }}>
       <div
         className="flex flex-col md:grid md:items-stretch overflow-hidden min-h-[500px] sm:min-h-[550px] md:min-h-[600px] lg:min-h-[650px]"
         style={{ gap: "1px", borderRadius: "40px", gridTemplateColumns: "1fr 3fr" }}

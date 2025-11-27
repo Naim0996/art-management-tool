@@ -65,8 +65,8 @@ export default function Home() {
 
       {/* Sezione YouTube - scritta a sinistra, video a destra */}
       <div className="max-w-7xl mx-auto px-2 sm:px-4 md:px-8 lg:px-16 sm:py-8 md:py-12">
-        <div className="grid md:grid-cols-2 gap-8 md:gap-12 items-center">
-          <div className="text-left">
+        <div className="grid md:grid-cols-2 items-center">
+          <div className="md:text-right text-center  mt-8 md:mt-0 px-8 md:px-0">
             <h2
               className="junglefever-title mb-4"
               style={{ fontSize: "clamp(28px, 5vw, 54px)", color: "#EFE0C4" }}
@@ -75,7 +75,7 @@ export default function Home() {
             </h2>
             <p
               className="skranji-paragraph"
-              style={{ fontSize: "clamp(16px, 2.5vw, 20px)", color: "#EFE0C4" }}
+              style={{ fontSize: "clamp(22px, 2.5vw, 28px)", color: "#EFE0C4" }}
             >
               {tVideo("trailerDescription")}
             </p>
@@ -88,7 +88,7 @@ export default function Home() {
       </div>
 
       {/* Sezione Social - div grigio a sinistra, testo a destra */}
-      <div className="max-w-7xl mx-auto px-2 sm:px-4 md:px-8 lg:px-16 sm:py-8 md:py-12">
+      <div className="max-w-7xl mx-auto mb-8 md:mb-0 px-2 sm:px-4 md:px-8 lg:px-16 sm:py-8 md:py-12">
         <div className="grid md:grid-cols-2 gap-8 md:gap-12 items-center">
           <a
             href="https://www.instagram.com/mr.anarchy_/"
@@ -106,7 +106,7 @@ export default function Home() {
             <span className="sr-only">Visita i social</span>
           </a>
 
-          <div className="text-left">
+          <div className="text-left mb-8 md:mb-0 px-8 md:px-0">
             <h2
               className="junglefever-title mb-4"
               style={{ fontSize: "clamp(28px, 5vw, 54px)", color: "#EFE0C4" }}
@@ -115,7 +115,7 @@ export default function Home() {
             </h2>
             <p
               className="skranji-paragraph"
-              style={{ fontSize: "clamp(16px, 2.5vw, 20px)", color: "#EFE0C4" }}
+              style={{ fontSize: "clamp(22px, 2.5vw, 28px)", color: "#EFE0C4" }}
             >
               {tSocial("description")}
             </p>

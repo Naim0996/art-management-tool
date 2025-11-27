@@ -70,7 +70,7 @@ export default function FooterComponent() {
         <div className="flex flex-col md:flex-row justify-between items-start gap-8">
           {/* Sezione sinistra - Titolo e Contatti */}
           <div className="flex-1">
-            <h2 className="skranji-title text-white mb-6" style={{ fontSize: '37px' }}>
+            <h2 className="skranji-title text-white mb-6" style={{ fontSize: '25px' }}>
               {t('labName')}
             </h2>
             
