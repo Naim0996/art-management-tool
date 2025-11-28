@@ -22,7 +22,7 @@ export default function YouTubeContainer({
       style={{ aspectRatio: '9/16', maxHeight: '650px' }}
     >
       <Image
-        src="/assets/youtubez.svg"
+        src="/assets/cornice_youtubez.svg"
         alt={title}
         fill
         className="object-contain"
