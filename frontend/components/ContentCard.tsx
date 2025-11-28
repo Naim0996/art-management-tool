@@ -45,13 +45,13 @@ export default function ContentCard({
       >
         {/* Image - First on mobile, second on desktop */}
         <div
-          className="relative w-full h-full min-h-[350px] sm:min-h-[400px] md:min-h-[300px] bg-black order-1 md:order-2 overflow-hidden"
+          className="relative w-full h-full min-h-[350px] bg-black order-1 md:order-2 overflow-hidden"
         >
           <Image
             src={imageSrc}
             alt={imageAlt}            
             fill
-            className="md:px-72 p-4"
+            className="sm:p-4 md:px-12 lg:px-48"
             style={{ objectPosition: 'center' }}
             onError={(e) => {
               const target = e.target as HTMLImageElement;
