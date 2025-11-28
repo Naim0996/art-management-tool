@@ -19,7 +19,7 @@ export default function PersonaggiPage() {
       setLoading(true);
       const data = await PersonaggiAPIService.getAllPersonaggi();
       // Filtra solo i personaggi che hanno immagini
-      const personaggiWithImages = data.filter((p: PersonaggioDTO) => p.images && p.images.length > 0);
+      const personaggiWithImages = data.filter((p: PersonaggioDTO) => p.images && p.images.length > 0 && p.name != "eliminare");
       setPersonaggi(personaggiWithImages);
       setLoading(false);
     };
