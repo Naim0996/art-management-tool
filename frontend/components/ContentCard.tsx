@@ -51,7 +51,7 @@ export default function ContentCard({
             src={imageSrc}
             alt={imageAlt}            
             fill
-            className="sm:p-4 md:px-12 lg:px-48"
+            className="p-4"
             style={{ objectPosition: 'center' }}
             onError={(e) => {
               const target = e.target as HTMLImageElement;
