@@ -207,7 +207,7 @@ export default function PersonaggioModal({ visible, onHide, personaggio }: Perso
                         {/* Descrizione scrollabile - solo su desktop */}
                         {personaggio?.description && (
                             <div className="flex-1 overflow-y-auto md:overflow-y-auto mb-4 md:mb-6 md:max-h-[300px] md:min-h-0">
-                                <p className="text-base md:text-lg leading-relaxed text-black">
+                                <p className="text-base md:text-lg leading-relaxed text-black whitespace-pre-wrap">
                                     {personaggio.description}
                                 </p>
                             </div>
